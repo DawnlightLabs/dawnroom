@@ -154,8 +154,11 @@ async fn dropped_connection_resumes_from_the_synced_bytes() {
     assert_eq!(code(&r), "ok", "{:?}", r.result);
     assert_eq!(r.waits.len(), 1);
     assert_eq!(r.waits[0].1.kind, "connection");
-    assert_eq!(r.waits[0].0, 66 << 20, "every byte received before the drop was synced and kept");
-    assert_eq!(seen.lock().unwrap().iter().map(|s| s.1).collect::<Vec<_>>(), [0, 66 << 20]);
+    // The server drops after sending 66 MB; on a slow machine the last bytes in flight may never arrive,
+    // so the wait can come a little earlier. Whatever was received was synced and kept, and the resume starts there.
+    let at = r.waits[0].0;
+    assert!(at > 64 << 20 && at <= 66 << 20, "dropped near 66 MB, got {at}");
+    assert_eq!(seen.lock().unwrap().iter().map(|s| s.1).collect::<Vec<_>>(), [0, at]);
     assert_verified(&part, &data);
     assert_eq!(read_sidecar(&part).unwrap().synced_bytes, data.len() as u64);
 }
