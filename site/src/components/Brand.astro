@@ -1,0 +1,7 @@
+---
+/** A maker's logo (src/lib/brands.ts). Always shown beside its name, so it's hidden from screen readers. */
+import { BRANDS, type BrandName } from '../lib/brands';
+interface Props { name: BrandName; class?: string }
+const { name, class: cls = '' } = Astro.props;
+---
+<svg class:list={['brand', `brand-${name}`, cls]} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d={BRANDS[name]} /></svg>

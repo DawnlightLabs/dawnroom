@@ -1,0 +1,51 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import GetStarted from '../../components/GetStarted.astro';
+import VideoSlot from '../../components/VideoSlot.astro';
+import { loadModels, gb } from '../../lib/registry';
+import { FIRST_PROMPT } from '../../lib/getStarted';
+import { BIN, PRODUCT_NAME, REPO_URL, ENGINE_PORT, DEMO_URL, INSTALL_PS1, INSTALL_SH } from '../../config';
+import Command from '../../components/Command.astro';
+
+const models = loadModels();
+---
+<DocsLayout title="Install" description={`Install ${PRODUCT_NAME}: three steps to a first image, what it needs, and how to build it from source today.`}
+  toc={[{ id: 'get-started', label: 'Get started' }, { id: 'from-a-terminal', label: 'From a terminal' }, { id: 'needs', label: 'What it needs' }, { id: 'from-source', label: 'Build from source' }]}>
+  <p class="text-[18px] text-ink/85">Short on purpose. Commands assume <code>{BIN}</code> is on your PATH, which the installer does; from a source build, use the full path to <code>{BIN}.exe</code>.</p>
+
+  <h2 id="get-started">Get started</h2>
+  <VideoSlot slot="demo" src={DEMO_URL} title={`${PRODUCT_NAME} demo: install, first image, edit, models`} class="my-6" />
+  <GetStarted />
+
+  <h2 id="from-a-terminal">From a terminal</h2>
+  <p>Besides the installer, one command installs {PRODUCT_NAME} for your user (no admin). It downloads the latest release from GitHub, checks each file against the release's <code>SHA256SUMS</code>, installs it and puts <code>{BIN}</code> on your PATH. Run it again to update; if anything fails it says what in one line and changes nothing. It sends nothing anywhere. Works from the v0.1 release.</p>
+  <p><strong>Windows</strong> (PowerShell). It runs the same installer as the download page, silently, so the Start menu entry and the uninstaller are the same:</p>
+  <Command cmd={INSTALL_PS1} label="Copy the Windows install command" />
+  <p><strong>Linux</strong> (x86_64). It puts the engine in <code>~/.local/lib/dawnroom</code>, a <code>{BIN}</code> link in <code>~/.local/bin</code>, and Studio as an AppImage with a menu entry:</p>
+  <Command cmd={INSTALL_SH} label="Copy the Linux install command" />
+  <p><strong>Engine and CLI only</strong> (servers, agents), no Studio: add <code>--cli</code>.</p>
+  <Command cmd={`& ([scriptblock]::Create((irm ${INSTALL_PS1.split(' ')[1]}))) --cli`} label="Copy the Windows CLI-only command" />
+  <Command cmd={`${INSTALL_SH} -s -- --cli`} label="Copy the Linux CLI-only command" />
+  <p>Your models and images stay in their own folder (<code>%LOCALAPPDATA%\Dawnroom</code>, <code>~/.local/share/dawnroom</code>) and are never touched by an install or update. Read the scripts before you run them: <a href="/install.ps1">install.ps1</a>, <a href="/install.sh">install.sh</a>.</p>
+
+  <h2 id="needs">What it needs</h2>
+  <p><strong>Needs:</strong> Windows (tested on 11) and a GPU. NVIDIA cards run through CUDA (tested); AMD Radeon, Intel Arc and built-in graphics run through the Vulkan build (experimental, and slow on built-in graphics). The engine finds your GPU, picks the right build and downloads it on first run; if your driver is too old it says which to install. Each model lists the graphics memory it needs: <a href="/search">check your card</a>. Each model is about {gb(Math.min(...models.map((m) => m.bytes)))}–{gb(Math.max(...models.map((m) => m.bytes)))} on disk.</p>
+  <p><strong>Installer:</strong> the Windows installer ships with the v0.1 release. It isn't out yet. <a href="/download">Download page</a></p>
+  <p>On Windows it is one click, no admin and no folder questions: it installs for your user in <code>%LOCALAPPDATA%\Programs\Dawnroom</code>, adds the WebView2 runtime if you lack it, puts <code>{BIN}</code> on your PATH and offers to open {PRODUCT_NAME}. Choices like where models live and whether to start at sign-in are asked in the app, on first run. Installing over an older version upgrades it. On Linux, the <code>.deb</code> (which puts <code>{BIN}</code> in <code>/usr/bin</code>) and the AppImage both carry Studio and the engine; Linux is experimental. The image runtime for Linux needs glibc 2.43 or newer (Ubuntu 26.04, current Fedora or Arch). On an older system {PRODUCT_NAME} says so in <code>{BIN} doctor</code>, in first run and on the command line, and downloads nothing. It also needs a real GPU with a Vulkan driver: software Vulkan (lavapipe, no GPU) is refused with "No GPU found".</p>
+  <p><strong>Uninstall:</strong> from Windows Settings → Apps. Afterwards it asks <em>Keep your models and images?</em>, with Yes preselected. Yes leaves the data folder alone; No also deletes it. For scripts, <code>uninstall.exe /S</code> keeps your data and <code>/S /DELETEDATA</code> deletes it. Uninstalling stops the engine and removes the PATH and start-at-sign-in entries.</p>
+
+  <h2 id="from-source">Build from source</h2>
+  <p>For developers. These steps haven't been run end to end on a clean machine yet.</p>
+  <ol>
+    <li>Install <a href="https://rustup.rs">Rust</a> and clone <a href={REPO_URL}>the repo</a>.</li>
+    <li>Get <code>sd-server.exe</code> from the stable-diffusion.cpp release <code>master-1086-465adf3</code> (the CUDA 12 Windows build) and put it in <code>spike/bin/cuda12/</code>, or pass <code>--sd-server PATH</code>.</li>
+    <li>Build the engine and CLI, then start it:</li>
+  </ol>
+  <pre><code>cd engine
+cargo build --release
+.\target\release\{BIN}.exe serve</code></pre>
+  <p>In a second terminal, in <code>engine</code>, pull a model and make a first image:</p>
+  <pre><code>.\target\release\{BIN}.exe pull z-image-turbo
+.\target\release\{BIN}.exe run "{FIRST_PROMPT}"</code></pre>
+  <p>The engine listens on <code>127.0.0.1:{ENGINE_PORT}</code> only. A source build keeps models, images and history in the repo's <code>.data</code> folder (images in <code>.data\outputs</code>); <code>GET /api/info</code> lists the exact paths.</p>
+</DocsLayout>

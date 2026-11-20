@@ -1,0 +1,21 @@
+spike/bin/
+spike/out/
+.models/
+target/
+node_modules/
+.data/
+.shots/
+.keys/
+dist/
+.astro/
+.ref/
+
+# Internal release notes (secrets guide, SignPath draft, README draft)
+.release/
+
+# Internal, never public
+trailer/
+spike/
+DAWNROOM_BRIEF.md
+.claude/
+CLAUDE.full.md

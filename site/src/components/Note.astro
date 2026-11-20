@@ -1,0 +1,10 @@
+---
+/** A margin note: beside the text on wide screens, inline on phones. */
+import { NOTES } from '../lib/stocks';
+interface Props { of: keyof typeof NOTES; class?: string }
+const { of, class: cls = '' } = Astro.props;
+const n = NOTES[of];
+---
+<aside class:list={['note', cls]} aria-label={`Note: ${n.term}`}>
+  <dl><dt>{n.term}</dt><dd>{n.text}</dd></dl>
+</aside>

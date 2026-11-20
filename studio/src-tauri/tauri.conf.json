@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Dawnroom",
+  "version": "0.1.0",
+  "identifier": "com.dawnlightlabs.dawnroom",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Dawnroom",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1024,
+        "minHeight": 640,
+        "decorations": false,
+        "dragDropEnabled": true,
+        "backgroundColor": "#191B1D",
+        "label": "main",
+        "visible": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob: http://127.0.0.1:* http://localhost:*; connect-src 'self' ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:*; style-src 'self' 'unsafe-inline'; font-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "deb",
+      "appimage"
+    ],
+    "publisher": "Dawnlight Labs",
+    "copyright": "© 2026 Dawnlight Labs",
+    "homepage": "https://dawnroom.dawnlightlabs.com",
+    "category": "GraphicsAndDesign",
+    "shortDescription": "Local image generation on your own GPU",
+    "longDescription": "Dawnroom, by Dawnlight Labs: make and edit images with open models on your own GPU. Studio, a CLI and an MCP server for agents.",
+    "license": "Apache-2.0",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/dawnroom"
+    ],
+    "resources": {
+      "../../registry/*.toml": "registry/",
+      "../../registry/runtimes/*.toml": "registry/runtimes/"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "template": "installer/installer.nsi",
+        "installerHooks": "installer/hooks.nsh",
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "installer/header@2x.bmp",
+        "sidebarImage": "installer/sidebar@2x.bmp",
+        "displayLanguageSelector": false,
+        "languages": [
+          "English"
+        ]
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1"
+        ]
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    },
+    "createUpdaterArtifacts": true
+  },
+  "mainBinaryName": "dawnroom-studio",
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IERCMEFGNUU2N0Q2QUMwNzgKUldSNHdHcDk1dlVLMjlIaFYyeVV4dU9NZTNQZnBsVFRUZktQbzZ3Q04zRnNyeVVXcHNTNXRzdHMK",
+      "endpoints": [
+        "https://github.com/DawnlightLabs/dawnroom/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

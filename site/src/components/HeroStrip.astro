@@ -1,0 +1,71 @@
+---
+/**
+ * Beside the headline: the hero's prints as a strip of negatives. The print showing in the hero gets
+ * a grease-pencil loop drawn around it (redrawn each time the reel moves on); hover, focus or touch
+ * a frame for the loupe; press one to show it. HeroReel's script drives the selection
+ * ([data-go] + aria-pressed) and treats the strip as part of the reel for pausing.
+ * Reduced motion: the loop is simply there and the loupe still works.
+ */
+import { heroSlides } from '../lib/heroSlides';
+
+const slides = heroSlides();
+// Three hand-drawn loops, so each frame's circle is a little different.
+const loops = [
+  'M10 50 C8 22 38 5 66 8 C92 11 99 38 95 61 C90 86 60 97 35 93 C12 89 2 69 8 46 C11 35 21 25 31 20',
+  'M14 40 C20 15 52 4 76 12 C96 20 98 50 92 70 C84 92 52 98 30 91 C9 84 3 62 9 44 C12 34 20 27 28 23',
+  'M8 58 C4 30 30 8 60 7 C88 6 99 30 96 55 C93 82 66 96 40 94 C16 92 5 76 7 54 C8 44 14 36 22 31',
+];
+---
+<div class="hs" data-reel-strip>
+  <ol class="hs-strip" role="list" aria-label="The prints in the hero">
+    {slides.map(({ s, name, preset }, i) => (
+      <li class="hs-frame">
+        <span class="hs-no" aria-hidden="true">▸ {String(s.frame).padStart(4, '0')}</span>
+        <button type="button" class="hs-btn" data-go={i} data-full={s.file} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`Show the ${name} print: ${s.prompt}`}>
+          <img src={slides[i].thumb} alt="" width="84" height="84" loading="eager" decoding="async" />
+          <svg class="hs-loop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d={loops[i % loops.length]} pathLength="1" />
+          </svg>
+        </button>
+        <span class="hs-edge" aria-hidden="true">{preset}</span>
+      </li>
+    ))}
+  </ol>
+  <div class="hs-loupe" hidden aria-hidden="true" data-hs-loupe></div>
+</div>
+
+<script>
+  // The loupe: a round magnifier over a frame, showing the full print at about 2.6×.
+  const ZOOM = 2.6;
+  document.querySelectorAll<HTMLElement>('[data-reel-strip]').forEach((strip) => {
+    const loupe = strip.querySelector<HTMLElement>('[data-hs-loupe]')!;
+    const size = () => loupe.offsetWidth || 168;
+    function show(btn: HTMLElement, x: number, y: number) {
+      const r = btn.getBoundingClientRect();
+      const px = Math.min(Math.max(x - r.left, 0), r.width);
+      const py = Math.min(Math.max(y - r.top, 0), r.height);
+      loupe.hidden = false;
+      loupe.style.backgroundImage = `url("${btn.dataset.full}")`;
+      loupe.style.backgroundSize = `${r.width * ZOOM}px ${r.height * ZOOM}px`;
+      loupe.style.backgroundPosition = `${-(px * ZOOM - size() / 2)}px ${-(py * ZOOM - size() / 2)}px`;
+      loupe.style.left = `${x}px`;
+      loupe.style.top = `${y}px`;
+    }
+    const hide = () => (loupe.hidden = true);
+    strip.querySelectorAll<HTMLElement>('.hs-btn').forEach((btn) => {
+      btn.addEventListener('pointermove', (e) => show(btn, e.clientX, e.clientY));
+      btn.addEventListener('pointerdown', (e) => show(btn, e.clientX, e.clientY));
+      btn.addEventListener('pointerleave', hide);
+      btn.addEventListener('pointerup', (e) => e.pointerType !== 'mouse' && hide());
+      btn.addEventListener('pointercancel', hide);
+      btn.addEventListener('focus', () => {
+        if (!btn.matches(':focus-visible')) return;
+        const r = btn.getBoundingClientRect();
+        show(btn, r.left + r.width / 2, r.top + r.height / 2);
+      });
+      btn.addEventListener('blur', hide);
+      btn.addEventListener('keydown', (e) => e.key === 'Escape' && hide());
+    });
+    addEventListener('scroll', hide, { passive: true });
+  });
+</script>

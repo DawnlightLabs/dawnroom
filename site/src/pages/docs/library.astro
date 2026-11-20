@@ -1,0 +1,30 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { PRODUCT_NAME } from '../../config';
+const keys = [
+  ['← →', 'Walk through your prints'],
+  ['Enter', 'Open the print in the middle'],
+  ['F', 'Favourite'],
+  ['I', 'Show the recipe'],
+  ['Esc', 'Close the viewer'],
+];
+---
+<DocsLayout title="Library" description="Every print you've made, with its recipe."
+  toc={[{ id: 'browse', label: 'Browse' }, { id: 'viewer', label: 'The viewer' }, { id: 'keys', label: 'Keys' }, { id: 'files', label: 'Where the files are' }]}>
+  <p>The <strong>Library</strong> holds every print you've made on this computer, newest first.</p>
+
+  <h2 id="browse">Browse</h2>
+  <p><strong>All prints</strong> starts with the latest prints side by side; scroll sideways or use the arrow keys, and click the one in the middle to open it. Below them, every print in a grid, grouped by sitting (prints made within 45 minutes of each other). <strong>Favourites</strong> shows only the prints you've marked. The search box finds prints by their prompt.</p>
+
+  <h2 id="viewer">The viewer</h2>
+  <p>A print opens full size with its recipe on one line and the other prints in a strip below. <strong>Recipe</strong> opens the details: the full prompt and settings, what it was edited from and what was edited from it, and the actions: <strong>Edit this</strong>, <strong>Vary</strong>, <strong>Open in Create</strong>, <strong>Copy recipe</strong>, <strong>Open folder</strong>. Favourite and Delete are at the top.</p>
+
+  <h2 id="keys">Keys</h2>
+  <table>
+    <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+    <tbody>{keys.map(([k, w]) => <tr><td><kbd>{k}</kbd></td><td>{w}</td></tr>)}</tbody>
+  </table>
+
+  <h2 id="files">Where the files are</h2>
+  <p>Prints are PNG files in the <code>outputs</code> folder of {PRODUCT_NAME}'s data folder, each with its recipe inside. Deleting one in the Library deletes the file too; its frame number is never reused. To see or move the folder, see <a href="/docs/storage">Storage</a>.</p>
+</DocsLayout>

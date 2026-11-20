@@ -1,0 +1,382 @@
+@import "tailwindcss";
+
+/* Dawnlight paper theme (Dawnlight palette): the print archive is paper and ink, blue for links
+   and identity, terracotta -> sun for the safelight. Contrast on paper: ink 16.7, muted 6.5, blue 8.8,
+   sage 5.1, warn 6.3; terracotta 3.2 (focus rings, bars and large marks only, never small text). */
+@theme {
+  --color-paper: #fcf8f5;
+  --color-sheet: #fffdfa;
+  --color-ink: #191B1D;
+  --color-muted: #5e5a54;
+  --color-line: rgb(25 27 29 / 0.12);
+  --color-line-strong: rgb(25 27 29 / 0.28);
+  --color-ok: #59715c;
+  --color-warn: #8f4a2c;
+  --color-ring: #c47855;
+  --color-link: #0e4490;
+  --color-sky: #a8daf9;
+  --color-graphite: #191B1D;
+  --color-safelight-from: #c47855;
+  --color-safelight-to: #ffd12b;
+
+  /* Dawnroom's type: Geist for text and display, DM Mono (the Kit's technical role) for data. */
+  --font-sans: "Geist Variable", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-display: "Geist Variable", system-ui, sans-serif;
+
+  --radius-frame: 3px;
+  --radius-control: 4px;
+  --radius-card: 6px;
+
+  --ease-darkroom: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@utility bg-safelight {
+  background-image: linear-gradient(135deg, #c47855, #ffd12b);
+}
+
+/* Small uppercase labels and eyebrows: Geist, not mono (Kit: mono only where fixed width helps). */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* DM Mono at 11px: recipes, seeds, frame numbers. Same as Studio. */
+@utility edge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+  }
+  ::selection {
+    background: rgb(196 120 85 / 0.3);
+  }
+  a {
+    color: inherit;
+  }
+  code,
+  pre,
+  kbd {
+    font-family: var(--font-mono);
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ---------- One measure for every page ----------
+   Wide (96rem) content with slim gutters; app pages (/search, /docs) run full-bleed with sidebars on
+   the window edge. Only reading text gets a narrow measure. Never 100vw (Windows scrollbars). */
+:root {
+  --measure: 96rem;
+  --gutter: clamp(16px, 2.4vw, 32px);
+  --header: 53px;
+  --rhythm: clamp(64px, 8vw, 104px);
+  --notes: 15rem;
+}
+.wrap {
+  width: 100%;
+  max-width: calc(var(--measure) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+/* Full-bleed: header, footer and app-style pages run to the window edges. */
+.bleed {
+  width: 100%;
+  padding-inline: var(--gutter);
+}
+.band {
+  padding-block: var(--rhythm);
+}
+
+/* ---------- Icons (sprite in Icons.astro) ---------- */
+/* inline-block: Tailwind's preflight makes every svg a block, which breaks icons inside a sentence. */
+.i {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+  vertical-align: -0.2em;
+  overflow: visible;
+}
+.i-sm {
+  width: 0.95em;
+  height: 0.95em;
+  vertical-align: -0.12em;
+}
+
+/* ---------- The control family ----------
+   One height, one corner, one border, one focus ring, for buttons, fields, chips and switches.
+   Corners are 4px everywhere: cut paper, not pills. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 160ms var(--ease-darkroom), border-color 160ms var(--ease-darkroom), color 160ms var(--ease-darkroom);
+}
+.btn-ink {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.btn-ink:hover {
+  background: #2a2d31;
+}
+.btn-line {
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-sheet);
+}
+.btn-line:hover {
+  border-color: var(--color-ink);
+}
+.btn-safelight {
+  background-image: linear-gradient(135deg, #c47855, #ffd12b);
+  color: var(--color-ink);
+}
+.btn .i {
+  width: 18px;
+  height: 18px;
+}
+/* A link with an icon trailing it: the icon nudges on hover. */
+.go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.go .i {
+  transition: transform 180ms var(--ease-darkroom);
+}
+.go:hover .i {
+  transform: translateX(2px);
+}
+.go:hover .i[data-diag] {
+  transform: translate(2px, -2px);
+}
+
+/* The native search field's own clear "x" is replaced by ours (or nothing). */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  appearance: none;
+}
+
+/* Grid items may shrink below their content (long command lines scroll inside instead). */
+.grid > * {
+  min-width: 0;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 12px;
+  z-index: 50;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+/* A print: the image on a white border, like a fibre print pinned to the wall. */
+.print {
+  background: var(--color-sheet);
+  padding: 8px 8px 10px;
+  border-radius: var(--radius-frame);
+  box-shadow:
+    0 0 0 1px rgb(25 27 29 / 0.06),
+    0 1px 2px rgb(25 27 29 / 0.06),
+    0 12px 28px -18px rgb(25 27 29 / 0.35);
+}
+.print img {
+  display: block;
+  width: 100%;
+  border-radius: 1px;
+  background: #e9e5dc;
+}
+
+/* A dark strip, the darkroom showing through: code, commands, the Studio view. */
+.darkroom {
+  background: var(--color-graphite);
+  color: #fcf8f5;
+}
+.darkroom .muted {
+  color: #a9acb1;
+}
+
+/* Prose for docs and the rendered API.md. */
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  margin: 3.5rem 0 1rem;
+  scroll-margin-top: 5rem;
+}
+.prose h3 {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 2.25rem 0 0.5rem;
+  scroll-margin-top: 5rem;
+}
+.prose h4 {
+  font-weight: 600;
+  margin: 1.5rem 0 0.25rem;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0.6rem 0;
+  max-width: 68ch;
+}
+.prose ul {
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+.prose ol {
+  padding-left: 1.2rem;
+  list-style: decimal;
+}
+.prose li {
+  margin: 0.2rem 0;
+}
+.prose :not(pre) > code {
+  font-size: 0.86em;
+  background: rgb(25 27 29 / 0.06);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.prose pre {
+  background: var(--color-graphite);
+  color: #fcf8f5;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 14px 16px;
+  border-radius: var(--radius-control);
+  overflow-x: auto;
+  margin: 0.8rem 0;
+  max-width: 100%;
+}
+.prose table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0.8rem 0;
+}
+.prose th,
+.prose td {
+  text-align: left;
+  vertical-align: top;
+  padding: 7px 14px 7px 0;
+  border-bottom: 1px solid var(--color-line);
+}
+/* Codes and event names stay whole; a narrow table scrolls inside itself instead. */
+.prose td:first-child code,
+.prose th code {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+.prose th {
+  font-weight: 600;
+  border-bottom-color: var(--color-line-strong);
+}
+.prose a {
+  color: var(--color-link);
+  text-underline-offset: 3px;
+}
+
+
+/* ---------- Brand intro: once per visitor, on the header lockup in place ----------
+   The sun sweep rises into the tile: a body-only tile lies on top, clipped to a circle centred on the
+   tile's deep core, and the circle shrinks from the far corner to the cut, so the sweep of the mark
+   underneath grows in from the top right. Then the lockup settles and the wordmark wipes in. About
+   1.2 s; clip-path, transform and visibility only (an animated custom property cost a 1 s long task).
+   Resting styles are the final state: the cover is hidden. */
+.lockup-mark {
+  position: relative;
+}
+.lockup-mark > * {
+  position: absolute;
+  inset: 0;
+}
+.lockup-under {
+  display: block;
+  visibility: hidden;
+}
+:root[data-intro][data-motion="full"] [data-intro-mark] .lockup-under {
+  animation: intro-cover 900ms 150ms cubic-bezier(0.45, 0, 0.2, 1) backwards;
+}
+:root[data-intro][data-motion="full"] [data-intro-mark] .lockup-mark {
+  animation: intro-rise 1100ms 150ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+:root[data-intro][data-motion="full"] [data-intro-mark] .lockup-word {
+  animation: intro-word 650ms 700ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+@keyframes intro-cover {
+  from {
+    visibility: visible;
+    clip-path: circle(var(--far) at var(--cx) var(--cy));
+  }
+  to {
+    visibility: visible;
+    clip-path: circle(var(--cut) at var(--cx) var(--cy));
+  }
+}
+@keyframes intro-rise {
+  from {
+    transform: translateY(5px);
+  }
+}
+@keyframes intro-word {
+  from {
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-6px);
+  }
+}

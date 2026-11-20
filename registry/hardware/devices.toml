@@ -1,0 +1,343 @@
+# Hardware table: which devices exist, how much memory they have, and whether Dawnroom runs on them.
+# The site reads it now (the "Will it run on my machine?" check); the engine will read it later.
+# It lives in a subfolder because the engine parses every top-level registry/*.toml as a model manifest.
+#
+# Fields
+#   family: vendor, backend (cuda | vulkan | rocm | metal | none), supported, notes, source shared by its devices
+#   supported: "now" (Windows + NVIDIA, CUDA, tested on an RTX 5060 Laptop) | "experimental" (v0.1 through
+#              Vulkan on Windows and Linux x86_64, not yet tested on that hardware) | "planned" (on the
+#              roadmap after v0.1; /vision has the order) | "not planned"
+#   device: name, match (lowercase fragments of a WebGL renderer string after "(R)", "(TM)", "™" and "®"
+#           are removed; the longest match wins and a fragment must end at a word boundary), memory_gb (every size the chip ships with; several means
+#           we ask the user), memory ("dedicated" by default, "unified" with usable_share: the part of
+#           system memory the GPU may use, or "shared" for integrated graphics: memory_gb is then the
+#           system RAM, and usable_share the part the GPU may use)
+#
+# Memory sizes come from the vendor pages in `source`, checked 2026-11-15 and (GTX 10, RX 9060 XT, Arc,
+# M3 Ultra, Ryzen AI Max) re-checked 2026-11-16. Where no vendor page states a size, `source` says so. Fit is never decided here: the site
+# compares a model's measured peak VRAM against this memory.
+
+schema = 1
+
+# ---------- NVIDIA (CUDA). The pinned sd.cpp build (master-1086-465adf3, CUDA 12.8.1) is compiled for
+# compute capability 6.1 to 12.0 (61;70;75;80;86;89;90;100;120), which covers GTX 10 through RTX 50.
+# On Linux x86_64, v0.1 runs NVIDIA cards through the Vulkan build (experimental); Linux CUDA comes later.
+
+[[family]]
+id = "nvidia-rtx-50"
+name = "GeForce RTX 50"
+vendor = "nvidia"
+backend = "cuda"
+supported = "now"
+notes = ""
+source = "https://www.nvidia.com/en-us/geforce/graphics-cards/compare/ ; https://www.nvidia.com/en-us/geforce/laptops/compare/"
+devices = [
+  { id = "rtx-5090", name = "RTX 5090", match = ["rtx 5090"], memory_gb = [32] },
+  { id = "rtx-5080", name = "RTX 5080", match = ["rtx 5080"], memory_gb = [16] },
+  { id = "rtx-5070-ti", name = "RTX 5070 Ti", match = ["rtx 5070 ti"], memory_gb = [16] },
+  { id = "rtx-5070", name = "RTX 5070", match = ["rtx 5070"], memory_gb = [12] },
+  { id = "rtx-5060-ti", name = "RTX 5060 Ti", match = ["rtx 5060 ti"], memory_gb = [8, 16] },
+  { id = "rtx-5060", name = "RTX 5060", match = ["rtx 5060"], memory_gb = [8] },
+  { id = "rtx-5050", name = "RTX 5050", match = ["rtx 5050"], memory_gb = [8] },
+  { id = "rtx-5090-laptop", name = "RTX 5090 Laptop", match = ["rtx 5090 laptop"], memory_gb = [24] },
+  { id = "rtx-5080-laptop", name = "RTX 5080 Laptop", match = ["rtx 5080 laptop"], memory_gb = [16] },
+  { id = "rtx-5070-ti-laptop", name = "RTX 5070 Ti Laptop", match = ["rtx 5070 ti laptop"], memory_gb = [12] },
+  { id = "rtx-5070-laptop", name = "RTX 5070 Laptop", match = ["rtx 5070 laptop"], memory_gb = [8, 12] },
+  { id = "rtx-5060-laptop", name = "RTX 5060 Laptop", match = ["rtx 5060 laptop"], memory_gb = [8] },
+  { id = "rtx-5050-laptop", name = "RTX 5050 Laptop", match = ["rtx 5050 laptop"], memory_gb = [8] },
+]
+
+[[family]]
+id = "nvidia-rtx-40"
+name = "GeForce RTX 40"
+vendor = "nvidia"
+backend = "cuda"
+supported = "now"
+notes = ""
+source = "https://www.nvidia.com/en-us/geforce/graphics-cards/compare/ ; https://www.nvidia.com/en-us/geforce/laptops/compare/"
+devices = [
+  { id = "rtx-4090", name = "RTX 4090", match = ["rtx 4090"], memory_gb = [24] },
+  { id = "rtx-4080-super", name = "RTX 4080 SUPER", match = ["rtx 4080 super"], memory_gb = [16] },
+  { id = "rtx-4080", name = "RTX 4080", match = ["rtx 4080"], memory_gb = [16] },
+  { id = "rtx-4070-ti-super", name = "RTX 4070 Ti SUPER", match = ["rtx 4070 ti super"], memory_gb = [16] },
+  { id = "rtx-4070-ti", name = "RTX 4070 Ti", match = ["rtx 4070 ti"], memory_gb = [12] },
+  { id = "rtx-4070-super", name = "RTX 4070 SUPER", match = ["rtx 4070 super"], memory_gb = [12] },
+  { id = "rtx-4070", name = "RTX 4070", match = ["rtx 4070"], memory_gb = [12] },
+  { id = "rtx-4060-ti", name = "RTX 4060 Ti", match = ["rtx 4060 ti"], memory_gb = [8, 16] },
+  { id = "rtx-4060", name = "RTX 4060", match = ["rtx 4060"], memory_gb = [8] },
+  { id = "rtx-4090-laptop", name = "RTX 4090 Laptop", match = ["rtx 4090 laptop"], memory_gb = [16] },
+  { id = "rtx-4080-laptop", name = "RTX 4080 Laptop", match = ["rtx 4080 laptop"], memory_gb = [12] },
+  { id = "rtx-4070-laptop", name = "RTX 4070 Laptop", match = ["rtx 4070 laptop"], memory_gb = [8] },
+  { id = "rtx-4060-laptop", name = "RTX 4060 Laptop", match = ["rtx 4060 laptop"], memory_gb = [8] },
+  { id = "rtx-4050-laptop", name = "RTX 4050 Laptop", match = ["rtx 4050 laptop"], memory_gb = [6] },
+]
+
+[[family]]
+id = "nvidia-rtx-30"
+name = "GeForce RTX 30"
+vendor = "nvidia"
+backend = "cuda"
+supported = "now"
+notes = ""
+source = "https://www.nvidia.com/en-us/geforce/graphics-cards/compare/ ; https://www.nvidia.com/en-us/geforce/laptops/30-series/"
+devices = [
+  { id = "rtx-3090-ti", name = "RTX 3090 Ti", match = ["rtx 3090 ti"], memory_gb = [24] },
+  { id = "rtx-3090", name = "RTX 3090", match = ["rtx 3090"], memory_gb = [24] },
+  { id = "rtx-3080-ti", name = "RTX 3080 Ti", match = ["rtx 3080 ti"], memory_gb = [12] },
+  { id = "rtx-3080", name = "RTX 3080", match = ["rtx 3080"], memory_gb = [10, 12] },
+  { id = "rtx-3070-ti", name = "RTX 3070 Ti", match = ["rtx 3070 ti"], memory_gb = [8] },
+  { id = "rtx-3070", name = "RTX 3070", match = ["rtx 3070"], memory_gb = [8] },
+  { id = "rtx-3060-ti", name = "RTX 3060 Ti", match = ["rtx 3060 ti"], memory_gb = [8] },
+  { id = "rtx-3060", name = "RTX 3060", match = ["rtx 3060"], memory_gb = [8, 12] },
+  { id = "rtx-3050", name = "RTX 3050", match = ["rtx 3050"], memory_gb = [6, 8] },
+  { id = "rtx-3080-ti-laptop", name = "RTX 3080 Ti Laptop", match = ["rtx 3080 ti laptop"], memory_gb = [16] },
+  { id = "rtx-3080-laptop", name = "RTX 3080 Laptop", match = ["rtx 3080 laptop"], memory_gb = [8, 16] },
+  { id = "rtx-3070-ti-laptop", name = "RTX 3070 Ti Laptop", match = ["rtx 3070 ti laptop"], memory_gb = [8] },
+  { id = "rtx-3070-laptop", name = "RTX 3070 Laptop", match = ["rtx 3070 laptop"], memory_gb = [8] },
+  { id = "rtx-3060-laptop", name = "RTX 3060 Laptop", match = ["rtx 3060 laptop"], memory_gb = [6] },
+  { id = "rtx-3050-ti-laptop", name = "RTX 3050 Ti Laptop", match = ["rtx 3050 ti laptop"], memory_gb = [4] },
+  { id = "rtx-3050-laptop", name = "RTX 3050 Laptop", match = ["rtx 3050 laptop"], memory_gb = [4, 6] },
+]
+
+[[family]]
+id = "nvidia-rtx-20"
+name = "GeForce RTX 20"
+vendor = "nvidia"
+backend = "cuda"
+supported = "now"
+notes = "Turing (compute 7.5) is in the pinned build; not tested on this generation yet."
+source = "https://www.nvidia.com/en-us/geforce/graphics-cards/compare/ ; laptop sizes: NVIDIA launch specs (no current NVIDIA page lists them)"
+devices = [
+  { id = "rtx-2080-ti", name = "RTX 2080 Ti", match = ["rtx 2080 ti"], memory_gb = [11] },
+  { id = "rtx-2080-super", name = "RTX 2080 SUPER", match = ["rtx 2080 super"], memory_gb = [8] },
+  { id = "rtx-2080", name = "RTX 2080", match = ["rtx 2080"], memory_gb = [8] },
+  { id = "rtx-2070-super", name = "RTX 2070 SUPER", match = ["rtx 2070 super"], memory_gb = [8] },
+  { id = "rtx-2070", name = "RTX 2070", match = ["rtx 2070"], memory_gb = [8] },
+  { id = "rtx-2060-super", name = "RTX 2060 SUPER", match = ["rtx 2060 super"], memory_gb = [8] },
+  { id = "rtx-2060", name = "RTX 2060", match = ["rtx 2060"], memory_gb = [6, 12] },
+  { id = "rtx-2080-laptop", name = "RTX 2080 / 2080 SUPER Laptop", match = ["rtx 2080 laptop", "rtx 2080 super laptop", "rtx 2080 with max-q"], memory_gb = [8] },
+  { id = "rtx-2070-laptop", name = "RTX 2070 / 2070 SUPER Laptop", match = ["rtx 2070 laptop", "rtx 2070 super laptop", "rtx 2070 with max-q"], memory_gb = [8] },
+  { id = "rtx-2060-laptop", name = "RTX 2060 Laptop", match = ["rtx 2060 laptop", "rtx 2060 with max-q"], memory_gb = [6] },
+  { id = "rtx-2050-laptop", name = "RTX 2050 Laptop", match = ["rtx 2050"], memory_gb = [4] },
+]
+
+[[family]]
+id = "nvidia-gtx-16"
+name = "GeForce GTX 16"
+vendor = "nvidia"
+backend = "cuda"
+supported = "now"
+notes = "Turing (compute 7.5) is in the pinned build; not tested on this generation yet."
+source = "https://www.nvidia.com/en-us/geforce/graphics-cards/compare/ ; laptop sizes: NVIDIA launch specs"
+devices = [
+  { id = "gtx-1660-ti", name = "GTX 1660 Ti", match = ["gtx 1660 ti"], memory_gb = [6] },
+  { id = "gtx-1660-super", name = "GTX 1660 SUPER", match = ["gtx 1660 super"], memory_gb = [6] },
+  { id = "gtx-1660", name = "GTX 1660", match = ["gtx 1660"], memory_gb = [6] },
+  { id = "gtx-1650-super", name = "GTX 1650 SUPER", match = ["gtx 1650 super"], memory_gb = [4] },
+  { id = "gtx-1650", name = "GTX 1650", match = ["gtx 1650"], memory_gb = [4] },
+  { id = "gtx-1630", name = "GTX 1630", match = ["gtx 1630"], memory_gb = [4] },
+  { id = "gtx-1660-ti-laptop", name = "GTX 1660 Ti Laptop", match = ["gtx 1660 ti laptop", "gtx 1660 ti with max-q"], memory_gb = [6] },
+  { id = "gtx-1650-ti-laptop", name = "GTX 1650 Ti Laptop", match = ["gtx 1650 ti"], memory_gb = [4] },
+  { id = "gtx-1650-laptop", name = "GTX 1650 Laptop", match = ["gtx 1650 laptop", "gtx 1650 with max-q"], memory_gb = [4] },
+]
+
+[[family]]
+id = "nvidia-gtx-10"
+name = "GeForce GTX 10"
+vendor = "nvidia"
+backend = "cuda"
+supported = "now"
+notes = "Pascal (compute 6.1) is in the pinned CUDA 12.8 build but untested. NVIDIA has said the 580 driver branch is the last to support GTX 10 cards."
+source = "GTX 1080 Ti 11 GB and GTX 1080 8 GB: NVIDIA launch releases (nvidianews.nvidia.com) ; GTX 1070 Ti, GTX 1070 8 GB: https://www.nvidia.com/en-us/geforce/news/nvidia-geforce-gtx-1070-ti/ and /geforce-gtx-1070/ ; GTX 1060 3, 5 and 6 GB: board names in NVIDIA's driver list (https://download.nvidia.com/XFree86/Linux-x86_64/580.95.05/README/supportedchips.html) ; GTX 1050 Ti 4 GB, GTX 1050 2 GB: https://www.nvidia.com/content/apac/event/ph/overwatch-campaign/geforce-gtx-1050.html ; GTX 1050 3 GB: NVIDIA regional GTX 1050 pages ; GTX 1050 4 GB: notebook boards, not on a vendor page ; GT 1030 2 GB: https://www.nvidia.com/en-us/geforce/graphics-cards/gt-1030/specifications/ ; end of driver support: NVIDIA's announcement that 580 is the last branch for Maxwell, Pascal and Volta"
+devices = [
+  { id = "gtx-1080-ti", name = "GTX 1080 Ti", match = ["gtx 1080 ti"], memory_gb = [11] },
+  { id = "gtx-1080", name = "GTX 1080", match = ["gtx 1080"], memory_gb = [8] },
+  { id = "gtx-1070-ti", name = "GTX 1070 Ti", match = ["gtx 1070 ti"], memory_gb = [8] },
+  { id = "gtx-1070", name = "GTX 1070", match = ["gtx 1070"], memory_gb = [8] },
+  { id = "gtx-1060", name = "GTX 1060", match = ["gtx 1060"], memory_gb = [3, 5, 6] },
+  { id = "gtx-1050-ti", name = "GTX 1050 Ti", match = ["gtx 1050 ti"], memory_gb = [4] },
+  { id = "gtx-1050", name = "GTX 1050", match = ["gtx 1050"], memory_gb = [2, 3, 4] },
+  { id = "gt-1030", name = "GT 1030", match = ["gt 1030"], memory_gb = [2] },
+]
+
+# ---------- AMD Radeon (Vulkan on Windows and Linux x86_64, experimental in v0.1). ROCm on Linux comes later.
+
+[[family]]
+id = "amd-rx-9000"
+name = "Radeon RX 9000"
+vendor = "amd"
+backend = "vulkan"
+supported = "experimental"
+notes = "Windows and Linux (x86_64) through Vulkan, experimental in v0.1; not yet tested on this hardware."
+source = "https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/ (product pages) ; RX 9060 XT 8 and 16 GB: AMD's Computex 2025 release (https://ir.amd.com/news-events/press-releases/detail/1253/) ; its product page lists only the 16 GB maximum"
+devices = [
+  { id = "rx-9070-xt", name = "RX 9070 XT", match = ["rx 9070 xt"], memory_gb = [16] },
+  { id = "rx-9070", name = "RX 9070", match = ["rx 9070"], memory_gb = [16] },
+  { id = "rx-9060-xt", name = "RX 9060 XT", match = ["rx 9060 xt"], memory_gb = [8, 16] },
+]
+
+[[family]]
+id = "amd-rx-7000"
+name = "Radeon RX 7000"
+vendor = "amd"
+backend = "vulkan"
+supported = "experimental"
+notes = "Windows and Linux (x86_64) through Vulkan, experimental in v0.1; not yet tested on this hardware."
+source = "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/ (7900 XTX, 7900 XT, 7600 pages) ; 7900 GRE, 7800 XT, 7700 XT, 7600 XT: AMD launch specs (pages unavailable)"
+devices = [
+  { id = "rx-7900-xtx", name = "RX 7900 XTX", match = ["rx 7900 xtx"], memory_gb = [24] },
+  { id = "rx-7900-xt", name = "RX 7900 XT", match = ["rx 7900 xt"], memory_gb = [20] },
+  { id = "rx-7900-gre", name = "RX 7900 GRE", match = ["rx 7900 gre"], memory_gb = [16] },
+  { id = "rx-7800-xt", name = "RX 7800 XT", match = ["rx 7800 xt"], memory_gb = [16] },
+  { id = "rx-7700-xt", name = "RX 7700 XT", match = ["rx 7700 xt"], memory_gb = [12] },
+  { id = "rx-7600-xt", name = "RX 7600 XT", match = ["rx 7600 xt"], memory_gb = [16] },
+  { id = "rx-7600", name = "RX 7600", match = ["rx 7600"], memory_gb = [8] },
+]
+
+[[family]]
+id = "amd-rx-6000"
+name = "Radeon RX 6000"
+vendor = "amd"
+backend = "vulkan"
+supported = "experimental"
+notes = "Windows and Linux (x86_64) through Vulkan, experimental in v0.1; not yet tested on this hardware."
+source = "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/ (product pages; RX 6500 XT also ships with 4 GB per AMD's launch spec)"
+devices = [
+  { id = "rx-6950-xt", name = "RX 6950 XT", match = ["rx 6950 xt"], memory_gb = [16] },
+  { id = "rx-6900-xt", name = "RX 6900 XT", match = ["rx 6900 xt"], memory_gb = [16] },
+  { id = "rx-6800-xt", name = "RX 6800 XT", match = ["rx 6800 xt"], memory_gb = [16] },
+  { id = "rx-6800", name = "RX 6800", match = ["rx 6800"], memory_gb = [16] },
+  { id = "rx-6750-xt", name = "RX 6750 XT", match = ["rx 6750 xt"], memory_gb = [12] },
+  { id = "rx-6700-xt", name = "RX 6700 XT", match = ["rx 6700 xt"], memory_gb = [12] },
+  { id = "rx-6700", name = "RX 6700", match = ["rx 6700"], memory_gb = [10] },
+  { id = "rx-6650-xt", name = "RX 6650 XT", match = ["rx 6650 xt"], memory_gb = [8] },
+  { id = "rx-6600-xt", name = "RX 6600 XT", match = ["rx 6600 xt"], memory_gb = [8] },
+  { id = "rx-6600", name = "RX 6600", match = ["rx 6600"], memory_gb = [8] },
+  { id = "rx-6500-xt", name = "RX 6500 XT", match = ["rx 6500 xt"], memory_gb = [4, 8] },
+  { id = "rx-6400", name = "RX 6400", match = ["rx 6400"], memory_gb = [4] },
+]
+
+[[family]]
+id = "amd-rx-5000"
+name = "Radeon RX 5000"
+vendor = "amd"
+backend = "vulkan"
+supported = "experimental"
+notes = "Windows and Linux (x86_64) through Vulkan, experimental in v0.1; not yet tested on this hardware."
+source = "AMD launch specs (amd.com product pages for RX 5000 are no longer available)"
+devices = [
+  { id = "rx-5700-xt", name = "RX 5700 XT", match = ["rx 5700 xt"], memory_gb = [8] },
+  { id = "rx-5700", name = "RX 5700", match = ["rx 5700"], memory_gb = [8] },
+  { id = "rx-5600-xt", name = "RX 5600 XT", match = ["rx 5600 xt"], memory_gb = [6] },
+  { id = "rx-5500-xt", name = "RX 5500 XT", match = ["rx 5500 xt"], memory_gb = [4, 8] },
+]
+
+# ---------- Intel Arc (Vulkan on Windows and Linux x86_64, experimental in v0.1).
+
+[[family]]
+id = "intel-arc"
+name = "Intel Arc"
+vendor = "intel"
+backend = "vulkan"
+supported = "experimental"
+notes = "Windows and Linux (x86_64) through Vulkan, experimental in v0.1; not yet tested on this hardware."
+source = "Intel ARK specification pages (https://www.intel.com/content/www/us/en/products/sku/<id>/specifications.html): B580 241598, B570 241676, A770 8 GB 227955, A770 16 GB 229151, A750 227954, A580 227961, A380 227959, A310 227958"
+devices = [
+  { id = "arc-b580", name = "Arc B580", match = ["arc b580"], memory_gb = [12] },
+  { id = "arc-b570", name = "Arc B570", match = ["arc b570"], memory_gb = [10] },
+  { id = "arc-a770", name = "Arc A770", match = ["arc a770"], memory_gb = [8, 16] },
+  { id = "arc-a750", name = "Arc A750", match = ["arc a750"], memory_gb = [8] },
+  { id = "arc-a580", name = "Arc A580", match = ["arc a580"], memory_gb = [8] },
+  { id = "arc-a380", name = "Arc A380", match = ["arc a380"], memory_gb = [6] },
+  { id = "arc-a310", name = "Arc A310", match = ["arc a310"], memory_gb = [4] },
+]
+
+# ---------- Apple silicon (planned, after v0.1, through MLX). Unified memory: macOS lets the GPU use part of it.
+# The base M5 is not listed yet: its sizes weren't checked.
+
+[[family]]
+id = "apple-silicon"
+name = "Apple silicon"
+vendor = "apple"
+backend = "metal"
+supported = "planned"
+notes = "Planned, after v0.1: a Mac runtime (MLX) still needs testing on a Mac. Usable share is an estimate: macOS lets the GPU use about two-thirds of unified memory by default (more on large configurations)."
+source = "https://www.apple.com/mac/compare/ (M1 to M4) ; M5 Pro, M5 Max, M5 Ultra, M6: https://www.apple.com/mac-studio/specs/ and https://www.apple.com/mac-mini/specs/ ; M3 Ultra 96 and 256 GB: https://support.apple.com/en-us/122211 ; 512 GB: Apple's launch release (https://www.apple.com/newsroom/2025/03/apple-reveals-m3-ultra-taking-apple-silicon-to-a-new-extreme/), no longer on the spec page ; usable share: estimate"
+devices = [
+  { id = "apple-m1", name = "M1", match = ["apple m1"], memory = "unified", usable_share = 0.67, memory_gb = [8, 16] },
+  { id = "apple-m1-pro", name = "M1 Pro", match = ["apple m1 pro"], memory = "unified", usable_share = 0.67, memory_gb = [16, 32] },
+  { id = "apple-m1-max", name = "M1 Max", match = ["apple m1 max"], memory = "unified", usable_share = 0.67, memory_gb = [32, 64] },
+  { id = "apple-m1-ultra", name = "M1 Ultra", match = ["apple m1 ultra"], memory = "unified", usable_share = 0.67, memory_gb = [128] },
+  { id = "apple-m2", name = "M2", match = ["apple m2"], memory = "unified", usable_share = 0.67, memory_gb = [8, 16, 24] },
+  { id = "apple-m2-pro", name = "M2 Pro", match = ["apple m2 pro"], memory = "unified", usable_share = 0.67, memory_gb = [16, 32] },
+  { id = "apple-m2-max", name = "M2 Max", match = ["apple m2 max"], memory = "unified", usable_share = 0.67, memory_gb = [32, 64, 96] },
+  { id = "apple-m2-ultra", name = "M2 Ultra", match = ["apple m2 ultra"], memory = "unified", usable_share = 0.67, memory_gb = [128, 192] },
+  { id = "apple-m3", name = "M3", match = ["apple m3"], memory = "unified", usable_share = 0.67, memory_gb = [8, 16, 24] },
+  { id = "apple-m3-pro", name = "M3 Pro", match = ["apple m3 pro"], memory = "unified", usable_share = 0.67, memory_gb = [18, 36] },
+  { id = "apple-m3-max", name = "M3 Max", match = ["apple m3 max"], memory = "unified", usable_share = 0.67, memory_gb = [36, 48, 64, 96, 128] },
+  { id = "apple-m3-ultra", name = "M3 Ultra", match = ["apple m3 ultra"], memory = "unified", usable_share = 0.67, memory_gb = [96, 256, 512] },
+  { id = "apple-m4", name = "M4", match = ["apple m4"], memory = "unified", usable_share = 0.67, memory_gb = [16, 24, 32] },
+  { id = "apple-m4-pro", name = "M4 Pro", match = ["apple m4 pro"], memory = "unified", usable_share = 0.67, memory_gb = [24, 48] },
+  { id = "apple-m4-max", name = "M4 Max", match = ["apple m4 max"], memory = "unified", usable_share = 0.67, memory_gb = [36, 48, 64, 128] },
+  { id = "apple-m5-pro", name = "M5 Pro", match = ["apple m5 pro"], memory = "unified", usable_share = 0.67, memory_gb = [24, 48, 64] },
+  { id = "apple-m5-max", name = "M5 Max", match = ["apple m5 max"], memory = "unified", usable_share = 0.67, memory_gb = [36, 48, 64, 128] },
+  { id = "apple-m5-ultra", name = "M5 Ultra", match = ["apple m5 ultra"], memory = "unified", usable_share = 0.67, memory_gb = [96, 256, 512] },
+  { id = "apple-m6", name = "M6", match = ["apple m6"], memory = "unified", usable_share = 0.67, memory_gb = [16, 24, 32, 48] },
+]
+
+# ---------- Unified-memory AI machines sold to the public.
+
+[[family]]
+id = "amd-ryzen-ai-max"
+name = "AMD Ryzen AI Max"
+vendor = "amd"
+backend = "vulkan"
+supported = "experimental"
+notes = "Windows and Linux (x86_64) through Vulkan, experimental in v0.1; not yet tested on this hardware. Usable share is an estimate: AMD Variable Graphics Memory can give the GPU up to 96 of 128 GB."
+source = "https://www.amd.com/en/products/processors/laptop/ryzen/ai-300-series/amd-ryzen-ai-max-plus-395.html (and the 390 and 385 pages: graphics model, 128 GB maximum) ; 32 to 128 GB (64 GB in AMD's own test system): https://www.amd.com/en/blogs/2025/amd-ryzen-ai-max-395-processor-breakthrough-ai-.html"
+devices = [
+  { id = "ryzen-ai-max-plus-395", name = "Ryzen AI Max+ 395 (Radeon 8060S)", match = ["radeon 8060s"], memory = "unified", usable_share = 0.75, memory_gb = [32, 64, 128] },
+  { id = "ryzen-ai-max-390-385", name = "Ryzen AI Max 390 / 385 (Radeon 8050S)", match = ["radeon 8050s"], memory = "unified", usable_share = 0.75, memory_gb = [32, 64, 128] },
+]
+
+[[family]]
+id = "nvidia-dgx-spark"
+name = "NVIDIA DGX Spark"
+vendor = "nvidia"
+backend = "cuda"
+supported = "planned"
+notes = "Planned: needs a Linux ARM64 build, which comes after v0.1. Usable share is an estimate."
+source = "https://www.nvidia.com/en-us/products/workstations/dgx-spark/"
+devices = [
+  { id = "dgx-spark", name = "DGX Spark (GB10)", match = ["gb10", "dgx spark"], memory = "unified", usable_share = 0.75, memory_gb = [64, 128] },
+]
+
+# ---------- Integrated graphics (experimental), then what isn't used.
+
+[[family]]
+id = "integrated"
+name = "Integrated graphics"
+vendor = "other"
+backend = "vulkan"
+supported = "experimental"
+notes = "Built-in graphics run through Vulkan (experimental) from system memory, so they're slow: a Fast image took about 3 minutes on Intel Arc 140T graphics, against 15 s on an RTX 5060 Laptop. Windows lets them use about half of system RAM (the engine reads the exact share). If this computer also has a separate GPU, Dawnroom uses that one instead."
+source = "https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ns-dxgi-dxgi_adapter_desc1 (SharedSystemMemory: the most system memory the adapter may use; 56% of 24 GB on a Core Ultra 7 255H, measured 2026-11-16)"
+devices = [
+  { id = "intel-integrated", name = "Intel integrated graphics (UHD, Iris Xe, Arc Graphics)", match = ["intel graphics", "intel uhd", "intel hd graphics", "intel iris", "intel arc graphics"], memory = "shared", usable_share = 0.5, memory_gb = [8, 16, 24, 32, 64] },
+  { id = "amd-integrated", name = "AMD Radeon integrated graphics", match = ["radeon graphics", "radeon vega", "radeon 660m", "radeon 680m", "radeon 760m", "radeon 780m", "radeon 860m", "radeon 880m", "radeon 890m"], memory = "shared", usable_share = 0.5, memory_gb = [8, 16, 24, 32, 64] },
+]
+
+[[family]]
+id = "npu"
+name = "NPUs"
+vendor = "other"
+backend = "none"
+supported = "not planned"
+notes = "Not used yet."
+source = ""
+devices = [
+  { id = "npu-intel", name = "Intel AI Boost NPU", match = [], memory_gb = [] },
+  { id = "npu-amd", name = "AMD Ryzen AI NPU (XDNA)", match = [], memory_gb = [] },
+  { id = "npu-qualcomm", name = "Qualcomm Hexagon NPU", match = [], memory_gb = [] },
+  { id = "npu-apple", name = "Apple Neural Engine", match = [], memory_gb = [] },
+]

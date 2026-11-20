@@ -1,0 +1,154 @@
+{
+  "model": "realvisxl-v5",
+  "file": "/hero/realvisxl-v5.webp",
+  "frame": 53,
+  "prompt": "A lighthouse at first light, long exposure, film grain",
+  "seed": 3824736140,
+  "steps": 28,
+  "width": 1024,
+  "height": 1024,
+  "seconds": 41.6,
+  "preset": "realvisxl-v5",
+  "frames": [
+    {
+      "step": 1,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-01.webp"
+    },
+    {
+      "step": 2,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-02.webp"
+    },
+    {
+      "step": 3,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-03.webp"
+    },
+    {
+      "step": 4,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-04.webp"
+    },
+    {
+      "step": 5,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-05.webp"
+    },
+    {
+      "step": 6,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-06.webp"
+    },
+    {
+      "step": 7,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-07.webp"
+    },
+    {
+      "step": 8,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-08.webp"
+    },
+    {
+      "step": 9,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-09.webp"
+    },
+    {
+      "step": 10,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-10.webp"
+    },
+    {
+      "step": 11,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-11.webp"
+    },
+    {
+      "step": 12,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-12.webp"
+    },
+    {
+      "step": 13,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-13.webp"
+    },
+    {
+      "step": 14,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-14.webp"
+    },
+    {
+      "step": 15,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-15.webp"
+    },
+    {
+      "step": 16,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-16.webp"
+    },
+    {
+      "step": 17,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-17.webp"
+    },
+    {
+      "step": 18,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-18.webp"
+    },
+    {
+      "step": 19,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-19.webp"
+    },
+    {
+      "step": 20,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-20.webp"
+    },
+    {
+      "step": 21,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-21.webp"
+    },
+    {
+      "step": 22,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-22.webp"
+    },
+    {
+      "step": 23,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-23.webp"
+    },
+    {
+      "step": 24,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-24.webp"
+    },
+    {
+      "step": 25,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-25.webp"
+    },
+    {
+      "step": 26,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-26.webp"
+    },
+    {
+      "step": 27,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-27.webp"
+    },
+    {
+      "step": 28,
+      "total": 28,
+      "file": "/hero/realvisxl-v5-step-28.webp"
+    }
+  ]
+}

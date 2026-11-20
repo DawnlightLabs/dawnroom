@@ -1,0 +1,15 @@
+---
+/**
+ * A marked place for a launch video. Empty (src null) it renders a hidden marker only, so the page never
+ * shows a "coming soon" box; with a src it's a plain, poster-less video that loads nothing until played.
+ */
+interface Props { slot: 'trailer' | 'demo'; src: string | null; title: string; poster?: string; class?: string }
+const { slot, src, title, poster, class: cls = '' } = Astro.props;
+---
+{src ? (
+  <figure class:list={['video-slot', cls]} data-slot={slot}>
+    <video src={src} poster={poster} controls preload="none" playsinline aria-label={title}></video>
+  </figure>
+) : (
+  <div data-slot={slot} data-empty hidden></div>
+)}

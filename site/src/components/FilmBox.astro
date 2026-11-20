@@ -1,0 +1,36 @@
+---
+/** A model as a box of film stock: name, what it does, size, memory, licence, a window on a print; fit and time from the visitor's card. */
+import type { Model } from '../lib/registry';
+import { gb, gib, mainTask, TASK_LABELS } from '../lib/registry';
+import { estimateMib } from '../lib/fit';
+import { stockOf } from '../lib/stocks';
+
+interface Props { m: Model; headingLevel?: 'h2' | 'h3' }
+const { m, headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+const st = stockOf(m.id);
+const meas = (m.measured ?? []).filter((x) => !x.integrated && (x.task ?? 'generate') === mainTask(m.tasks));
+const need = meas.length ? gib(Math.max(...meas.map((x) => x.need_mib ?? x.peak_vram_mib))) : `est. ${gib(estimateMib(m.bytes))}`;
+const cover = m.samples[0];
+// The size tags it comes in (q4 · q8), on the band like a film speed.
+const quant = m.variants.map((v) => v.tag).filter(Boolean).join(' · ');
+const gated = m.licence.accept_required;
+---
+<a href={`/library/${m.id}`} class="box group" style={`--stock:${st.colour};--stock-text:${st.text}`}>
+  <div class="box-band"><span>{st.band}</span><span>{quant}</span></div>
+  <div class="flex flex-1 flex-col gap-4 p-4">
+    <div class="flex items-end justify-between gap-3">
+      <H class="text-[22px] font-semibold leading-[1.05] tracking-tight group-hover:underline group-hover:underline-offset-4">{m.name}</H>
+      <p class="box-speed text-right" title="Time for one image on your card" data-fit-secs={m.id}></p>
+    </div>
+    {cover && <div class="box-window"><img src={cover.file.replace('/samples/', '/samples/thumb/')} alt="" width="400" height="225" loading="lazy" decoding="async" /></div>}
+    <p class="text-[14.5px] leading-snug text-ink/85">{m.tagline}</p>
+    <p class="edge text-muted">{(m.tasks ?? ['generate']).map((t) => TASK_LABELS[t]).join(' + ')}</p>
+    <dl class="spec mt-auto">
+      <dt>Memory</dt><dd>{need}{m.variants.length > 1 && ` · ${m.tag}`}</dd>
+      <dt>Download</dt><dd>{m.variants.length > 1 ? `${gb(m.variants[0].bytes)}–${gb(m.variants.at(-1)!.bytes)}` : gb(m.bytes)}</dd>
+      <dt>Licence</dt><dd>{m.licenceLabel}{m.licence.commercial ? (m.licence.use_restrictions ? ' · use restrictions' : '') : m.licence.use_restrictions ? ' · restricted' : ' · non-commercial'}{gated && ' · acceptance needed'}</dd>
+    </dl>
+    <p class="box-fit edge" data-fit-model={m.id}></p>
+  </div>
+</a>

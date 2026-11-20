@@ -1,0 +1,134 @@
+[
+  {
+    "model": "z-image-turbo",
+    "file": "/samples/z-image-turbo-0028.webp",
+    "frame": 28,
+    "prompt": "A lighthouse at first light, long exposure, film grain",
+    "seed": 3824736140,
+    "steps": 8,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 26.4
+  },
+  {
+    "model": "z-image-turbo",
+    "file": "/samples/z-image-turbo-0050.webp",
+    "frame": 50,
+    "prompt": "a red fox sleeping in fresh snow",
+    "seed": 1,
+    "steps": 8,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 27.8
+  },
+  {
+    "model": "z-image-turbo",
+    "file": "/samples/z-image-turbo-0051.webp",
+    "frame": 51,
+    "prompt": "a neon sign that says \"OPEN LATE\" in a rainy alley at night",
+    "seed": 3,
+    "steps": 8,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 19.3
+  },
+  {
+    "model": "flux2-klein-4b",
+    "file": "/samples/flux2-klein-4b-0026.webp",
+    "frame": 26,
+    "prompt": "a darkroom safelight glowing amber over trays of developer, film photo",
+    "seed": 3312777218,
+    "steps": 4,
+    "width": 1248,
+    "height": 832,
+    "seconds": 16.9
+  },
+  {
+    "model": "flux2-klein-4b",
+    "file": "/samples/flux2-klein-4b-0033.webp",
+    "frame": 33,
+    "prompt": "Ceramic mug on linen, soft window light, 85mm product photo",
+    "seed": 4178845214,
+    "steps": 4,
+    "width": 864,
+    "height": 1152,
+    "seconds": 16.1
+  },
+  {
+    "model": "flux2-klein-4b",
+    "file": "/samples/flux2-klein-4b-0020.webp",
+    "frame": 20,
+    "prompt": "a lighthouse at dawn",
+    "seed": 42,
+    "steps": 4,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 9.6
+  },
+  {
+    "model": "realvisxl-v5",
+    "file": "/samples/realvisxl-v5-0016.webp",
+    "frame": 16,
+    "prompt": "portrait of an old fisherman, golden hour",
+    "seed": 7,
+    "steps": 28,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 38.0
+  },
+  {
+    "model": "realvisxl-v5",
+    "file": "/samples/realvisxl-v5-0049.webp",
+    "frame": 49,
+    "prompt": "a baker dusting flour on dough in an early morning kitchen, window light",
+    "seed": 13,
+    "steps": 28,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 33.4
+  },
+  {
+    "model": "qwen-image",
+    "file": "/samples/qwen-image-0059.webp",
+    "frame": 59,
+    "prompt": "A neon sign reading DAWNROOM above a darkroom door at dawn, film photograph",
+    "seed": 43,
+    "steps": 20,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 159.8
+  },
+  {
+    "model": "sd15",
+    "file": "/samples/sd15-0061.webp",
+    "frame": 61,
+    "prompt": "a red bicycle leaning on a blue wall, film photo",
+    "seed": 42,
+    "steps": 20,
+    "width": 512,
+    "height": 512,
+    "seconds": 4.4
+  },
+  {
+    "model": "flux1-schnell",
+    "file": "/samples/flux1-schnell-0063.webp",
+    "frame": 63,
+    "prompt": "A small bakery storefront with a hand-painted sign that reads FRESH BREAD, morning street",
+    "seed": 42,
+    "steps": 4,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 22.0
+  },
+  {
+    "model": "sd35-medium",
+    "file": "/samples/sd35-medium-0065.webp",
+    "frame": 65,
+    "prompt": "A small bakery storefront with a hand-painted sign that reads FRESH BREAD, morning street",
+    "seed": 42,
+    "steps": 20,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 29.9
+  }
+]

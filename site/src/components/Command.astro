@@ -1,0 +1,16 @@
+---
+/**
+ * A shell line on a dark strip with a copy button. Long commands wrap rather than scroll sideways
+ * (Windows draws a full scrollbar inside the strip otherwise); the copy button copies it whole.
+ */
+import Icon from './Icon.astro';
+interface Props { cmd: string; label?: string; class?: string }
+const { cmd, label = 'Copy command', class: cls = '' } = Astro.props;
+---
+<div class:list={['cmd darkroom', cls]}>
+  <code><span class="muted select-none" aria-hidden="true">&gt; </span>{cmd}</code>
+  <button type="button" data-copy={cmd} aria-label={label} class="copy">
+    <Icon name="copy" class="copy-idle" /><Icon name="check" class="copy-done" />
+    <span data-copy-label>Copy</span>
+  </button>
+</div>

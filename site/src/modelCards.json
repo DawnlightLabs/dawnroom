@@ -1,0 +1,770 @@
+{
+  "chroma1-hd": {
+    "card": "https://huggingface.co/lodestones/Chroma1-HD",
+    "site": null,
+    "uses": [
+      "Base for fine-tuning and custom styles",
+      "General text-to-image with an open Apache licence",
+      "Detailed images from a FLUX.1 schnell-based model"
+    ],
+    "avoid": [
+      "Fast generation: the card suggests a separate Flash version for that"
+    ],
+    "sources": [
+      "https://huggingface.co/lodestones/Chroma1-HD"
+    ],
+    "images": [
+      {
+        "file": "/cards/chroma1-hd-1.webp",
+        "width": 1024,
+        "height": 1024,
+        "caption": "ComfyUI sample generation with embedded workflow (portrait, anaglyph look)",
+        "source": "https://huggingface.co/lodestones/Chroma1-HD"
+      }
+    ],
+    "thumb": "/cards/thumb/chroma1-hd-1.webp"
+  },
+  "chroma1-radiance": {
+    "card": "https://huggingface.co/lodestones/Chroma1-Radiance",
+    "site": null,
+    "uses": [
+      "Experimenting with pixel-space generation without a VAE",
+      "Open Apache-licensed Chroma research"
+    ],
+    "avoid": [
+      "Final-quality work: the card says training is unfinished with squiggly details"
+    ],
+    "sources": [
+      "https://huggingface.co/lodestones/Chroma1-Radiance"
+    ],
+    "images": [
+      {
+        "file": "/cards/chroma1-radiance-1.webp",
+        "width": 1024,
+        "height": 1024,
+        "caption": "Sample output with embedded ComfyUI workflow (prototype checkpoint)",
+        "source": "https://huggingface.co/lodestones/Chroma1-Radiance"
+      }
+    ],
+    "thumb": "/cards/thumb/chroma1-radiance-1.webp"
+  },
+  "ernie-image-turbo": {
+    "card": "https://huggingface.co/baidu/ERNIE-Image-Turbo",
+    "site": "https://yiyan.baidu.com/blog/posts/ernie-image",
+    "uses": [
+      "Fast drafts in 8 steps",
+      "Posters and text-heavy layouts",
+      "Multi-panel comics and storyboards"
+    ],
+    "avoid": [
+      "Weak GPUs: the card targets 24 GB consumer cards"
+    ],
+    "sources": [
+      "https://huggingface.co/baidu/ERNIE-Image-Turbo",
+      "https://yiyan.baidu.com/blog/posts/ernie-image"
+    ],
+    "images": [
+      {
+        "file": "/cards/ernie-image-turbo-1.webp",
+        "width": 1024,
+        "height": 762,
+        "caption": "Mosaic of ERNIE-Image sample generations from the card",
+        "source": "https://huggingface.co/baidu/ERNIE-Image-Turbo"
+      }
+    ],
+    "thumb": "/cards/thumb/ernie-image-turbo-1.webp"
+  },
+  "ernie-image": {
+    "card": "https://huggingface.co/baidu/ERNIE-Image",
+    "site": "https://yiyan.baidu.com/blog/posts/ernie-image",
+    "uses": [
+      "Posters, infographics and UI-like images with dense text",
+      "Complex prompts with several objects",
+      "Comics and storyboards"
+    ],
+    "avoid": [
+      "Quick drafts: about 50 steps by default (Turbo exists for that)"
+    ],
+    "sources": [
+      "https://huggingface.co/baidu/ERNIE-Image",
+      "https://yiyan.baidu.com/blog/posts/ernie-image"
+    ],
+    "images": [
+      {
+        "file": "/cards/ernie-image-1.webp",
+        "width": 1024,
+        "height": 762,
+        "caption": "Mosaic of ERNIE-Image sample generations from the card",
+        "source": "https://huggingface.co/baidu/ERNIE-Image"
+      }
+    ],
+    "thumb": "/cards/thumb/ernie-image-1.webp"
+  },
+  "fibo2-dev": {
+    "card": "https://huggingface.co/briaai/Fibo-2.0-dev",
+    "site": null,
+    "uses": [
+      "Structured JSON prompts for precise control",
+      "Models trained only on licensed data",
+      "Base for LoRAs and fine-tunes",
+      "Edits that keep the rest of the image"
+    ],
+    "avoid": [
+      "Commercial use: weights are non-commercial",
+      "Low-latency edits (card points to Edit Turbo)"
+    ],
+    "sources": [
+      "https://huggingface.co/briaai/Fibo-2.0-dev"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "fibo2-edit-turbo": {
+    "card": "https://huggingface.co/briaai/Fibo-2.0-edit-turbo",
+    "site": null,
+    "uses": [
+      "Fast instruction edits in 4 steps",
+      "Edits limited to a masked region",
+      "Multi-reference edits with up to 4 images"
+    ],
+    "avoid": [
+      "Text-to-image: the card says use Fibo 2.0 dev",
+      "Fine-tuning: card advises against this checkpoint",
+      "Commercial use: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/briaai/Fibo-2.0-edit-turbo"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "flux1-dev": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+    "site": null,
+    "uses": [
+      "High-quality general text-to-image",
+      "Research and personal creative work",
+      "Strong prompt following for its size"
+    ],
+    "avoid": [
+      "Commercial use: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.1-dev"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "flux1-kontext-dev": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev",
+    "site": null,
+    "uses": [
+      "Instruction edits to existing images",
+      "Keeping a character or object consistent across edits",
+      "Step-by-step edits with little drift"
+    ],
+    "avoid": [
+      "Commercial use of the weights: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "flux1-schnell": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+    "site": null,
+    "uses": [
+      "Fast drafts in 1 to 4 steps",
+      "Commercial-friendly Apache-2.0 generation",
+      "General text-to-image"
+    ],
+    "avoid": [
+      "Fine detail: distilled for speed"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.1-schnell"
+    ],
+    "images": [
+      {
+        "file": "/cards/flux1-schnell-1.webp",
+        "width": 1024,
+        "height": 599,
+        "caption": "Grid of FLUX.1 schnell sample images",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.1-schnell"
+      }
+    ],
+    "thumb": "/cards/thumb/flux1-schnell-1.webp"
+  },
+  "flux2-dev": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.2-dev",
+    "site": null,
+    "uses": [
+      "Top-end generation and editing",
+      "Multi-reference edits without fine-tuning",
+      "Characters, objects and styles from references"
+    ],
+    "avoid": [
+      "Small GPUs: 32B model",
+      "Commercial use: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.2-dev"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "flux2-klein-4b": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+    "site": "https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence",
+    "uses": [
+      "Real-time, near-instant drafts",
+      "Text-to-image and editing in one model",
+      "Multi-reference edits on a consumer GPU"
+    ],
+    "avoid": [
+      "Small lettering: the 9B card warns rendered text can distort (same family)"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+      "https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence"
+    ],
+    "images": [
+      {
+        "file": "/cards/flux2-klein-4b-1.webp",
+        "width": 1024,
+        "height": 674,
+        "caption": "Realism samples from the FLUX.2 klein card",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B"
+      },
+      {
+        "file": "/cards/flux2-klein-4b-2.webp",
+        "width": 1024,
+        "height": 632,
+        "caption": "Editing examples from the FLUX.2 klein card",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B"
+      },
+      {
+        "file": "/cards/flux2-klein-4b-3.webp",
+        "width": 1024,
+        "height": 674,
+        "caption": "Other styles from the FLUX.2 klein card",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B"
+      }
+    ],
+    "thumb": "/cards/thumb/flux2-klein-4b-1.webp"
+  },
+  "flux2-klein-9b": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B",
+    "site": "https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence",
+    "uses": [
+      "Fast generation in about 4 steps",
+      "Text-to-image and multi-reference editing",
+      "Interactive creative exploration"
+    ],
+    "avoid": [
+      "Commercial use: non-commercial licence",
+      "Accurate small text",
+      "Small GPUs: card cites about 29 GB VRAM"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "flux3-klein": {
+    "card": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
+    "site": null,
+    "uses": [
+      "Editing and generation in 16 steps",
+      "Placing elements with bounding boxes",
+      "Composing from up to 10 references"
+    ],
+    "avoid": [
+      "Short prompts: card says they look generic",
+      "Exact pixel control: boxes only guide placement",
+      "Commercial use above 5M USD revenue"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/flux-3-image-klein"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "flux3-klein-base": {
+    "card": "https://huggingface.co/black-forest-labs/flux-3-image-klein-base",
+    "site": null,
+    "uses": [
+      "Fine-tuning and LoRA training",
+      "Research on an undistilled base",
+      "Guidance-based generation at 50 steps"
+    ],
+    "avoid": [
+      "Fast use: card points to the distilled checkpoint",
+      "Short prompts give generic results"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/flux-3-image-klein-base"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "hidream-o1-dev": {
+    "card": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev",
+    "site": null,
+    "uses": [
+      "High-resolution generation up to 2048 px",
+      "Long text and multi-region layouts",
+      "Subject-consistent scenes from references"
+    ],
+    "avoid": [
+      "Low-memory machines: 8B pixel-space model"
+    ],
+    "sources": [
+      "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev"
+    ],
+    "images": [
+      {
+        "file": "/cards/hidream-o1-dev-1.webp",
+        "width": 1024,
+        "height": 596,
+        "caption": "General text-to-image samples up to 2048 px",
+        "source": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev"
+      },
+      {
+        "file": "/cards/hidream-o1-dev-2.webp",
+        "width": 1024,
+        "height": 764,
+        "caption": "Long text and layout rendering samples",
+        "source": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev"
+      }
+    ],
+    "thumb": "/cards/thumb/hidream-o1-dev-1.webp"
+  },
+  "ideogram4": {
+    "card": "https://huggingface.co/ideogram-ai/ideogram-4-fp8",
+    "site": null,
+    "uses": [
+      "Typography, signage and logos",
+      "Layout control with boxes and hex colours",
+      "Posters and design work"
+    ],
+    "avoid": [
+      "Commercial use: non-commercial licence",
+      "Plain prompts: JSON prompts work better"
+    ],
+    "sources": [
+      "https://huggingface.co/ideogram-ai/ideogram-4-fp8"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "krea2-turbo": {
+    "card": "https://huggingface.co/krea/Krea-2-Turbo",
+    "site": null,
+    "uses": [
+      "Quick concepting in 8 steps",
+      "Design exploration",
+      "Creative and commercial work within the licence"
+    ],
+    "avoid": [
+      "Facts or exact accuracy: card says outputs are unpredictable"
+    ],
+    "sources": [
+      "https://huggingface.co/krea/Krea-2-Turbo"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "longcat-image": {
+    "card": "https://huggingface.co/meituan-longcat/LongCat-Image",
+    "site": null,
+    "uses": [
+      "Chinese and English text in images",
+      "Photorealistic scenes",
+      "Efficient 6B generation"
+    ],
+    "avoid": [
+      "Text without quotation marks: card says quotes are needed"
+    ],
+    "sources": [
+      "https://huggingface.co/meituan-longcat/LongCat-Image"
+    ],
+    "images": [
+      {
+        "file": "/cards/longcat-image-1.webp",
+        "width": 1024,
+        "height": 576,
+        "caption": "Gallery of LongCat-Image generation examples",
+        "source": "https://huggingface.co/meituan-longcat/LongCat-Image"
+      }
+    ],
+    "thumb": "/cards/thumb/longcat-image-1.webp"
+  },
+  "moss-image": {
+    "card": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT",
+    "site": null,
+    "uses": [
+      "Whiteboard and text-grouped layouts",
+      "JSON layout prompts for object placement",
+      "English and Chinese prompts"
+    ],
+    "avoid": [
+      "Non-NVIDIA setups: the card quick start assumes CUDA"
+    ],
+    "sources": [
+      "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT"
+    ],
+    "images": [
+      {
+        "file": "/cards/moss-image-1.webp",
+        "width": 917,
+        "height": 1024,
+        "caption": "Overview of MOSS-Image sample generations",
+        "source": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT"
+      },
+      {
+        "file": "/cards/moss-image-2.webp",
+        "width": 1024,
+        "height": 575,
+        "caption": "Text rendering samples",
+        "source": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT"
+      }
+    ],
+    "thumb": "/cards/thumb/moss-image-1.webp"
+  },
+  "ovis-image": {
+    "card": "https://huggingface.co/ATH-MaaS/Ovis-Image-7B",
+    "site": "https://github.com/AIDC-AI/Ovis-Image",
+    "uses": [
+      "Posters, banners and logos with correct spelling",
+      "UI mockups and infographics",
+      "Text-heavy layouts at 7B size"
+    ],
+    "avoid": [
+      "Quick drafts: card examples use 50 steps"
+    ],
+    "sources": [
+      "https://huggingface.co/ATH-MaaS/Ovis-Image-7B",
+      "https://github.com/AIDC-AI/Ovis-Image"
+    ],
+    "images": [
+      {
+        "file": "/cards/ovis-image-1.webp",
+        "width": 1024,
+        "height": 890,
+        "caption": "Ovis-Image example generations with text",
+        "source": "https://huggingface.co/ATH-MaaS/Ovis-Image-7B"
+      }
+    ],
+    "thumb": "/cards/thumb/ovis-image-1.webp"
+  },
+  "pixart-sigma": {
+    "card": "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+    "site": "https://github.com/PixArt-alpha/PixArt-sigma",
+    "uses": [
+      "Light-memory 1024 px generation",
+      "Up to 2K and 4K single-pass output",
+      "Research on small diffusion transformers"
+    ],
+    "avoid": [
+      "Fine detail: modest model size"
+    ],
+    "sources": [
+      "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+      "https://github.com/PixArt-alpha/PixArt-sigma"
+    ],
+    "images": [
+      {
+        "file": "/cards/pixart-sigma-1.webp",
+        "width": 1024,
+        "height": 642,
+        "caption": "Row of PixArt-Sigma samples up to 4K",
+        "source": "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS"
+      }
+    ],
+    "thumb": "/cards/thumb/pixart-sigma-1.webp"
+  },
+  "qwen-image-2-1-turbo": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo",
+    "site": "https://qwen.ai/blog?id=qwen-image-2.1",
+    "uses": [
+      "Fast generation in 8 steps",
+      "Transparent RGBA images",
+      "Editing with up to 10 references"
+    ],
+    "avoid": [
+      "Commercial use: research licence"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo",
+      "https://qwen.ai/blog?id=qwen-image-2.1"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "qwen-image-2-1": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image-2.1",
+    "site": "https://qwen.ai/blog?id=qwen-image-2.1",
+    "uses": [
+      "Better typography and layout",
+      "Transparent images and subject extraction",
+      "Local edits from marks or masks"
+    ],
+    "avoid": [
+      "Commercial use: research licence"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image-2.1",
+      "https://qwen.ai/blog?id=qwen-image-2.1"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "qwen-image-edit-2511": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
+    "site": "https://qwenlm.github.io/blog/qwen-image-edit-2511/",
+    "uses": [
+      "Edits that keep people and subjects consistent",
+      "Industrial and product design edits",
+      "Multi-image edits with less drift"
+    ],
+    "avoid": [
+      "Weak hardware: large model"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
+      "https://qwenlm.github.io/blog/qwen-image-edit-2511/"
+    ],
+    "images": [
+      {
+        "file": "/cards/qwen-image-edit-2511-1.webp",
+        "width": 1024,
+        "height": 621,
+        "caption": "Overview of Qwen-Image-Edit-2511 editing examples",
+        "source": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511"
+      }
+    ],
+    "thumb": "/cards/thumb/qwen-image-edit-2511-1.webp"
+  },
+  "qwen-image": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image",
+    "site": "https://qwenlm.github.io/blog/qwen-image/",
+    "uses": [
+      "Complex text rendering in images",
+      "Chinese and English signs and posters",
+      "General generation under Apache-2.0"
+    ],
+    "avoid": [
+      "Small GPUs: 20B model"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image",
+      "https://qwenlm.github.io/blog/qwen-image/"
+    ],
+    "images": [
+      {
+        "file": "/cards/qwen-image-1.webp",
+        "width": 1024,
+        "height": 609,
+        "caption": "Montage of Qwen-Image samples",
+        "source": "https://huggingface.co/Qwen/Qwen-Image"
+      },
+      {
+        "file": "/cards/qwen-image-2.webp",
+        "width": 731,
+        "height": 1024,
+        "caption": "Qwen-Image text rendering sample",
+        "source": "https://huggingface.co/Qwen/Qwen-Image"
+      }
+    ],
+    "thumb": "/cards/thumb/qwen-image-1.webp"
+  },
+  "realvisxl-v5": {
+    "card": "https://huggingface.co/SG161222/RealVisXL_V5.0",
+    "site": null,
+    "uses": [
+      "Photorealistic scenes",
+      "SDXL-based photos with upscaling workflows"
+    ],
+    "avoid": [
+      "Text in images",
+      "Strictly safe-for-work use: card says it can make NSFW"
+    ],
+    "sources": [
+      "https://huggingface.co/SG161222/RealVisXL_V5.0"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "sd-turbo": {
+    "card": "https://huggingface.co/stabilityai/sd-turbo",
+    "site": null,
+    "uses": [
+      "Near real-time 512 px drafts",
+      "Studying small distilled models"
+    ],
+    "avoid": [
+      "Detail and prompt accuracy: card suggests SDXL-Turbo",
+      "Commercial use: needs Stability licence"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/sd-turbo"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "sd15": {
+    "card": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
+    "site": null,
+    "uses": [
+      "Small, quick 512 px generation",
+      "Large ecosystem of tools and add-ons"
+    ],
+    "avoid": [
+      "High resolution or accurate text"
+    ],
+    "sources": [
+      "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "sd35-large": {
+    "card": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large",
+    "site": null,
+    "uses": [
+      "Better composition and typography",
+      "Complex prompts",
+      "Local use via Diffusers or ComfyUI"
+    ],
+    "avoid": [
+      "Factual depictions of real people or events",
+      "Commercial use above 1M USD revenue without enterprise licence"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/stable-diffusion-3.5-large"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "sd35-medium": {
+    "card": "https://huggingface.co/stabilityai/stable-diffusion-3.5-medium",
+    "site": null,
+    "uses": [
+      "Text rendering on modest hardware",
+      "Varied sizes and aspect ratios",
+      "Efficient local generation"
+    ],
+    "avoid": [
+      "Long prompts: past 256 tokens edges may break",
+      "Factual depictions of people"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/stable-diffusion-3.5-medium"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "sdxl-turbo": {
+    "card": "https://huggingface.co/stabilityai/sdxl-turbo",
+    "site": null,
+    "uses": [
+      "Real-time 512 px generation in 1 to 4 steps",
+      "Fast previews for prompt exploration"
+    ],
+    "avoid": [
+      "Commercial use: needs Stability licence"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/sdxl-turbo"
+    ],
+    "images": [],
+    "thumb": null
+  },
+  "sdxl": {
+    "card": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
+    "site": null,
+    "uses": [
+      "General 1024 px generation",
+      "Base for fine-tunes and refiner pipelines"
+    ],
+    "avoid": [
+      "Text in images"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+    ],
+    "images": [
+      {
+        "file": "/cards/sdxl-1.webp",
+        "width": 1024,
+        "height": 606,
+        "caption": "SDXL base sample images from the card",
+        "source": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+      }
+    ],
+    "thumb": "/cards/thumb/sdxl-1.webp"
+  },
+  "z-image-turbo": {
+    "card": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+    "site": "https://github.com/Tongyi-MAI/Z-Image",
+    "uses": [
+      "Fast photorealism in 8 steps",
+      "Bilingual English and Chinese text",
+      "Runs on consumer GPUs"
+    ],
+    "avoid": [
+      "Negative prompts: Turbo follows them less than the base"
+    ],
+    "sources": [
+      "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+      "https://github.com/Tongyi-MAI/Z-Image"
+    ],
+    "images": [
+      {
+        "file": "/cards/z-image-turbo-1.webp",
+        "width": 1024,
+        "height": 537,
+        "caption": "English and Chinese text rendering samples",
+        "source": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo"
+      },
+      {
+        "file": "/cards/z-image-turbo-2.webp",
+        "width": 1024,
+        "height": 621,
+        "caption": "Photorealistic samples; may include generated portraits",
+        "source": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo"
+      }
+    ],
+    "thumb": "/cards/thumb/z-image-turbo-1.webp"
+  },
+  "z-image": {
+    "card": "https://huggingface.co/Tongyi-MAI/Z-Image",
+    "site": "https://tongyi-mai.github.io/Z-Image-blog/",
+    "uses": [
+      "Varied outputs across seeds",
+      "Negative prompting and full guidance",
+      "Base for LoRAs and ControlNet"
+    ],
+    "avoid": [
+      "Speed: undistilled, slower than Turbo"
+    ],
+    "sources": [
+      "https://huggingface.co/Tongyi-MAI/Z-Image",
+      "https://tongyi-mai.github.io/Z-Image-blog/"
+    ],
+    "images": [
+      {
+        "file": "/cards/z-image-1.webp",
+        "width": 1024,
+        "height": 954,
+        "caption": "Teaser of Z-Image samples",
+        "source": "https://huggingface.co/Tongyi-MAI/Z-Image"
+      }
+    ],
+    "thumb": "/cards/thumb/z-image-1.webp"
+  }
+}

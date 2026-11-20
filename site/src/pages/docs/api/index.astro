@@ -1,0 +1,17 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { apiDocs } from '../../../lib/docs';
+import { PRODUCT_NAME } from '../../../config';
+
+const { intro, sections } = apiDocs();
+---
+<DocsLayout title="HTTP API" description={`The ${PRODUCT_NAME} engine's HTTP API, including an OpenAI-compatible images endpoint.`}>
+  <Fragment set:html={intro} />
+  <p>Rendered from the engine's own <code>API.md</code>. Includes an OpenAI-compatible <code>/v1/images/generations</code>, so existing OpenAI clients can point at your GPU.</p>
+  <h2 id="sections">Sections</h2>
+  <ul class="api-index" role="list">
+    {sections.map((s) => (
+      <li><a href={`/docs/api/${s.slug}`}><span class="font-medium">{s.title}</span>{s.heads.length > 0 && <span class="edge text-muted">{s.heads.length} {s.heads.length === 1 ? 'endpoint' : 'entries'}</span>}</a></li>
+    ))}
+  </ul>
+</DocsLayout>

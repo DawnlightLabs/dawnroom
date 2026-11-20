@@ -1,0 +1,31 @@
+---
+/**
+ * The Dawnroom lockup: the tile (gradient master from 32 px, flat two-tone below) at 1.3 × the
+ * wordmark's cap height, a 0.42 × tile gap, and the Dawnlight Display wordmark as paths in currentColor.
+ * `cap` is the cap height in px. With `markOnly`, just the tile.
+ * The header copy carries `data-intro-mark`: on a first visit the sun sweep rises into the tile (a
+ * body-only cover, clipped to a circle on the tile's core, shrinks from the far corner to the cut).
+ */
+import { markFor, MARK_BODY, MARK_GEOM as G, WORDMARK_PATH, WORDMARK_VIEWBOX } from '../lib/brand';
+interface Props { cap?: number; markOnly?: boolean; class?: string; intro?: boolean }
+const { cap = 14, markOnly = false, class: cls = '', intro = false } = Astro.props;
+const m = Math.round(cap * 1.3);
+const src = markFor(m);
+const px = (share: number) => `${(share * m).toFixed(2)}px`;
+const vars = `width:${m}px;height:${m}px;--cx:${px(G.cx)};--cy:${px(G.cy)};--cut:${px(G.cut)};--far:${px(G.far)}`;
+---
+{markOnly
+  ? <img src={src} width={m} height={m} alt="" class:list={['flex-none', cls]} />
+  : (
+    <span class:list={['lockup inline-flex items-center', cls]} style={`gap:${(m * 0.42).toFixed(1)}px`} data-intro-mark={intro ? '' : undefined}>
+      <span class="lockup-mark block flex-none" style={vars}>
+        <img class="lockup-top block" src={src} width={m} height={m} alt="" />
+        {intro && (m <= 24
+          ? <span class="lockup-under" style={`background:${G.flatBody};border-radius:${px(G.radius)}`} aria-hidden="true"></span>
+          : <img class="lockup-under" src={MARK_BODY} width={m} height={m} alt="" />)}
+      </span>
+      <svg class="lockup-word block flex-none" height={cap} width={((cap * 6983) / 700).toFixed(1)} viewBox={WORDMARK_VIEWBOX} aria-hidden="true" focusable="false">
+        <path d={WORDMARK_PATH} fill="currentColor" />
+      </svg>
+    </span>
+  )}

@@ -1,0 +1,87 @@
+---
+/**
+ * Every docs page: the sidebar flush on the left (current page marked), the article, "On this page"
+ * on the right from 1280px, and previous/next links at the bottom. Modelled on docs.ollama.com.
+ */
+import Base from './Base.astro';
+import Icon from '../components/Icon.astro';
+import { docsNav, type Head } from '../lib/docs';
+import { PRODUCT_NAME } from '../config';
+
+interface Props { title: string; description?: string; toc?: Head[]; api?: boolean }
+const { title, description, toc = [], api = false } = Astro.props;
+const here = Astro.url.pathname.replace(/\/$/, '') || '/';
+const groups = docsNav();
+const flat = groups.flatMap((g) => g.links.map((l) => ({ ...l, group: g.title })));
+const at = flat.findIndex((l) => l.href === here);
+const group = flat[at]?.group ?? 'Docs';
+const prev = at > 0 ? flat[at - 1] : null;
+const next = at >= 0 && at < flat.length - 1 ? flat[at + 1] : null;
+---
+<Base title={`${title} · Docs`} nav="docs" description={description ?? `${title}: ${PRODUCT_NAME} docs.`}>
+  <div class="docs-shell">
+    <nav aria-label="Docs" class="docs-nav">
+      {groups.map((g) => (
+        <div class="docs-group">
+          <p class="docs-group-title">{g.title}</p>
+          <ul role="list">{g.links.map((l) => <li><a href={l.href} aria-current={l.href === here ? 'page' : undefined}>{l.label}</a></li>)}</ul>
+        </div>
+      ))}
+    </nav>
+
+    <div class="docs-main">
+      <article class:list={['prose docs-body min-w-0', api && 'docs-api']}>
+        <p class="docs-eyebrow">{group}</p>
+        <h1 class="display text-[2.6rem] leading-none sm:text-[3.2rem]">{title}</h1>
+
+        <details class="docs-mobile lg:hidden">
+          <summary><span>Docs menu</span><Icon name="down" /></summary>
+          {groups.map((g) => (
+            <div class="docs-group">
+              <p class="docs-group-title">{g.title}</p>
+              <ul role="list">{g.links.map((l) => <li><a href={l.href} aria-current={l.href === here ? 'page' : undefined}>{l.label}</a></li>)}</ul>
+            </div>
+          ))}
+        </details>
+
+        <slot />
+
+        {(prev || next) && (
+          <nav aria-label="Previous and next" class="docs-pager">
+            {prev ? <a href={prev.href} class="docs-pager-link"><span class="edge text-muted">Previous</span><span class="flex items-center gap-1.5"><Icon name="back" class="i-sm" />{prev.label}</span></a> : <span></span>}
+            {next && <a href={next.href} class="docs-pager-link is-next"><span class="edge text-muted">Next</span><span class="flex items-center gap-1.5">{next.label}<Icon name="next" class="i-sm" /></span></a>}
+          </nav>
+        )}
+      </article>
+
+      <aside class="docs-toc" aria-label="On this page">
+        {toc.length > 0 && (
+          <>
+            <p class="docs-toc-title"><Icon name="filter" class="i-sm" />On this page</p>
+            <ul role="list">{toc.map((h) => <li><a href={`#${h.id}`} data-kid={h.id}>{h.label}</a></li>)}</ul>
+          </>
+        )}
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Mark the heading being read in "On this page".
+    const kids = [...document.querySelectorAll<HTMLAnchorElement>('[data-kid]')];
+    const heads = kids.map((k) => document.getElementById(k.dataset.kid!)).filter((h): h is HTMLElement => !!h);
+    const mark = () => {
+      let on: string | undefined;
+      for (const h of heads) if (h.getBoundingClientRect().top <= 140) on = h.id;
+      for (const k of kids) (k.dataset.kid === on ? k.setAttribute('aria-current', 'true') : k.removeAttribute('aria-current'));
+    };
+    if (kids.length) {
+      let queued = false;
+      addEventListener('scroll', () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => ((queued = false), mark()));
+      }, { passive: true });
+      mark();
+    }
+  </script>
+</Base>

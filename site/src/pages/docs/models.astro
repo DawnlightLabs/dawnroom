@@ -1,0 +1,35 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BIN, PRODUCT_NAME } from '../../config';
+const fits = [
+  ['On the GPU', 'The whole model fits in graphics memory. The fastest way to run.'],
+  ['RAM offload', 'Part of the model waits in system memory and moves to the card as it runs. It works, more slowly.'],
+  ['Needs more memory', 'Too big for this card and this much system memory together. The download is still offered, with that warning.'],
+];
+---
+<DocsLayout title="Models" description={`The models ${PRODUCT_NAME} can run, how big they are, and whether they run on your machine.`}
+  toc={[{ id: 'library', label: 'The library' }, { id: 'sizes', label: 'Sizes' }, { id: 'memory', label: 'Memory and RAM offload' }, { id: 'licences', label: 'Licences' }, { id: 'delete', label: 'Delete a model' }]}>
+  <p>The <strong>Models</strong> page lists every model in {PRODUCT_NAME}'s library, the ones on this machine first. Each row shows what the model does (make images, edit them, or both), how much memory it needs here, its download size and, where {PRODUCT_NAME} has measured it on a card like yours, how long an image takes. Click a row for the details.</p>
+
+  <h2 id="library">The library</h2>
+  <p>The library is well-known, official image and edit models that the engine's image runtime supports. {PRODUCT_NAME} doesn't host models: each one downloads from its makers' repo, or a reputable mirror of it, and is checked file by file. To add one that isn't listed, see <a href="/docs/add-a-model">Add a model</a>.</p>
+
+  <h2 id="sizes">Sizes</h2>
+  <p>Many models come in more than one size, shown as tags like <code>q4</code>, <code>q8</code> or <code>fp16</code>. The number is roughly the bits per weight: <code>q4</code> is the smallest and fastest to download, with a little less detail; <code>q8</code> and up keep more. {PRODUCT_NAME} picks the size that suits your machine when you download a model; the details panel lets you choose another, each with its own size and fit.</p>
+  <p>In the CLI a size is part of the name: <code>{BIN} pull z-image-turbo:q8</code>. Without a tag you get the one that suits this machine.</p>
+
+  <h2 id="memory">Memory and RAM offload</h2>
+  <p>Next to each model, {PRODUCT_NAME} says how it runs on this machine, from the graphics card's memory and the system memory together:</p>
+  <table>
+    <thead><tr><th>It says</th><th>What it means</th></tr></thead>
+    <tbody>{fits.map(([a, b]) => <tr><td>{a}</td><td>{b}</td></tr>)}</tbody>
+  </table>
+  <p>Memory marked <strong>est.</strong> is an estimate from the file sizes; the rest was measured. Other apps using the graphics card (games, browsers, video calls) leave less room: if a model that fits runs slowly, close them. A time is shown only where {PRODUCT_NAME} has one for your card.</p>
+
+  <h2 id="licences">Licences</h2>
+  <p>Every model has its makers' licence, shown in its details with a link to the full text. Some allow commercial use, some have restrictions (a revenue cap, a use policy) and some are for non-commercial use only; the row says so.</p>
+  <p>A few models' official repos ask people to accept their licence before downloading. {PRODUCT_NAME} downloads them from a mirror and asks you the same: it shows the licence and downloads only after you accept. The acceptance is remembered for that model and that licence; a new licence asks again.</p>
+
+  <h2 id="delete">Delete a model</h2>
+  <p>Open a model's details and choose <strong>Delete</strong>. Files that another installed model also uses (a shared text encoder, for example) are kept. Your prints are never touched. From the CLI: <code>{BIN} rm &lt;model&gt;</code>.</p>
+</DocsLayout>

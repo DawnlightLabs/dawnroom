@@ -1,0 +1,19 @@
+---
+/** A sample image as a print, with its recipe as a film-edge caption (as in Studio). */
+import type { Sample } from '../lib/registry';
+import { recipeLine } from '../lib/registry';
+
+interface Props { sample: Sample; modelName?: string; eager?: boolean; sizes?: string; showPrompt?: boolean; class?: string }
+const { sample: s, modelName, eager = false, showPrompt = true, class: cls = '' } = Astro.props;
+---
+<figure class:list={['print m-0', cls]}>
+  <img src={s.file} width={s.width} height={s.height} alt={s.prompt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+  <figcaption class="mt-2.5 px-0.5">
+    <div class="edge text-muted flex flex-wrap justify-between gap-x-3">
+      <span>{recipeLine(s)}</span>
+      <span>{s.width}×{s.height}</span>
+    </div>
+    {showPrompt && <p class="mt-1 text-[14px] leading-snug text-ink">{s.prompt}</p>}
+    {modelName && <p class="edge text-muted mt-0.5">{modelName}</p>}
+  </figcaption>
+</figure>

@@ -1,0 +1,624 @@
+# Hand-written input for engine/scripts/gen_models.py, which writes registry/<id>.toml.
+# Only what a person has to decide lives here: which model, which recipe, which files from which
+# mirror. Revisions, sizes, sha256, licence ids and the gated flag come from the live Hugging Face
+# API; steps, guidance and sampler come from sd-server's built-in recipe at the pinned sd.cpp commit
+# (.ref/sdcpp-465adf3/examples/server/recipes/<recipe>.json), with `defaults` here on top.
+#
+# files    = what every size tag uses (text encoders, VAE): chosen so the smallest tag runs on 8 GB.
+# variants = per size tag, the files that differ (usually the diffusion weights).
+# licence  = only for licences the HF API reports as "other": read from the model card by hand.
+#            Revenue-capped licences are `commercial = false` with the cap in the note: presets
+#            only use models that are commercially clean for everyone.
+# Mirrors: leejet, QuantStack, unsloth, city96, Comfy-Org, the model's own org, and the uploaders
+# sd.cpp's own docs point to at 465adf3 (mradermacher, second-state, silveroxides, vantagewithai,
+# realrebelai). Never a fine-tune, merge or uncensored model (RealVisXL is the one exception).
+
+# Where each re-hosted file's bytes come from (generator: "provenance" in every manifest file).
+# "=<org>/<repo>/<path>": the same bytes as that official file; the generator compares the sha256
+# with the official repo's (its `?blobs=true` API shows LFS sha256 even for gated repos) and stops
+# on a mismatch. Plain words: what the uploader did. Unlisted files: "official file" when they come
+# from the model's own org, "quantised by <uploader>" for GGUFs; anything else must be listed here.
+[provenance]
+"Comfy-Org/Z-Image-Turbo/split_files/vae/ae.safetensors" = "=black-forest-labs/FLUX.1-schnell/ae.safetensors"
+"Comfy-Org/Flux-2-Klein-4B/split_files/vae/flux2-vae.safetensors" = "=black-forest-labs/FLUX.2-dev/ae.safetensors"
+"comfyanonymous/flux_text_encoders/clip_l.safetensors" = "=stabilityai/stable-diffusion-3.5-large/text_encoders/clip_l.safetensors"
+"comfyanonymous/flux_text_encoders/t5xxl_fp8_e4m3fn.safetensors" = "=stabilityai/stable-diffusion-3.5-large/text_encoders/t5xxl_fp8_e4m3fn.safetensors"
+"Comfy-Org/stable-diffusion-1.5/v1-5-pruned-emaonly-fp16.safetensors" = "fp16 copy of the official v1-5-pruned-emaonly checkpoint, by Comfy-Org (no official fp16 single file to compare)"
+"madebyollin/sdxl-vae-fp16-fix/sdxl.vae.safetensors" = "SDXL VAE fine-tuned by madebyollin to run in fp16 (not the official bytes, by design)"
+"QuantStack/Qwen-Image-GGUF/VAE/Qwen_Image-VAE.safetensors" = "Qwen-Image VAE repacked by QuantStack (the official file is diffusers-format; no byte match)"
+"Comfy-Org/Qwen-Image-2.1/vae/qwen_image_2.1_vae_bf16.safetensors" = "Qwen-Image 2.1 VAE repacked to ComfyUI format by Comfy-Org (no byte match)"
+"Comfy-Org/Qwen-Image-2.1/diffusion_models/qwen_image_2.1_turbo_bf16.safetensors" = "repacked to a single bf16 file by Comfy-Org from the official sharded weights (no byte match)"
+"Comfy-Org/Wan_2.1_ComfyUI_repackaged/split_files/vae/wan_2.1_vae.safetensors" = "Wan 2.1 VAE repacked to safetensors by Comfy-Org (the official file is .pth; no byte match)"
+"Comfy-Org/Wan-2.1/split_files/vae/wan_2.1_vae.safetensors" = "Wan 2.1 VAE repacked to safetensors by Comfy-Org (the official file is .pth; no byte match)"
+"Comfy-Org/Chroma1-Radiance/split_files/diffusion_models/chroma-radiance-x0.safetensors" = "Chroma1-Radiance x0 repacked by Comfy-Org (differs from lodestones' latest_x0.safetensors; no byte match)"
+"Comfy-Org/HiDream-O1-Image/checkpoints/hidream_o1_image_dev_bf16.safetensors" = "single-file bf16 repack by Comfy-Org of the official weights (no byte match)"
+"Comfy-Org/Fibo-2.0/diffusion_models/fibo2_dev_int8_convrot.safetensors" = "quantised to int8 convrot by Comfy-Org"
+"Comfy-Org/Fibo-2.0/diffusion_models/fibo2_dev_bf16.safetensors" = "single-file bf16 repack by Comfy-Org of the official weights (no byte match)"
+"Comfy-Org/Ovis-Image/split_files/text_encoders/ovis_2.5.safetensors" = "Ovis 2.5 text encoder repacked by Comfy-Org (no byte match)"
+"Comfy-Org/Fibo-2.0/diffusion_models/fibo2_edit_turbo_int8_convrot.safetensors" = "quantised to int8 convrot by Comfy-Org"
+"Comfy-Org/Fibo-2.0/diffusion_models/fibo2_edit_turbo_bf16.safetensors" = "single-file bf16 repack by Comfy-Org of the official weights (no byte match)"
+
+[[model]]
+id = "z-image-turbo"
+name = "Z-Image Turbo"
+tagline = "Best all-rounder. Sharp prompt-following and clean, legible text."
+tags = ["quality", "text", "photo"]
+recipe = "z-image-turbo"
+original = "Tongyi-MAI/Z-Image-Turbo"
+# Measured at 8 steps (Slice 0); the recipe says 9.
+defaults = { steps = 8 }
+files = [
+  { role = "llm", repo = "unsloth/Qwen3-4B-Instruct-2507-GGUF", path = "Qwen3-4B-Instruct-2507-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/Z-Image-Turbo-GGUF", path = "z_image_turbo-Q4_K.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/Z-Image-Turbo-GGUF", path = "z_image_turbo-Q8_0.gguf" }]
+
+[[model]]
+id = "z-image"
+name = "Z-Image"
+tagline = "The full Z-Image base model: slower than Turbo, more variety, follows negative prompts."
+tags = ["text", "photo"]
+recipe = "z-image"
+original = "Tongyi-MAI/Z-Image"
+defaults = { width = 1024, height = 1024 }
+files = [
+  { role = "llm", repo = "unsloth/Qwen3-4B-Instruct-2507-GGUF", path = "Qwen3-4B-Instruct-2507-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/Z-Image-GGUF", path = "z_image-Q4_0.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/Z-Image-GGUF", path = "z_image-Q8_0.gguf" }]
+
+[[model]]
+id = "flux2-klein-4b"
+name = "FLUX.2 klein 4B"
+tagline = "The fast one. Vivid, crisp images in 4 steps; weaker on small text."
+tags = ["fast", "photo"]
+recipe = "flux2-klein-4b"
+# Reference-image editing (sd.cpp flux2 preset: references go to the DiT through the VAE).
+tasks = ["generate", "edit"]
+original = "black-forest-labs/FLUX.2-klein-4B"
+files = [
+  { role = "llm", repo = "unsloth/Qwen3-4B-GGUF", path = "Qwen3-4B-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/FLUX.2-klein-4B-GGUF", path = "flux-2-klein-4b-Q4_0.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/FLUX.2-klein-4B-GGUF", path = "flux-2-klein-4b-Q8_0.gguf" }]
+
+[[model]]
+id = "flux2-klein-9b"
+name = "FLUX.2 klein 9B"
+tagline = "The bigger klein: more detail than 4B at the same four steps. Non-commercial."
+tags = ["fast", "photo"]
+recipe = "flux2-klein-9b"
+# Reference-image editing (sd.cpp flux2 preset: references go to the DiT through the VAE).
+tasks = ["generate", "edit"]
+original = "black-forest-labs/FLUX.2-klein-9B"
+licence = { spdx = "LicenseRef-FLUX-Non-Commercial", name = "FLUX Non-Commercial License", url = "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B/blob/main/LICENSE.md", commercial = false, note = "Non-commercial use only." }
+files = [
+  { role = "llm", repo = "unsloth/Qwen3-8B-GGUF", path = "Qwen3-8B-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/FLUX.2-klein-9B-GGUF", path = "flux-2-klein-9b-Q4_0.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/FLUX.2-klein-9B-GGUF", path = "flux-2-klein-9b-Q8_0.gguf" }]
+
+[[model]]
+id = "flux2-dev"
+name = "FLUX.2 dev"
+tagline = "Black Forest Labs' 32B flagship. Needs a big GPU or lots of RAM. Non-commercial."
+tags = ["photo", "text", "big"]
+recipe = "flux2-dev"
+# Reference-image editing (sd.cpp flux2 preset: references go to the DiT through the VAE).
+tasks = ["generate", "edit"]
+original = "black-forest-labs/FLUX.2-dev"
+licence = { spdx = "LicenseRef-FLUX-Non-Commercial", name = "FLUX Non-Commercial License", url = "https://huggingface.co/black-forest-labs/FLUX.2-dev/blob/main/LICENSE.md", commercial = false, note = "Non-commercial use only." }
+files = [
+  { role = "llm", repo = "unsloth/Mistral-Small-3.2-24B-Instruct-2506-GGUF", path = "Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "city96/FLUX.2-dev-gguf", path = "flux2-dev-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "city96/FLUX.2-dev-gguf", path = "flux2-dev-Q8_0.gguf" }]
+
+[[model]]
+id = "flux3-klein"
+name = "FLUX.3 Image klein"
+tagline = "The newest small FLUX: strong prompt-following in 16 steps. Revenue-capped licence."
+tags = ["photo", "text"]
+recipe = "flux3-klein"
+# Reference-image editing (sd.cpp flux2 preset: references go to the DiT through the VAE).
+tasks = ["generate", "edit"]
+original = "black-forest-labs/flux-3-image-klein"
+licence = { spdx = "LicenseRef-FLUX-Kommunity", name = "FLUX Kommunity License v1.0", url = "https://huggingface.co/black-forest-labs/flux-3-image-klein/blob/main/LICENSE.md", commercial = false, use_restrictions = true, note = "Non-commercial use, or commercial use under US$5M annual revenue with content filters in place (section 2.e)." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-4B-Instruct-GGUF", path = "Qwen3VL-4B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/flux-3-image-klein-GGUF", path = "flux3-image-klein-Q4_K.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/flux-3-image-klein-GGUF", path = "flux3-image-klein-Q8_0.gguf" }]
+
+[[model]]
+id = "flux3-klein-base"
+name = "FLUX.3 Image klein base"
+tagline = "The undistilled FLUX.3 klein: slower, more varied, follows negative prompts."
+tags = ["photo"]
+recipe = "flux3-klein-base"
+# Reference-image editing (sd.cpp flux2 preset: references go to the DiT through the VAE).
+tasks = ["generate", "edit"]
+original = "black-forest-labs/flux-3-image-klein-base"
+licence = { spdx = "LicenseRef-FLUX-Kommunity", name = "FLUX Kommunity License v1.0", url = "https://huggingface.co/black-forest-labs/flux-3-image-klein-base/blob/main/LICENSE.md", commercial = false, use_restrictions = true, note = "Non-commercial use, or commercial use under US$5M annual revenue with content filters in place (section 2.e)." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-4B-Instruct-GGUF", path = "Qwen3VL-4B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/flux-3-image-klein-base-GGUF", path = "flux3-image-klein-base-Q4_K.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/flux-3-image-klein-base-GGUF", path = "flux3-image-klein-base-Q8_0.gguf" }]
+
+[[model]]
+id = "flux1-schnell"
+name = "FLUX.1 schnell"
+tagline = "The original fast FLUX: good images in four steps, Apache-2.0."
+tags = ["fast", "photo"]
+recipe = "flux1-schnell"
+original = "black-forest-labs/FLUX.1-schnell"
+files = [
+  { role = "clip_l", repo = "comfyanonymous/flux_text_encoders", path = "clip_l.safetensors" },
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/FLUX.1-schnell-gguf", path = "flux1-schnell-q4_k.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/FLUX.1-schnell-gguf", path = "flux1-schnell-q8_0.gguf" }]
+
+[[model]]
+id = "flux1-dev"
+name = "FLUX.1 dev"
+tagline = "The classic FLUX quality model, 20 steps. Non-commercial."
+tags = ["photo"]
+recipe = "flux1-dev"
+original = "black-forest-labs/FLUX.1-dev"
+licence = { spdx = "LicenseRef-FLUX-1-dev-Non-Commercial", name = "FLUX.1 [dev] Non-Commercial License", url = "https://huggingface.co/black-forest-labs/FLUX.1-dev/blob/main/LICENSE.md", commercial = false, note = "Non-commercial use only. The licence lets you use outputs commercially, but not the model." }
+files = [
+  { role = "clip_l", repo = "comfyanonymous/flux_text_encoders", path = "clip_l.safetensors" },
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/FLUX.1-dev-gguf", path = "flux1-dev-q4_k.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/FLUX.1-dev-gguf", path = "flux1-dev-q8_0.gguf" }]
+
+[[model]]
+id = "chroma1-hd"
+name = "Chroma1-HD"
+tagline = "An open FLUX.1 schnell derivative trained further for detail, Apache-2.0."
+tags = ["photo"]
+recipe = "chroma"
+original = "lodestones/Chroma1-HD"
+files = [
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "silveroxides/Chroma1-HD-GGUF", path = "Chroma1-HD-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "silveroxides/Chroma1-HD-GGUF", path = "Chroma1-HD-Q8_0.gguf" }]
+
+[[model]]
+id = "chroma1-radiance"
+name = "Chroma1-Radiance"
+tagline = "Chroma in pixel space: no VAE, so no VAE artefacts. Big and slow."
+tags = ["photo", "big"]
+recipe = "chroma-radiance"
+original = "lodestones/Chroma1-Radiance"
+files = [
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+]
+[model.variants]
+bf16 = [{ role = "diffusion_model", repo = "Comfy-Org/Chroma1-Radiance", path = "split_files/diffusion_models/chroma-radiance-x0.safetensors" }]
+
+[[model]]
+id = "sd15"
+name = "Stable Diffusion 1.5"
+tagline = "The classic. Small and quick at 512 px; dated next to newer models."
+tags = ["small", "classic"]
+recipe = "sd1-checkpoint"
+original = "stable-diffusion-v1-5/stable-diffusion-v1-5"
+files = []
+[model.variants]
+fp16 = [{ role = "checkpoint", repo = "Comfy-Org/stable-diffusion-1.5", path = "v1-5-pruned-emaonly-fp16.safetensors" }]
+
+[[model]]
+id = "sdxl"
+name = "Stable Diffusion XL 1.0"
+tagline = "The SDXL base model at 1024 px: well known, no text."
+tags = ["classic", "sdxl"]
+recipe = "sdxl-checkpoint"
+original = "stabilityai/stable-diffusion-xl-base-1.0"
+files = [
+  { role = "vae", repo = "madebyollin/sdxl-vae-fp16-fix", path = "sdxl.vae.safetensors" },
+]
+[model.variants]
+fp16 = [{ role = "checkpoint", repo = "stabilityai/stable-diffusion-xl-base-1.0", path = "sd_xl_base_1.0.safetensors" }]
+
+[[model]]
+id = "sdxl-turbo"
+name = "SDXL Turbo"
+tagline = "SDXL in one step at 512 px. Non-commercial."
+tags = ["fast", "sdxl"]
+recipe = "sdxl-turbo"
+original = "stabilityai/sdxl-turbo"
+licence = { spdx = "LicenseRef-SAI-NC-Community", name = "Stability AI Non-Commercial Research Community License", url = "https://huggingface.co/stabilityai/sdxl-turbo/blob/main/LICENSE.md", commercial = false, note = "Non-commercial use only; commercial use needs a licence from Stability AI." }
+files = [
+  { role = "vae", repo = "madebyollin/sdxl-vae-fp16-fix", path = "sdxl.vae.safetensors" },
+]
+[model.variants]
+fp16 = [{ role = "checkpoint", repo = "stabilityai/sdxl-turbo", path = "sd_xl_turbo_1.0_fp16.safetensors" }]
+
+[[model]]
+id = "sd-turbo"
+name = "SD Turbo"
+tagline = "SD 2.1 distilled to one step at 512 px. Tiny and instant, low detail."
+tags = ["fast", "small"]
+recipe = "sd-turbo"
+original = "stabilityai/sd-turbo"
+licence = { spdx = "LicenseRef-Stability-AI-Community", name = "Stability AI Community License", url = "https://huggingface.co/stabilityai/sd-turbo/blob/main/LICENSE.md", commercial = false, use_restrictions = true, note = "Free for non-commercial use, and for commercial use under US$1M annual revenue; above that you need an enterprise licence from Stability AI. Acceptable Use Policy applies." }
+files = []
+[model.variants]
+fp32 = [{ role = "checkpoint", repo = "stabilityai/sd-turbo", path = "sd_turbo.safetensors" }]
+
+[[model]]
+id = "sd35-large"
+name = "Stable Diffusion 3.5 Large"
+tagline = "Stability's 8B model: good composition and text, 20 steps."
+tags = ["text", "photo"]
+recipe = "sd35-large"
+original = "stabilityai/stable-diffusion-3.5-large"
+licence = { spdx = "LicenseRef-Stability-AI-Community", name = "Stability AI Community License", url = "https://huggingface.co/stabilityai/stable-diffusion-3.5-large/blob/main/LICENSE.md", commercial = false, use_restrictions = true, note = "Free for non-commercial use, and for commercial use under US$1M annual revenue; above that you need an enterprise licence from Stability AI. Acceptable Use Policy applies." }
+files = [
+  { role = "clip_l", repo = "comfyanonymous/flux_text_encoders", path = "clip_l.safetensors" },
+  { role = "clip_g", repo = "second-state/stable-diffusion-3.5-large-GGUF", path = "clip_g-Q8_0.gguf" },
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+]
+# second-state's GGUFs carry the SD3 VAE inside (first_stage_model.* tensors), so no separate VAE.
+[model.variants]
+q4 = [{ role = "checkpoint", repo = "second-state/stable-diffusion-3.5-large-GGUF", path = "sd3.5_large-Q4_0.gguf" }]
+q8 = [{ role = "checkpoint", repo = "second-state/stable-diffusion-3.5-large-GGUF", path = "sd3.5_large-Q8_0.gguf" }]
+
+[[model]]
+id = "sd35-medium"
+name = "Stable Diffusion 3.5 Medium"
+tagline = "The 2.5B SD 3.5: small enough for most cards, decent text."
+tags = ["text", "small"]
+recipe = "sd35-medium"
+original = "stabilityai/stable-diffusion-3.5-medium"
+licence = { spdx = "LicenseRef-Stability-AI-Community", name = "Stability AI Community License", url = "https://huggingface.co/stabilityai/stable-diffusion-3.5-medium/blob/main/LICENSE.md", commercial = false, use_restrictions = true, note = "Free for non-commercial use, and for commercial use under US$1M annual revenue; above that you need an enterprise licence from Stability AI. Acceptable Use Policy applies." }
+files = [
+  { role = "clip_l", repo = "comfyanonymous/flux_text_encoders", path = "clip_l.safetensors" },
+  { role = "clip_g", repo = "second-state/stable-diffusion-3.5-large-GGUF", path = "clip_g-Q8_0.gguf" },
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "checkpoint", repo = "second-state/stable-diffusion-3.5-medium-GGUF", path = "sd3.5_medium-Q4_0.gguf" }]
+q8 = [{ role = "checkpoint", repo = "second-state/stable-diffusion-3.5-medium-GGUF", path = "sd3.5_medium-Q8_0.gguf" }]
+
+[[model]]
+id = "qwen-image"
+name = "Qwen-Image"
+tagline = "A 20B model with strong text in images. Bigger than an 8 GB card: runs with RAM offload."
+tags = ["text", "big"]
+recipe = "qwen-image"
+original = "Qwen/Qwen-Image"
+# Measured with euler, cfg 2.5 (Slice 6a Part 2); the recipe says cfg 4.
+defaults = { cfg = 2.5 }
+files = [
+  { role = "llm", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.Q4_K_M.gguf" },
+  { role = "vae", repo = "QuantStack/Qwen-Image-GGUF", path = "VAE/Qwen_Image-VAE.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "QuantStack/Qwen-Image-GGUF", path = "Qwen_Image-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "QuantStack/Qwen-Image-GGUF", path = "Qwen_Image-Q8_0.gguf" }]
+
+[[model]]
+id = "qwen-image-2-1"
+name = "Qwen-Image 2.1"
+tagline = "Qwen's newer image model: sharper text and layout. Research licence."
+tags = ["text"]
+recipe = "qwen-image-21"
+original = "Qwen/Qwen-Image-2.1"
+licence = { spdx = "LicenseRef-Qwen-Research", name = "Qwen Research License Agreement", url = "https://huggingface.co/Qwen/Qwen-Image-2.1/blob/main/LICENSE", commercial = false, note = "Research and evaluation only; commercial use needs a separate licence from Qwen." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-8B-Instruct-GGUF", path = "Qwen3VL-8B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Qwen-Image-2.1", path = "vae/qwen_image_2.1_vae_bf16.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/Qwen-Image-2.1-GGUF", path = "qwen_image_2.1-Q4_K.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/Qwen-Image-2.1-GGUF", path = "qwen_image_2.1-Q8_0.gguf" }]
+
+[[model]]
+id = "qwen-image-2-1-turbo"
+name = "Qwen-Image 2.1 Turbo"
+tagline = "Qwen-Image 2.1 in eight steps. Research licence."
+tags = ["text", "fast"]
+recipe = "qwen-image-21-turbo"
+original = "Qwen/Qwen-Image-2.1-Turbo"
+licence = { spdx = "LicenseRef-Qwen-Research", name = "Qwen Research License Agreement", url = "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo/blob/main/LICENSE", commercial = false, note = "Research and evaluation only; commercial use needs a separate licence from Qwen." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-8B-Instruct-GGUF", path = "Qwen3VL-8B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Qwen-Image-2.1", path = "vae/qwen_image_2.1_vae_bf16.safetensors" },
+]
+[model.variants]
+bf16 = [{ role = "diffusion_model", repo = "Comfy-Org/Qwen-Image-2.1", path = "diffusion_models/qwen_image_2.1_turbo_bf16.safetensors" }]
+
+[[model]]
+id = "longcat-image"
+name = "LongCat-Image"
+tagline = "Meituan's bilingual model, good at Chinese and English text."
+tags = ["text", "photo"]
+recipe = "longcat-image"
+original = "meituan-longcat/LongCat-Image"
+defaults = { width = 1024, height = 1024 }
+files = [
+  { role = "llm", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "vantagewithai/LongCat-Image-GGUF", path = "comfy/LongCat-Image-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "vantagewithai/LongCat-Image-GGUF", path = "comfy/LongCat-Image-Q8_0.gguf" }]
+
+[[model]]
+id = "ernie-image"
+name = "ERNIE-Image"
+tagline = "Baidu's image model, 20 steps, strong on posters and layouts."
+tags = ["text"]
+recipe = "ernie-image"
+original = "baidu/ERNIE-Image"
+files = [
+  { role = "llm", repo = "unsloth/Ministral-3-3B-Instruct-2512-GGUF", path = "Ministral-3-3B-Instruct-2512-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "unsloth/ERNIE-Image-GGUF", path = "ernie-image-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "unsloth/ERNIE-Image-GGUF", path = "ernie-image-Q8_0.gguf" }]
+
+[[model]]
+id = "ernie-image-turbo"
+name = "ERNIE-Image Turbo"
+tagline = "ERNIE-Image in eight steps."
+tags = ["text", "fast"]
+recipe = "ernie-image-turbo"
+original = "baidu/ERNIE-Image-Turbo"
+files = [
+  { role = "llm", repo = "unsloth/Ministral-3-3B-Instruct-2512-GGUF", path = "Ministral-3-3B-Instruct-2512-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "unsloth/ERNIE-Image-Turbo-GGUF", path = "ernie-image-turbo-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "unsloth/ERNIE-Image-Turbo-GGUF", path = "ernie-image-turbo-Q8_0.gguf" }]
+
+[[model]]
+id = "krea2-turbo"
+name = "Krea 2 Turbo"
+tagline = "Krea 2 in eight steps. Revenue-capped licence."
+tags = ["photo", "fast"]
+recipe = "krea2-turbo"
+original = "krea/Krea-2-Turbo"
+licence = { spdx = "LicenseRef-Krea-2-Community", name = "Krea 2 Community License Agreement", url = "https://cdn.jsdelivr.net/gh/krea-ai/krea-2@db3984fbc6e13b34c0064990fc2d95ac64d00058/assets/hf_samples/LICENSE.pdf", commercial = false, use_restrictions = true, note = "Commercial use only under US$1M annual company revenue (section 2.3); above that you need an enterprise licence from Krea. Acceptable Use Policy applies." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-4B-Instruct-GGUF", path = "Qwen3VL-4B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Wan_2.1_ComfyUI_repackaged", path = "split_files/vae/wan_2.1_vae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "realrebelai/KREA-2_GGUFs", path = "TURBO/Krea-2-Turbo-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "realrebelai/KREA-2_GGUFs", path = "TURBO/Krea-2-Turbo-Q8_0.gguf" }]
+
+[[model]]
+id = "hidream-o1-dev"
+name = "HiDream-O1-Image Dev"
+tagline = "HiDream's single-file model (encoder built in), MIT. Big: runs with RAM offload on 8 GB."
+tags = ["photo", "big"]
+recipe = "hidream-o1-dev"
+original = "HiDream-ai/HiDream-O1-Image-Dev"
+files = []
+# Only bf16: Comfy-Org's fp8_scaled and mxfp8 files use scale formats the pinned loader doesn't read.
+[model.variants]
+bf16 = [{ role = "checkpoint", repo = "Comfy-Org/HiDream-O1-Image", path = "checkpoints/hidream_o1_image_dev_bf16.safetensors" }]
+
+[[model]]
+id = "ideogram4"
+name = "Ideogram 4"
+tagline = "Ideogram's open model, built for typography and design. Non-commercial."
+tags = ["text"]
+recipe = "ideogram4"
+original = "ideogram-ai/ideogram-4-fp8"
+licence = { spdx = "LicenseRef-Ideogram-Non-Commercial", name = "Ideogram Non-Commercial Model Agreement", url = "https://huggingface.co/ideogram-ai/ideogram-4-fp8/blob/main/LICENSE.md", commercial = false, note = "Research or evaluation only." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-8B-Instruct-GGUF", path = "Qwen3VL-8B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+q4 = [
+  { role = "diffusion_model", repo = "leejet/ideogram-4-GGUF", path = "ideogram4-Q4_0.gguf" },
+  { role = "uncond_diffusion_model", repo = "leejet/ideogram-4-GGUF", path = "ideogram4_uncond-Q4_0.gguf" },
+]
+
+[[model]]
+id = "fibo2-dev"
+name = "Fibo 2.0 dev"
+tagline = "Bria's model trained only on licensed images. Non-commercial."
+tags = ["photo"]
+recipe = "fibo2-dev"
+original = "briaai/Fibo-2.0-dev"
+licence = { spdx = "CC-BY-NC-4.0", name = "Bria Fibo licence (CC BY-NC 4.0)", url = "https://creativecommons.org/licenses/by-nc/4.0/deed.en", commercial = false, note = "Non-commercial use; commercial use needs a licence from Bria." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-4B-Instruct-GGUF", path = "Qwen3VL-4B-Instruct-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+int8 = [{ role = "diffusion_model", repo = "Comfy-Org/Fibo-2.0", path = "diffusion_models/fibo2_dev_int8_convrot.safetensors" }]
+bf16 = [{ role = "diffusion_model", repo = "Comfy-Org/Fibo-2.0", path = "diffusion_models/fibo2_dev_bf16.safetensors" }]
+
+[[model]]
+id = "pixart-sigma"
+name = "PixArt-Σ"
+tagline = "A small 0.6B transformer at 1024 px: light on memory, soft on detail."
+tags = ["small"]
+recipe = "pixart-sigma"
+original = "PixArt-alpha/PixArt-Sigma-XL-2-1024-MS"
+files = [
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+  { role = "vae", repo = "PixArt-alpha/PixArt-Sigma-XL-2-1024-MS", path = "vae/diffusion_pytorch_model.safetensors", filename = "pixart-sigma-vae.safetensors" },
+]
+[model.variants]
+fp32 = [{ role = "diffusion_model", repo = "PixArt-alpha/PixArt-Sigma-XL-2-1024-MS", path = "transformer/diffusion_pytorch_model.safetensors", filename = "pixart-sigma-xl2-1024-ms.safetensors" }]
+
+[[model]]
+id = "ovis-image"
+name = "Ovis-Image 7B"
+tagline = "A 7B model tuned for text rendering, Apache-2.0."
+tags = ["text"]
+recipe = "ovis-image"
+original = "ATH-MaaS/Ovis-Image-7B"
+files = [
+  { role = "llm", repo = "Comfy-Org/Ovis-Image", path = "split_files/text_encoders/ovis_2.5.safetensors" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/Ovis-Image-7B-GGUF", path = "ovis_image-Q4_0.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/Ovis-Image-7B-GGUF", path = "ovis_image-Q8_0.gguf" }]
+
+[[model]]
+id = "moss-image"
+name = "MOSS-Image"
+tagline = "OpenMOSS's instruction-tuned image model with a Qwen3.5 encoder, Apache-2.0."
+tags = ["photo", "text"]
+recipe = "moss-image-sft"
+original = "OpenMOSS-Team/MOSS-Image-SFT"
+files = [
+  { role = "llm", repo = "unsloth/Qwen3.5-9B-GGUF", path = "Qwen3.5-9B-Q4_K_M.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+  { role = "tokenizer", repo = "OpenMOSS-Team/MOSS-Image-SFT", path = "tokenizer/tokenizer.json", filename = "moss-image-qwen3.5-tokenizer.json" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "leejet/MOSS-Image-SFT-GGUF", path = "MOSS-Image-SFT-Q4_K.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "leejet/MOSS-Image-SFT-GGUF", path = "MOSS-Image-SFT-Q8_0.gguf" }]
+
+[[model]]
+id = "realvisxl-v5"
+name = "RealVisXL V5.0"
+tagline = "Photoreal. The most detailed skin and faces; slow, and it can't write text."
+tags = ["photoreal", "photo", "sdxl"]
+recipe = "sdxl-checkpoint"
+original = "SG161222/RealVisXL_V5.0"
+# The one named fine-tune in the registry (Photoreal). Settings measured in Slices 0 and 2.
+defaults = { steps = 28, sampler = "dpm++2m", scheduler = "karras", negative_prompt = "blurry, low quality, deformed, watermark" }
+licence = { spdx = "LicenseRef-CreativeML-OpenRAIL-PlusPlus-M", name = "CreativeML Open RAIL++-M", url = "https://huggingface.co/SG161222/RealVisXL_V5.0", commercial = true, use_restrictions = true, note = "OpenRAIL++: commercial use allowed, with use-based restrictions." }
+files = [
+  { role = "vae", repo = "madebyollin/sdxl-vae-fp16-fix", path = "sdxl.vae.safetensors" },
+]
+[model.variants]
+fp16 = [{ role = "checkpoint", repo = "SG161222/RealVisXL_V5.0", path = "RealVisXL_V5.0_fp16.safetensors" }]
+
+# ---------- Edit models (6b-3): an instruction applied to an input image, sent as ref_images ----------
+# Qwen2.5-VL / Qwen3-VL text encoders as GGUF need their vision projector (llm_vision) to see the
+# input image (sd.cpp docs: qwen_image_edit.md, longcat_image.md, fibo2.md).
+
+[[model]]
+id = "qwen-image-edit-2511"
+name = "Qwen-Image-Edit 2511"
+tagline = "Qwen's instruction editor: change text, objects and style while keeping the rest. Big: runs with RAM offload on 8 GB."
+tags = ["text", "big"]
+tasks = ["edit"]
+recipe = "qwen-image-edit-2511"
+original = "Qwen/Qwen-Image-Edit-2511"
+files = [
+  { role = "llm", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.Q4_K_M.gguf" },
+  { role = "llm_vision", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.mmproj-Q8_0.gguf" },
+  { role = "vae", repo = "QuantStack/Qwen-Image-GGUF", path = "VAE/Qwen_Image-VAE.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "unsloth/Qwen-Image-Edit-2511-GGUF", path = "qwen-image-edit-2511-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "unsloth/Qwen-Image-Edit-2511-GGUF", path = "qwen-image-edit-2511-Q8_0.gguf" }]
+
+# LongCat-Image-Edit and LongCat-Image-Edit Turbo (vantagewithai GGUFs) are left out (6b-3): at the
+# pinned build both produce grid-like noise instead of an edit, through the engine and through sd-cli
+# alike (Turbo also in plain text-to-image), with Qwen2.5-VL-7B Q4_K_M + mmproj Q8_0 + the FLUX.1 VAE.
+# Their tensor layout matches the LongCat-Image GGUF sd.cpp's docs use, and LongCat-Image itself works
+# with the same encoder, VAE and build (measured, 6b-3), so the encoder isn't it: the edit GGUFs or sd.cpp's
+# LongCat edit path at 465adf3 are left. Evidence: .shots/6b3/longcat-diag/.
+# Re-add by uncommenting once an edit comes out right.
+# [[model]]
+# id = "longcat-image-edit"
+# name = "LongCat-Image-Edit"
+# tagline = "Meituan's instruction editor, bilingual, good with text in the image. 20 steps."
+# tags = ["text"]
+# tasks = ["edit"]
+# recipe = "longcat-image-edit"
+# original = "meituan-longcat/LongCat-Image-Edit"
+# files = [
+#   { role = "llm", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.Q4_K_M.gguf" },
+#   { role = "llm_vision", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.mmproj-Q8_0.gguf" },
+#   { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+# ]
+# [model.variants]
+# q4 = [{ role = "diffusion_model", repo = "vantagewithai/LongCat-Image-Edit-GGUF", path = "LongCat-Image-Edit-Q4_K_M.gguf" }]
+# q8 = [{ role = "diffusion_model", repo = "vantagewithai/LongCat-Image-Edit-GGUF", path = "LongCat-Image-Edit-Q8_0.gguf" }]
+#
+# [[model]]
+# id = "longcat-image-edit-turbo"
+# name = "LongCat-Image-Edit Turbo"
+# tagline = "The distilled LongCat editor: the same edits in 8 steps."
+# tags = ["fast", "text"]
+# tasks = ["edit"]
+# # sd.cpp has one LongCat edit recipe; the Turbo card runs 8 steps at guidance 1.
+# recipe = "longcat-image-edit"
+# original = "meituan-longcat/LongCat-Image-Edit-Turbo"
+# defaults = { steps = 8, cfg = 1.0 }
+# files = [
+#   { role = "llm", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.Q4_K_M.gguf" },
+#   { role = "llm_vision", repo = "mradermacher/Qwen2.5-VL-7B-Instruct-GGUF", path = "Qwen2.5-VL-7B-Instruct.mmproj-Q8_0.gguf" },
+#   { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+# ]
+# [model.variants]
+# q4 = [{ role = "diffusion_model", repo = "vantagewithai/LongCat-Image-Edit-Turbo-GGUF", path = "LongCat-Image-Edit-Turbo-Q4_K_M.gguf" }]
+# q8 = [{ role = "diffusion_model", repo = "vantagewithai/LongCat-Image-Edit-Turbo-GGUF", path = "LongCat-Image-Edit-Turbo-Q8_0.gguf" }]
+
+[[model]]
+id = "flux1-kontext-dev"
+name = "FLUX.1 Kontext dev"
+tagline = "Black Forest Labs' FLUX.1 editor: precise local edits from an instruction. Non-commercial."
+tags = ["photo"]
+tasks = ["edit"]
+recipe = "flux1-kontext"
+original = "black-forest-labs/FLUX.1-Kontext-dev"
+licence = { spdx = "LicenseRef-FLUX-1-dev-Non-Commercial", name = "FLUX.1 [dev] Non-Commercial License", url = "https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev/blob/main/LICENSE.md", commercial = false, note = "Non-commercial use only. The licence lets you use outputs commercially, but not the model." }
+files = [
+  { role = "clip_l", repo = "comfyanonymous/flux_text_encoders", path = "clip_l.safetensors" },
+  { role = "t5xxl", repo = "comfyanonymous/flux_text_encoders", path = "t5xxl_fp8_e4m3fn.safetensors" },
+  { role = "vae", repo = "Comfy-Org/Z-Image-Turbo", path = "split_files/vae/ae.safetensors" },
+]
+[model.variants]
+q4 = [{ role = "diffusion_model", repo = "QuantStack/FLUX.1-Kontext-dev-GGUF", path = "flux1-kontext-dev-Q4_K_M.gguf" }]
+q8 = [{ role = "diffusion_model", repo = "QuantStack/FLUX.1-Kontext-dev-GGUF", path = "flux1-kontext-dev-Q8_0.gguf" }]
+
+[[model]]
+id = "fibo2-edit-turbo"
+name = "Fibo 2.0 Edit Turbo"
+tagline = "Bria's editor, trained only on licensed images: edits in 4 steps. Non-commercial."
+tags = ["fast", "photo"]
+tasks = ["edit"]
+recipe = "fibo2-edit-turbo"
+original = "briaai/Fibo-2.0-edit-turbo"
+licence = { spdx = "CC-BY-NC-4.0", name = "Bria Fibo licence (CC BY-NC 4.0)", url = "https://creativecommons.org/licenses/by-nc/4.0/deed.en", commercial = false, note = "Non-commercial use; commercial use needs a licence from Bria." }
+files = [
+  { role = "llm", repo = "Qwen/Qwen3-VL-4B-Instruct-GGUF", path = "Qwen3VL-4B-Instruct-Q4_K_M.gguf" },
+  { role = "llm_vision", repo = "Qwen/Qwen3-VL-4B-Instruct-GGUF", path = "mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf" },
+  { role = "vae", repo = "Comfy-Org/Flux-2-Klein-4B", path = "split_files/vae/flux2-vae.safetensors" },
+]
+[model.variants]
+int8 = [{ role = "diffusion_model", repo = "Comfy-Org/Fibo-2.0", path = "diffusion_models/fibo2_edit_turbo_int8_convrot.safetensors" }]
+bf16 = [{ role = "diffusion_model", repo = "Comfy-Org/Fibo-2.0", path = "diffusion_models/fibo2_edit_turbo_bf16.safetensors" }]

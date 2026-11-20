@@ -1,0 +1,227 @@
+name: Release
+
+# Push a tag like v0.1.0 to build everything and attach it to a DRAFT release.
+# Nothing is public until you publish the draft yourself.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Check the tag matches the app version
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          app="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' studio/src-tauri/tauri.conf.json | head -n 1)"
+          engine="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' engine/Cargo.toml | head -n 1)"
+          echo "tag=$version tauri.conf.json=$app engine=$engine"
+          [ "$version" = "$app" ] || { echo "::error::tag $tag does not match tauri.conf.json version $app"; exit 1; }
+          [ "$version" = "$engine" ] || { echo "::error::tag $tag does not match engine/Cargo.toml version $engine"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  windows:
+    name: Windows (installer + CLI zip)
+    needs: version
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      # Signs the updater files during `tauri build`.
+      # VERIFY AFTER RUN A: only used once bundle.createUpdaterArtifacts is true in tauri.conf.json.
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            engine
+            studio/src-tauri
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+
+      - name: Build the engine
+        working-directory: engine
+        run: cargo build --release --bin dawnroom
+
+      - name: Stage the engine for Studio's installer
+        shell: bash
+        run: |
+          mkdir -p studio/src-tauri/binaries
+          cp engine/target/release/dawnroom.exe studio/src-tauri/binaries/dawnroom-x86_64-pc-windows-msvc.exe
+
+      - name: Build Studio's installer
+        working-directory: studio
+        run: |
+          npm ci
+          npx tauri build --bundles nsis
+
+      - name: Collect the files
+        shell: bash
+        run: |
+          mkdir -p out cli/registry/runtimes
+          nsis=studio/src-tauri/target/release/bundle/nsis
+          cp "$nsis/Dawnroom_${VERSION}_x64-setup.exe" out/
+          # Updater signature: present once the updater is on (verify after Run A).
+          if [ -f "$nsis/Dawnroom_${VERSION}_x64-setup.exe.sig" ]; then
+            cp "$nsis/Dawnroom_${VERSION}_x64-setup.exe.sig" out/
+          else
+            echo "::warning::no .sig next to the installer (updater artefacts off?)"
+          fi
+          # The --cli download: install.ps1 expects dawnroom.exe and registry/ at the archive root.
+          cp engine/target/release/dawnroom.exe cli/
+          cp registry/*.toml cli/registry/
+          cp registry/runtimes/*.toml cli/registry/runtimes/
+          (cd cli && 7z a -tzip "../out/dawnroom-${VERSION}-windows-x64.zip" . > /dev/null)
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/*
+          if-no-files-found: error
+
+  linux:
+    name: Linux (.deb, AppImage, CLI archive)
+    needs: version
+    # 22.04 keeps glibc at 2.35, the oldest base we support.
+    runs-on: ubuntu-22.04
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      APPIMAGE_EXTRACT_AND_RUN: '1'
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the Tauri build libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
+            librsvg2-dev libxdo-dev libssl-dev patchelf xdg-utils file
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            engine
+            studio/src-tauri
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+
+      - name: Build the engine
+        working-directory: engine
+        run: cargo build --release --bin dawnroom
+
+      - name: Stage the engine for Studio's bundles
+        run: |
+          mkdir -p studio/src-tauri/binaries
+          cp engine/target/release/dawnroom "studio/src-tauri/binaries/dawnroom-$(rustc -vV | sed -n 's/^host: //p')"
+
+      - name: Build Studio's .deb and AppImage
+        working-directory: studio
+        run: |
+          npm ci
+          npx tauri build --bundles deb,appimage
+
+      - name: Collect the files
+        run: |
+          mkdir -p out cli/registry/runtimes
+          b=studio/src-tauri/target/release/bundle
+          cp "$b/deb/Dawnroom_${VERSION}_amd64.deb" "$b/appimage/Dawnroom_${VERSION}_amd64.AppImage" out/
+          if [ -f "$b/appimage/Dawnroom_${VERSION}_amd64.AppImage.sig" ]; then
+            cp "$b/appimage/Dawnroom_${VERSION}_amd64.AppImage.sig" out/
+          else
+            echo "::warning::no .sig next to the AppImage (updater artefacts off?)"
+          fi
+          # A .deb install of Studio updates from the linux-x86_64-deb entry in latest.json.
+          if [ -f "$b/deb/Dawnroom_${VERSION}_amd64.deb.sig" ]; then
+            cp "$b/deb/Dawnroom_${VERSION}_amd64.deb.sig" out/
+          else
+            echo "::warning::no .sig next to the .deb (updater artefacts off?)"
+          fi
+          # The --cli download: install.sh expects ./dawnroom and ./registry at the archive root.
+          cp engine/target/release/dawnroom cli/
+          cp registry/*.toml cli/registry/
+          cp registry/runtimes/*.toml cli/registry/runtimes/
+          tar -czf "out/dawnroom-${VERSION}-linux-x64.tar.gz" -C cli .
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: out/*
+          if-no-files-found: error
+
+  draft:
+    name: Draft release
+    needs: [version, windows, linux]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+          merge-multiple: true
+
+      - name: SHA256SUMS (sha256sum format; the files install.ps1, install.sh and the download page use)
+        working-directory: dl
+        run: |
+          sha256sum *.exe *.zip *.deb *.AppImage *.tar.gz > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: latest.json for the updater
+        working-directory: dl
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, datetime
+          v = os.environ["VERSION"]
+          base = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/v{v}"
+          files = {
+              "windows-x86_64": f"Dawnroom_{v}_x64-setup.exe",
+              "linux-x86_64": f"Dawnroom_{v}_amd64.AppImage",
+              # Without this, a .deb install falls back to the AppImage entry and refuses it.
+              "linux-x86_64-deb": f"Dawnroom_{v}_amd64.deb",
+          }
+          platforms = {}
+          for key, name in files.items():
+              sig = pathlib.Path(name + ".sig")
+              if sig.exists():
+                  platforms[key] = {"signature": sig.read_text().strip(), "url": f"{base}/{name}"}
+          if not platforms:
+              print("::warning::no .sig files, so latest.json was not written (updater artefacts off?)")
+          else:
+              doc = {
+                  "version": v,
+                  "notes": f"Dawnroom {v}",
+                  "pub_date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                  "platforms": platforms,
+              }
+              pathlib.Path("latest.json").write_text(json.dumps(doc, indent=2) + "\n")
+              print(json.dumps(doc, indent=2))
+          PY
+
+      - name: Create the draft release
+        working-directory: dl
+        run: |
+          gh release create "v${VERSION}" --repo "$GITHUB_REPOSITORY" --draft --verify-tag \
+            --title "Dawnroom ${VERSION}" \
+            --notes "Draft. Write the notes, check the files, then publish." \
+            ./*

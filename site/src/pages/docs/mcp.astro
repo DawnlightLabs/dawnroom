@@ -1,0 +1,42 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BIN, MCP_NAME, PRODUCT_NAME } from '../../config';
+
+const tools = [
+  ['generate_image', 'Makes one image from a prompt, with optional aspect (1:1, 4:3, 3:4, 3:2, 2:3, 16:9, 9:16), seed and negative prompt. Auto picks the model unless the agent pins preset fast (FLUX.2 klein 4B) or quality (Z-Image Turbo), and the result says which and why. Returns the file path, the recipe and a small preview.'],
+  ['edit_image', 'Edits an image from its full path with an instruction ("make it night"), plus optional reference images (up to nine), a model that can edit, and a seed. Returns the new path, the recipe, Auto\'s reason and what it was edited from.'],
+  ['list_models', 'Every model for the size tag that suits this GPU: installed or not, size, licence, tasks, fit and, where we have one for this GPU, the time.'],
+  ['pull_model', 'Downloads a model by id (z-image-turbo, or z-image-turbo:q8 for one size). Needs confirm: true, so the agent asks you first. It returns at once and the download carries on in the engine; list_models shows progress. It cannot accept a licence for you (it answers licence_not_accepted with the licence and link: accept it in Studio or with pull), and it never adds custom models (custom_needs_user).'],
+  ['check_model', 'Says whether a custom model (hf.co/… or a file) would run here, step by step, reading only its header. Read-only: only you add one, in a terminal.'],
+  ['get_job', 'The state of a job: its progress while it runs, and the same path, recipe and preview as generate_image once done. For images that take more than 45 seconds.'],
+  ['cancel_job', 'Stops a queued or running job; a running one stops within about a second.'],
+  ['list_images', 'The newest images with their file paths and recipes (no previews).'],
+];
+---
+<DocsLayout title="MCP for agents" description={`Connect Claude Code, Codex and other agents to ${PRODUCT_NAME} over MCP.`}
+  toc={[{ id: 'tools', label: 'Tools' }, { id: 'claude-code', label: 'Claude Code' }, { id: 'codex', label: 'Codex' }]}>
+  <p class="text-[18px] text-ink/85"><code>{BIN} mcp</code> is an MCP server on stdio. It starts the engine on the first call if it isn't running. Images stay on disk; the agent gets the path, the recipe and a small preview, and nothing leaves your machine.</p>
+  <p>Agents never download on their own: when a model is missing, the tool answers <code>needs_pull</code> with its size and licence, and the agent asks you. Use the full path to <code>{BIN}.exe</code> if it isn't on your PATH (<code>GET /api/info</code> returns it as <code>exe</code>).</p>
+
+  <h2 id="tools">Tools</h2>
+  <dl class="mt-4 divide-y divide-line border-y border-line">
+    {tools.map(([n, d]) => (
+      <div class="py-3.5">
+        <dt class="font-mono text-[14px] font-medium">{n}</dt>
+        <dd class="mt-1 text-[15px] text-ink/85">{d}</dd>
+      </div>
+    ))}
+  </dl>
+
+  <h2 id="claude-code">Claude Code</h2>
+  <pre><code>claude mcp add {MCP_NAME} -- {BIN} mcp</code></pre>
+  <p>Add <code>--scope user</code> to use it in every project. Then ask for an image, or for an edit of one you have: "make the sky in C:\photos\roof.png a sunset".</p>
+
+  <h2 id="codex">Codex</h2>
+  <pre><code>codex mcp add {MCP_NAME} -- {BIN} mcp</code></pre>
+  <p>Or in <code>~/.codex/config.toml</code>:</p>
+  <pre><code>[mcp_servers.{MCP_NAME}]
+command = "{BIN}"
+args = ["mcp"]</code></pre>
+  <p><code>generate_image</code> and <code>edit_image</code> return within 45 seconds, inside Codex's default 60-second tool timeout. A slower image comes back as a job id to check with <code>get_job</code>.</p>
+</DocsLayout>

@@ -1,0 +1,74 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { loadModels } from '../../lib/registry';
+import { BIN, PRODUCT_NAME, ENGINE_PORT } from '../../config';
+import edits from '../../edits.json';
+
+const models = loadModels();
+const editModels = models.filter((m) => (m.tasks ?? ['generate']).includes('edit'));
+const cli = [
+  { cmd: `${BIN} run "<prompt>"`, flags: '[--image FILE [--ref FILE]…] [--model ID] [--seed N] [-o FILE] [-y]', what: 'Generate an image, or edit one with --image. Auto picks the model unless you name one, and says which and why. -o also copies the PNG to FILE; -y downloads a missing model without asking (required with --json).' },
+  { cmd: `${BIN} pull <model>[:<tag>]`, flags: '[--accept-licence] [-y]', what: 'Download a model, or a custom one from Hugging Face (hf.co/…). Resumes where it stopped; every file is checked against its sha256. A model whose official repo is gated shows its licence and asks first; --accept-licence answers yes. For a custom model, -y downloads without asking once the check passes (required with --json).' },
+  { cmd: `${BIN} import [file | folder]`, flags: '[-y]', what: 'Add a .gguf or .safetensors model file from this computer: checked, linked into the models folder, then one small test image. A folder, or nothing: lists the image models already downloaded there (or in the Hugging Face cache, ComfyUI, A1111/Forge, Stability Matrix, Downloads).' },
+  { cmd: `${BIN} list`, flags: '[--all]', what: 'Installed models. --all shows the whole library: what each does, size tags, licence, and fit for the tag that suits this machine.' },
+  { cmd: `${BIN} auto`, flags: '', what: 'What Auto would pick now for generate and for edit, and why (or which model to pull).' },
+  { cmd: `${BIN} rm <model>`, flags: '', what: 'Delete a model\'s files. Files another installed model uses are kept.' },
+  { cmd: `${BIN} status`, flags: '', what: 'Engine, GPU, the loaded model, and Auto\'s two picks.' },
+  { cmd: `${BIN} storage`, flags: '[show | clear-cache | delete-partial [FILE | --all] | move DIR | link DIR]', what: 'The data folder: what takes the space (show, the default), Clear cache, paused downloads, moving it to another drive. clear-cache and delete-partial ask first (-y skips). link hardlinks model files found under DIR into the models folder, after checking their sha256: same drive only, with the engine stopped.' },
+  { cmd: `${BIN} runtime`, flags: '[list | import FILE…]', what: 'The image runtimes (the stable-diffusion.cpp builds the engine runs): which exist and which are installed. import installs runtime zips you already have, matched by sha256 whatever their names.' },
+  { cmd: `${BIN} stop`, flags: '', what: 'Stop the engine: frees the GPU and memory. A download in progress keeps what it has.' },
+  { cmd: `${BIN} update`, flags: '', what: 'Update a CLI-only or Linux tarball install to the latest release, checked against its SHA256SUMS first; models and images stay. Installs that came with Studio update from Studio.' },
+  { cmd: `${BIN} doctor`, flags: '[--test]', what: 'Everything a bug report needs, as Markdown for a GitHub issue. --test also develops one image and reports its time and peak GPU memory.' },
+  { cmd: `${BIN} serve`, flags: '[--data-dir DIR] [--idle-secs N] [--runtime ID] [--gpu NAME] [--sd-server EXE] [--hf-endpoint URL]', what: 'Run the engine in the foreground (Ctrl-C to stop). Other commands, Studio and MCP start it for you when it is not running. --runtime forces an image runtime (windows-vulkan, to try the AMD and Intel path on an NVIDIA card); --gpu picks the card whose name contains NAME on a machine with several; --idle-secs frees the GPU after that many idle seconds; --hf-endpoint downloads from a mirror instead of huggingface.co.' },
+  { cmd: `${BIN} mcp`, flags: '', what: 'An MCP server on stdio for agents. Starts the engine if it isn\'t running.' },
+];
+const steps = [
+  ['Source', 'A public, ungated repo (no Hugging Face login yet). Several files and none named: every file is sized for this machine and pull offers them by size, recommended one first (<code>-y</code> takes it). The same bytes as a library model: it tells you to pull that instead.'],
+  ['Format', '.gguf or .safetensors only. .ckpt, .bin and other pickle files are refused: loading them can run code.'],
+  ['Architecture', 'Read from the file\'s header alone, a few hundred KB over the network. LLMs, LoRAs, VAEs, video and inpainting models are refused, saying what they are.'],
+  ['Companion files', 'The text encoder and VAE its family needs, shared with models you already have.'],
+  ['Size and memory', 'What it adds to your disk, and an estimate of how it fits your GPU.'],
+  ['Licence', 'From the model card, shown as written.'],
+];
+---
+<DocsLayout title="CLI" description={`The ${PRODUCT_NAME} command line: generate, edit, models, size tags and custom models.`}
+  toc={[{ id: 'commands', label: 'Commands' }, { id: 'generate-and-edit', label: 'Generate and edit' }, { id: 'size-tags', label: 'Size tags' }, { id: 'custom-models', label: 'Custom models' }, { id: 'models', label: 'Model ids' }]}>
+  <p class="text-[18px] text-ink/85">Every command takes <code>--port N</code> (default {ENGINE_PORT}) and <code>--json</code>, which prints exactly one JSON document on stdout for scripts. <code>{BIN} help &lt;command&gt;</code> shows every flag.</p>
+
+  <h2 id="commands">Commands</h2>
+  <dl class="mt-4 divide-y divide-line border-y border-line">
+    {cli.map((c) => (
+      <div class="py-4">
+        <dt class="font-mono text-[14px]"><span class="font-medium">{c.cmd}</span>{c.flags && <span class="text-muted"> {c.flags}</span>}</dt>
+        <dd class="mt-1 text-[15px] text-ink/85">{c.what}</dd>
+      </div>
+    ))}
+  </dl>
+
+  <h2 id="generate-and-edit">Generate and edit</h2>
+  <p>A prompt makes a new image. Add <code>--image</code> and the prompt becomes an instruction for that image. Up to nine <code>--ref</code> images can come along ("the hat from image 2"); the image you edit is image 1.</p>
+  <pre><code>{BIN} run "{edits.generate.prompt}"
+{BIN} run "{edits.edit.prompt}" --image cafe.png</code></pre>
+  <p><strong>Auto</strong> picks the model: only installed library models we've measured for that task that run on your machine, preferring the one already loaded so it doesn't switch for nothing. It prints its pick and why in one line, as it did for the edit above:</p>
+  <pre><code>● Auto · {edits.edit.auto}</code></pre>
+  <p>Name a model with <code>--model &lt;id&gt;</code>. Models that can edit: {editModels.map((m, i) => <>{i > 0 && ', '}<a href={`/library/${m.id}`}><code>{m.id}</code></a></>)}. When an edit's input is a print from your library, the new image remembers it as "edited from". <code>--fast</code> and <code>--quality</code> still work for old scripts.</p>
+
+  <h2 id="size-tags">Size tags</h2>
+  <p>Most models come in sizes, like <code>z-image-turbo:q4</code> and <code>:q8</code>: smaller files need less memory, larger ones keep more detail. <code>{BIN} pull z-image-turbo</code> picks the largest tag that runs on your machine (or one you already have); <code>{BIN} pull z-image-turbo:q8</code> picks one. Each model's page lists its tags with download size, memory and how each fits your card.</p>
+
+  <h2 id="custom-models">Custom models</h2>
+  <p>Not in the library? Bring any public image model from Hugging Face, or a file you have:</p>
+  <pre><code>{BIN} pull user/model                      # or the page link, a file link, hf.co/…
+{BIN} import C:\models\my-model.safetensors
+{BIN} import                                 # image models already on this computer</code></pre>
+  <p>Before anything downloads, {PRODUCT_NAME} checks it, step by step, and stops at the first one that fails, saying why in plain words:</p>
+  <ol>
+    {steps.map(([t, d]) => <li><strong>{t}.</strong> {d}</li>)}
+  </ol>
+  <p>Then it asks, downloads, and makes one small test image (512 px, a red apple). The model is ready only once that image comes out. The full walkthrough is in <a href="/docs/add-a-model">Add a model</a>. Custom models stay on your machine, are labelled <em>Custom, not reviewed by {PRODUCT_NAME}</em>, and Auto never picks them: choose them with <code>--model</code> or in Studio.</p>
+
+  <h2 id="models">Model ids</h2>
+  <ul>
+    {models.map((m) => <li><a href={`/library/${m.id}`}><code>{m.id}</code></a> {m.name}{m.variants.length > 1 && <span class="text-muted"> · {m.variants.map((v) => v.tag).join(', ')}</span>}</li>)}
+  </ul>
+</DocsLayout>

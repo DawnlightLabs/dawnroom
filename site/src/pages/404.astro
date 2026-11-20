@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
+import Icon from '../components/Icon.astro';
+---
+<Base title="Not found" description="This page doesn't exist.">
+  <div class="wrap grid min-h-[60vh] content-center justify-items-start gap-5 py-16">
+    <Mark cap={40} markOnly />
+    <h1 class="display text-[2.8rem] leading-none sm:text-[3.6rem]">Nothing developed here.</h1>
+    <p class="max-w-[34rem] text-[17px] text-muted">This page doesn’t exist, or it moved. Try the models, the docs or the download page.</p>
+    <div class="flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
+      <a href="/" class="go">Home<Icon name="arrow" /></a>
+      <a href="/search" class="go">Models<Icon name="arrow" /></a>
+      <a href="/docs" class="go">Docs<Icon name="arrow" /></a>
+      <a href="/download" class="go">Download<Icon name="arrow" /></a>
+    </div>
+  </div>
+</Base>

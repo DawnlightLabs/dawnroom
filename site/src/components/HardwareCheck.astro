@@ -1,0 +1,307 @@
+---
+/**
+ * "Will it run on my machine?" as a lab job ticket. Everything happens in the browser: the GPU name
+ * comes from WebGL, the answer from registry/hardware/devices.toml and each model's measured peak.
+ * Nothing is sent anywhere; the choice is remembered in localStorage.
+ */
+import { loadFamilies, loadModels, fitModel } from '../lib/registry';
+
+interface Props { models?: string[]; class?: string; compact?: boolean }
+const { models: only, class: cls = '', compact = false } = Astro.props;
+const fams = loadFamilies();
+const devices = fams.flatMap((f) => f.devices);
+// Short series names for the picker chips.
+const families = fams.map((f) => ({ id: f.id, vendor: f.vendor, name: f.name.replace(/^(GeForce|Radeon|NVIDIA|AMD) /, '') }));
+const models = loadModels()
+  .filter((m) => !only || only.includes(m.id))
+  .map((m) => fitModel(m, devices));
+const data = JSON.stringify({ devices, models, families });
+---
+<section class:list={['ticket', cls]} data-hw data-compact={compact ? '' : undefined} aria-labelledby="hw-h">
+  <div class="ticket-head">
+    <h2 id="hw-h" class="ticket-title" data-hw-title>Will it run on my machine?</h2>
+    <span class="edge ticket-no" aria-hidden="true">local check</span>
+  </div>
+  <p class="sr-only" aria-live="polite" data-hw-status></p>
+  <div data-hw-body>
+    <noscript><p class="ticket-help">This check runs in your browser. Without JavaScript, each model page lists every GPU it fits.</p></noscript>
+    <p class="ticket-help" data-hw-loading>Reading your graphics card…</p>
+  </div>
+  <p class="edge ticket-foot">Checked in your browser. Nothing is sent anywhere.</p>
+  <script type="application/json" data-hw-data set:html={data} />
+</section>
+
+<script>
+  import { detect, fitFor, loadChoice, saveChoice, ramHint, RAM_SIZES, type Device, type FitModel, type Choice, type Fit } from '../lib/fit';
+  import { icon } from '../lib/icons';
+
+  /** Menu paths (Task Manager > Performance) with a chevron between the steps. */
+  const sep = icon('next', 'path-i');
+
+  const VENDORS = [
+    { id: 'nvidia', label: 'NVIDIA' },
+    { id: 'amd', label: 'AMD' },
+    { id: 'intel', label: 'Intel Arc' },
+    { id: 'apple', label: 'Apple' },
+    { id: 'other', label: 'Other' },
+  ] as const;
+
+  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+  /**
+   * What the browser says about the GPU. WebGL is only woken up when its answer can matter: not on
+   * phones, not in Firefox (it reports a stand-in), not when a choice is already saved.
+   * In dev, ?renderer= / ?ua= / ?touch= simulate other machines.
+   */
+  function readBrowser() {
+    const q = import.meta.env.DEV ? new URLSearchParams(location.search) : null;
+    const ua = q?.get('ua') ?? navigator.userAgent;
+    const touch = q?.has('touch') ? Number(q.get('touch')) : navigator.maxTouchPoints || 0;
+    const skip = loadChoice() || /android|iphone|ipad|ipod|mobile|firefox\//i.test(ua) || (/macintosh/i.test(ua) && touch > 1);
+    let renderer: string | null = null;
+    if (q?.has('renderer')) renderer = q.get('renderer') || null;
+    else if (!skip) {
+      try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+        renderer = gl && ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : null;
+        gl?.getExtension('WEBGL_lose_context')?.loseContext();
+      } catch {
+        renderer = null;
+      }
+    }
+    return { ua, touch, renderer };
+  }
+
+  /** The one detection per page (WebGL context creation isn't free). */
+  let detected: ReturnType<typeof detect> | null = null;
+
+  function mount(root: HTMLElement) {
+    const { devices, models, families } = JSON.parse(root.querySelector('[data-hw-data]')!.textContent!) as {
+      devices: Device[];
+      models: FitModel[];
+      families: { id: string; vendor: string; name: string }[];
+    };
+    const byId = new Map(devices.map((d) => [d.id, d]));
+    const uid = Math.random().toString(36).slice(2, 8);
+    const body = root.querySelector<HTMLElement>('[data-hw-body]')!;
+    const title = root.querySelector<HTMLElement>('[data-hw-title]')!;
+    const status = root.querySelector<HTMLElement>('[data-hw-status]')!;
+    const { ua, touch, renderer } = readBrowser();
+    detected ??= detect(ua, touch, renderer, devices);
+    const mobile = detected.kind === 'mobile';
+    if (mobile) title.textContent = 'Which computer will you run it on?';
+
+    let vendor: string = 'nvidia';
+    /** On phones the list stays shut until someone types or picks a maker, so the ticket opens small. */
+    let listOpen = !mobile;
+    /** The series picked within a maker; null shows the series. */
+    let family: string | null = null;
+    let query = '';
+    let showGuide = false;
+
+    function result(c: Choice) {
+      const d = byId.get(c.id);
+      if (!d) return picker();
+      const mem = c.gb ? ` · ${c.gb} GB${d.unified ? ' unified' : d.shared ? ' RAM, shared' : ''}` : '';
+      const fits = models.map((m) => fitFor(m, d, c.gb, c.ram));
+      // When every model says the same thing (e.g. "experimental"), say it once.
+      const same = fits.length > 1 && fits.every((f) => f.help === fits[0].help);
+      const rows = models.map((m, i) => row(m.name, fits[i], models.length > 1, !same)).join('');
+      body.innerHTML = `
+        <p class="ticket-device"><span class="eyebrow ticket-label">${c.how === 'auto' ? 'Detected' : 'Your machine'}</span>
+          <strong>${esc(d.name)}</strong> <span class="ticket-mem">${mem}</span>
+          <button type="button" class="ticket-link" data-act="change">${c.how === 'auto' ? 'Not right? Change' : 'Change'}</button></p>
+        ${d.unified || d.shared ? '' : ramRow(c)}
+        <ul class="ticket-rows">${rows}</ul>
+        ${same ? `<p class="ticket-help">${esc(fits[0].help)}</p>` : ''}`;
+      status.textContent = `${d.name}${mem}: ${models.map((m, i) => `${models.length > 1 ? m.name + ', ' : ''}${fits[i].label}`).join('; ')}.`;
+    }
+
+    /** System RAM beside the GPU. Unified-memory machines skip it: their memory question already covers it. */
+    function ramRow(c: Choice) {
+      const hint = ramHint();
+      const chips = RAM_SIZES.map((g) => `<button type="button" class="chip" data-act="ram" data-ram="${g}" aria-pressed="${c.ram === g}">${g} GB</button>`).join('');
+      const value = c.ram ?? hint ?? '';
+      return `<div class="ticket-ram" role="group" aria-labelledby="ram-l-${uid}">
+        <p class="ticket-device"><span class="eyebrow ticket-label" id="ram-l-${uid}">System RAM</span>
+          <strong>${c.ram ? `${c.ram} GB` : 'Not set'}</strong></p>
+        <div class="chips">${chips}
+          <label class="ram-field"><span class="sr-only">System RAM in GB</span><input type="number" inputmode="numeric" min="1" max="2048" step="1" value="${value}" data-act="ram-n" /><span aria-hidden="true">GB</span></label></div>
+        ${!c.ram && hint ? `<p class="ticket-help">Your browser hints at ${hint} GB or more (browsers round and cap this number). Pick the real size.</p>` : ''}
+        <p class="ticket-help">Why we ask: a model that doesn’t fit in graphics memory can run partly from system RAM, more slowly.</p>
+      </div>`;
+    }
+    function setRam(gb: number) {
+      const c = loadChoice();
+      if (!c || !(gb > 0)) return;
+      const next = { ...c, ram: Math.round(gb) };
+      saveChoice(next);
+      result(next);
+    }
+
+    function row(name: string, f: Fit, showName: boolean, showHelp = true) {
+      return `<li class="ticket-row" data-verdict="${f.verdict}">
+        ${showName ? `<span class="ticket-model">${esc(name)}</span>` : ''}
+        <span class="verdict" data-verdict="${f.verdict}"><i aria-hidden="true"></i>${esc(f.label)}</span>
+        ${showHelp ? `<span class="ticket-help">${esc(f.help)}</span>` : ''}</li>`;
+    }
+
+    function askMemory(d: Device, how: Choice['how'], lead = '') {
+      const sizes = d.memory_gb.map((g) => `<button type="button" class="chip" data-act="gb" data-id="${d.id}" data-gb="${g}">${g} GB</button>`);
+      const q = sizes.length === 2 ? `${d.memory_gb[0]} GB or ${d.memory_gb[1]} GB?` : 'How much memory?';
+      body.innerHTML = `
+        ${lead}
+        <p class="ticket-device"><span class="eyebrow ticket-label">${how === 'auto' ? 'Detected' : 'Picked'}</span><strong>${esc(d.name)}</strong>
+          <button type="button" class="ticket-link" data-act="change">${how === 'auto' ? 'Not right? Change' : 'Change'}</button></p>
+        <p class="ticket-q">${d.unified ? `How much unified memory? ${sizes.length === 2 ? q : ''}` : d.shared ? 'How much system RAM? Built-in graphics use part of it.' : `This one ships in more than one size. ${q}`}</p>
+        <div class="chips" role="group" aria-label="Memory size" data-how="${how}">${sizes.join('')}</div>
+        <p class="ticket-help">${d.vendor === 'apple' ? `Apple menu ${sep} About This Mac shows it as “Memory”.` : d.unified || d.shared ? `Windows: Settings ${sep} System ${sep} About shows “Installed RAM”.` : `Windows: Task Manager ${sep} Performance ${sep} GPU, “Dedicated GPU memory”.`}</p>`;
+      body.querySelector<HTMLElement>('.chip')?.focus({ preventScroll: true });
+    }
+
+    /**
+     * Maker → series → card, all as chips, so the ticket never scrolls inside itself. Typing searches
+     * every card at once.
+     */
+    /** The first line of the picker (why we're asking), kept while the visitor browses. */
+    let pickerLead = '';
+    function picker(lead?: string) {
+      if (lead !== undefined) pickerLead = lead;
+      const q = query.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '');
+      const open = listOpen || !!q;
+      const fams = families.filter((f) => f.vendor === vendor);
+      const fam = family ?? (fams.length === 1 ? fams[0].id : null);
+      const tabs = VENDORS.map(
+        (v) => `<button type="button" class="tab" data-act="vendor" data-v="${v.id}" aria-pressed="${open && !q && v.id === vendor}">${v.label}</button>`,
+      ).join('');
+      const chip = (d: Device) => `<button type="button" class="chip" data-act="pick" data-id="${d.id}">${esc(d.name)}</button>`;
+      /** A series' cards, split into desktop and laptop when it has both. */
+      const group = (list: Device[], name: string) => {
+        const laptop = list.filter((d) => / Laptop$/.test(d.name));
+        const desk = list.filter((d) => !laptop.includes(d));
+        if (!laptop.length || !desk.length) return `<div class="chips" role="group" aria-label="${esc(name)}">${list.map(chip).join('')}</div>`;
+        const short = (d: Device) => `<button type="button" class="chip" data-act="pick" data-id="${d.id}" aria-label="${esc(d.name)}">${esc(d.name.replace(/ Laptop$/, ''))}</button>`;
+        return `<p class="edge pick-sub">Desktop</p><div class="chips" role="group" aria-label="${esc(name)} desktop">${desk.map(chip).join('')}</div>
+          <p class="edge pick-sub">Laptop</p><div class="chips" role="group" aria-label="${esc(name)} laptop">${laptop.map(short).join('')}</div>`;
+      };
+      let step = '';
+      if (q) {
+        const hits = devices.filter((d) => `${d.name} ${d.family}`.toLowerCase().replace(/[^a-z0-9 ]/g, '').includes(q)).slice(0, 10);
+        step = hits.length
+          ? `<div class="chips" role="group" aria-label="Matching graphics cards">${hits.map(chip).join('')}</div>`
+          : '<p class="ticket-help">No match. Try the model number only, like “4070” or “M2”.</p>';
+      } else if (open && !fam) {
+        step = `<p class="eyebrow pick-step">Series</p><div class="chips" role="group" aria-label="Series">${fams
+          .map((f) => `<button type="button" class="chip" data-act="family" data-f="${f.id}">${esc(f.name)}</button>`)
+          .join('')}</div>`;
+      } else if (open && fam) {
+        const name = families.find((f) => f.id === fam)?.name ?? '';
+        step = `<p class="eyebrow pick-step">${fams.length > 1 ? `<button type="button" class="ticket-link !ml-0" data-act="family" data-f="">${icon('back', 'i-sm')}Series</button> · ` : ''}${esc(name)}</p>
+          ${group(devices.filter((d) => d.family === fam), name)}`;
+      }
+      body.innerHTML = `
+        ${pickerLead}
+        <label class="ticket-search"><span class="sr-only">Search graphics cards and chips</span>${icon('search')}
+          <input type="search" data-act="q" value="${esc(query)}" placeholder="4070, 7900, M3 Pro" autocomplete="off" spellcheck="false" /></label>
+        ${q ? `${step}<div class="tabs" role="group" aria-label="Maker">${tabs}</div>` : `<div class="tabs" role="group" aria-label="Maker">${tabs}</div>${step}`}
+        <button type="button" class="ticket-link !ml-0 mt-2" data-act="guide" aria-expanded="${showGuide}">I don’t know</button>
+        ${showGuide ? `<p class="ticket-help guide"><b>Windows:</b> Task Manager ${sep} Performance ${sep} GPU. The name is at the top right; “Dedicated GPU memory” is the size.<br/><b>Mac:</b> Apple menu ${sep} About This Mac shows the chip and “Memory”.</p>` : ''}`;
+    }
+
+    function choose(id: string, gb: number, how: Choice['how']) {
+      const c: Choice = { id, gb, how, ...(loadChoice()?.ram ? { ram: loadChoice()!.ram } : {}) };
+      saveChoice(c);
+      result(c);
+    }
+
+    function start() {
+      const saved = loadChoice();
+      if (saved && byId.has(saved.id)) return result(saved);
+      const det = detected!;
+      if (det.kind === 'device') return det.gb ? choose(det.device.id, det.gb, 'auto') : askMemory(det.device, 'auto');
+      if (det.kind === 'apple') {
+        vendor = 'apple';
+        return det.device ? askMemory(det.device, 'auto') : picker(`<p class="ticket-help">Macs don’t tell websites which chip they have. Pick yours:</p>`);
+      }
+      // Hybrid laptops report their built-in graphics to the browser, so ask about a separate GPU first.
+      if (det.kind === 'integrated')
+        return picker(`<p class="ticket-help">Your browser is using built-in graphics (${esc(det.device.name)}). If this computer also has a separate GPU, pick it below.
+          <button type="button" class="ticket-link !ml-0" data-act="igpu" data-id="${det.device.id}">No, only built-in graphics</button></p>`);
+      if (det.kind === 'mobile') return picker(`<p class="ticket-help">Phones and tablets can’t run it. Pick the computer’s graphics card:</p>`);
+      return picker(`<p class="ticket-help">${esc(det.reason)} Pick it here:</p>`);
+    }
+
+    body.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-act]');
+      if (!b) return;
+      const act = b.dataset.act;
+      if (act === 'change') {
+        const saved = loadChoice();
+        const d = saved && byId.get(saved.id);
+        if (d) {
+          vendor = d.vendor;
+          family = d.family;
+        }
+        listOpen = true;
+        query = '';
+        picker();
+        body.querySelector<HTMLInputElement>('input')?.focus();
+      } else if (act === 'vendor') {
+        vendor = b.dataset.v!;
+        family = null;
+        listOpen = true;
+        query = '';
+        picker();
+        body.querySelector<HTMLElement>(`[data-v="${vendor}"]`)?.focus();
+      } else if (act === 'family') {
+        family = b.dataset.f || null;
+        picker();
+        body.querySelector<HTMLElement>('.pick-step ~ .chips .chip, [data-act="family"]')?.focus();
+      } else if (act === 'guide') {
+        showGuide = !showGuide;
+        picker();
+        body.querySelector<HTMLElement>('[data-act="guide"]')?.focus();
+      } else if (act === 'pick') {
+        const d = byId.get(b.dataset.id!)!;
+        if (d.memory_gb.length === 1) choose(d.id, d.memory_gb[0], 'picked');
+        else if (d.memory_gb.length === 0) choose(d.id, 0, 'picked');
+        else askMemory(d, 'picked');
+        body.querySelector<HTMLElement>('.ticket-link, .chip')?.focus({ preventScroll: true });
+      } else if (act === 'igpu') {
+        askMemory(byId.get(b.dataset.id!)!, 'auto');
+      } else if (act === 'ram') {
+        setRam(Number(b.dataset.ram));
+        body.querySelector<HTMLElement>(`[data-ram="${b.dataset.ram}"]`)?.focus({ preventScroll: true });
+      } else if (act === 'gb') {
+        const how = (b.closest<HTMLElement>('[data-how]')?.dataset.how ?? 'picked') as Choice['how'];
+        choose(b.dataset.id!, Number(b.dataset.gb), how);
+        body.querySelector<HTMLElement>('.ticket-link')?.focus({ preventScroll: true });
+      }
+    });
+    // The RAM number is saved when it's committed (Enter or leaving the field), not on every keystroke.
+    body.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.act === 'ram-n') setRam(Number(t.value));
+    });
+    body.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.act !== 'q') return;
+      query = t.value;
+      const pos = t.selectionStart;
+      picker();
+      const input = body.querySelector<HTMLInputElement>('input')!;
+      input.focus();
+      input.setSelectionRange(pos, pos);
+    });
+    // Another check on the page (or the search filter) changed the choice.
+    window.addEventListener('hardware-change', (e) => {
+      const c = (e as CustomEvent<Choice | null>).detail;
+      if (c && !root.contains(document.activeElement)) result(c);
+    });
+
+    start();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-hw]').forEach(mount);
+</script>

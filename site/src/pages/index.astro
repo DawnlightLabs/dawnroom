@@ -1,0 +1,135 @@
+---
+/**
+ * The landing, one job per section: hero → (trailer, once it exists) → get started → make it, then change
+ * it (Generate | Edit with Auto) → a few prints → a few models with the fit check → for developers and
+ * agents → footer. The roadmap lives on /vision, details on /docs and /download.
+ */
+import Base from '../layouts/Base.astro';
+import HeroReel from '../components/HeroReel.astro';
+import HeroStrip from '../components/HeroStrip.astro';
+import HardwareCheck from '../components/HardwareCheck.astro';
+import FilmBox from '../components/FilmBox.astro';
+import FitBadges from '../components/FitBadges.astro';
+import GetStarted from '../components/GetStarted.astro';
+import Print from '../components/Print.astro';
+import Icon from '../components/Icon.astro';
+import TwoTasks from '../components/TwoTasks.astro';
+import VideoSlot from '../components/VideoSlot.astro';
+import { loadModels } from '../lib/registry';
+import { FIRST_PROMPT } from '../lib/getStarted';
+import { PRODUCT_NAME, BIN, DOWNLOAD_URL, TRAILER_URL, TRAILER_POSTER } from '../config';
+
+const models = loadModels();
+// The landing shows three models, one per job; the library has the rest.
+const PICKS = ['z-image-turbo', 'flux2-klein-4b', 'realvisxl-v5'];
+const picks = PICKS.map((id) => models.find((m) => m.id === id)).filter((m) => m != null);
+// One print per model: the circled picks from the contact sheet.
+const PRINTS = [51, 26, 16];
+const prints = PRINTS.map((f) => {
+  const m = models.find((m) => m.samples.some((s) => s.frame === f))!;
+  return { s: m.samples.find((s) => s.frame === f)!, name: m.name };
+});
+---
+<Base nav="home">
+  <section class="hero wrap">
+    <div class="hero-text">
+      <h1 class="hero-h1 display">Develop images on <em>your own</em> GPU.</h1>
+      <p class="hero-lede">
+        {PRODUCT_NAME} is an open-source image studio that runs on your machine: describe a picture and it develops in seconds, with no credits and no cloud.
+      </p>
+      <!-- Ways in, one at a time (all three for screen readers; the first only under reduced motion). -->
+      <ul class="ways" role="list" aria-label="Ways to use it" data-ways>
+        <li data-on><span class="ways-k">Studio</span><span class="ways-v">“a red fox sleeping in fresh snow” <span class="ways-arrow" aria-hidden="true">→</span> Develop</span></li>
+        <li><span class="ways-k">CLI</span><code class="ways-v">{BIN} run "{FIRST_PROMPT}"</code></li>
+        <li><span class="ways-k">Agent</span><span class="ways-v">Ask Claude: “make me a poster with {PRODUCT_NAME}”</span></li>
+      </ul>
+      <div class="hero-actions">
+        {DOWNLOAD_URL ? (
+          <a href="/download" class="btn btn-safelight"><Icon name="download" />Download for Windows</a>
+        ) : (
+          <a href="/download" class="btn btn-line justify-between">
+            <span class="flex items-center gap-2.5"><Icon name="download" />Windows installer</span>
+            <span class="edge text-muted">coming with v0.1</span>
+          </a>
+        )}
+      </div>
+      <HeroStrip />
+    </div>
+    <div class="hero-art">
+      <span class="tape left-1/2 -top-3 -translate-x-1/2 -rotate-2" aria-hidden="true"></span>
+      <div class="lg:-rotate-[0.6deg]"><HeroReel /></div>
+    </div>
+  </section>
+
+  <VideoSlot slot="trailer" src={TRAILER_URL} poster={TRAILER_POSTER} title={`${PRODUCT_NAME} trailer`} class="wrap band" />
+
+  <section id="get-started" aria-labelledby="gs-h" class="wrap band scroll-mt-16">
+    <h2 id="gs-h" class="display text-[2.6rem] leading-none sm:text-[3.4rem]">Get started</h2>
+    <p class="mt-3 max-w-xl text-muted">Install, get a model, make your first image. Studio if you like windows, the CLI if you like terminals.</p>
+    <GetStarted class="mt-10" />
+  </section>
+
+  <section aria-labelledby="tasks-h" class="wrap band border-t border-line">
+    <h2 id="tasks-h" class="display text-[2.6rem] leading-none sm:text-[3.4rem]">Make it, then change it</h2>
+    <p class="mt-3 max-w-xl text-muted">Describe a picture, or drop one in and say what to change. Auto picks a model that runs on your machine, and tells you why in one line.</p>
+    <div class="mt-10"><TwoTasks /></div>
+  </section>
+
+  <section aria-labelledby="prints-h" class="darkroom">
+    <div class="wrap band">
+      <h2 id="prints-h" class="display text-[2.6rem] leading-none sm:text-[3.4rem]">Real prints</h2>
+      <p class="mt-3 max-w-xl text-[#d5d7da]">Untouched outputs, one from each model, with the recipe on the film edge.</p>
+      <ul class="prints mt-10" role="list">
+        {prints.map(({ s, name }) => <li><Print sample={s} modelName={name} /></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="models-h" class="wrap band">
+    <h2 id="models-h" class="display text-[2.6rem] leading-none sm:text-[3.4rem]">Models</h2>
+    <p class="mt-3 max-w-xl text-muted">Three picks, one for each job. Check your graphics card to see how they run on it.</p>
+    <div class="models-row mt-10">
+      <HardwareCheck />
+      <ul class="film-grid" role="list">
+        {picks.map((m) => <li class="flex"><FilmBox m={m} /></li>)}
+      </ul>
+    </div>
+    <div class="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 text-[15px]">
+      <a href="/search" class="go">All {models.length} models in the library<Icon name="arrow" /></a>
+      <span class="text-muted">Or bring your own from Hugging Face: <code class="code-inline">{BIN} pull hf.co/&lt;user&gt;/&lt;repo&gt;</code>, checked before anything downloads. <a href="/docs/cli#custom-models" class="go">How</a></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="dev-h" class="band border-t border-line">
+    <div class="wrap">
+      <h2 id="dev-h" class="display text-[2.2rem] leading-none sm:text-[2.6rem]">For developers and agents</h2>
+      <ul class="dev-lines mt-6" role="list">
+        <li><code>{BIN}</code><span>Pull models and make images from your terminal, with <code>--json</code> on every command.</span><a href="/docs/cli" class="go">CLI docs<Icon name="arrow" /></a></li>
+        <li><code>{BIN} mcp</code><span>Lets Claude Code, Codex and other agents make images on your GPU.</span><a href="/docs/mcp" class="go">MCP setup<Icon name="arrow" /></a></li>
+      </ul>
+      <p class="mt-10 text-[15px] text-muted">Where it’s going: <a href="/vision" class="go">the vision and roadmap<Icon name="arrow" /></a></p>
+    </div>
+  </section>
+  <FitBadges />
+</Base>
+
+<script>
+  // The ways-in line: one every 4.5 s, paused on hover or focus; still under reduced motion.
+  const ways = document.querySelector<HTMLElement>('[data-ways]');
+  const still = document.documentElement.dataset.motion === 'reduce' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (ways && !still) {
+    const items = [...ways.children] as HTMLElement[];
+    let i = 0;
+    let held = false;
+    ways.addEventListener('pointerenter', () => (held = true));
+    ways.addEventListener('pointerleave', () => (held = false));
+    ways.addEventListener('focusin', () => (held = true));
+    ways.addEventListener('focusout', () => (held = false));
+    setInterval(() => {
+      if (held || document.hidden) return;
+      delete items[i].dataset.on;
+      i = (i + 1) % items.length;
+      items[i].dataset.on = '';
+    }, 4500);
+  }
+</script>

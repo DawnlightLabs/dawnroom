@@ -1,0 +1,674 @@
+/* The print archive: paper, tickets, negatives, film boxes, datasheets.
+   All motion hangs off <html data-motion>; each moment has a still version. */
+
+/* A faint fibre in the paper. Tiny inline SVG noise; no image request. */
+body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.07 0 0 0 0 0.06 0 0 0 0 0.05 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Archive label: small caps running into a hairline. */
+.label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-line);
+}
+.darkroom .label {
+  color: #a9acb1;
+}
+.darkroom .label::after {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+}
+
+/* Where something has to scroll, keep the bar slim (Windows draws chunky ones by default). */
+pre,
+.prose table,
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(25 27 29 / 0.25) transparent;
+}
+.darkroom pre,
+.prose pre {
+  scrollbar-color: #46494e transparent;
+}
+
+/* ---------- Margin notes: in the margin on wide screens, inline on phones ---------- */
+
+.annotated {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem 3rem;
+}
+.annotated > * {
+  min-width: 0;
+}
+/* The notes column only opens once there's room for it beside full-width text (not at 1024). */
+@media (min-width: 1200px) {
+  .annotated {
+    grid-template-columns: minmax(0, 1fr) var(--notes);
+    align-items: start;
+  }
+  .annotated > .note {
+    grid-column: 2;
+  }
+  .annotated > :not(.note) {
+    grid-column: 1;
+  }
+}
+.note {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #3a3d41;
+  border-left: 2px solid #c47855;
+  padding: 2px 0 2px 12px;
+}
+.note dt {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+.note dd {
+  margin: 4px 0 0;
+}
+.darkroom .note {
+  color: #d5d7da;
+}
+.darkroom .note dt {
+  color: #fcf8f5;
+}
+
+/* ---------- The developing print (landing hero) ---------- */
+
+.hero-print {
+  position: relative;
+  margin: 0;
+}
+.hp-frame {
+  position: relative;
+  overflow: hidden;
+  background: #1d1f22;
+}
+.hp-frame > img,
+.hp-steps img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.hp-steps {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.hp-steps img {
+  opacity: 0;
+}
+.hp-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff3e2;
+  opacity: 0;
+  pointer-events: none;
+}
+.grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0;
+}
+.hp-counter {
+  display: inline-grid;
+  justify-items: end;
+}
+.hp-count {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  display: none;
+}
+.hp-count[data-final] {
+  display: inline;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+html:not([data-motion="reduce"]) .developing .hp-steps {
+  opacity: 1;
+  animation: hp-fix 600ms var(--ease-darkroom) var(--fix-at) both;
+}
+html:not([data-motion="reduce"]) .developing .hp-steps img {
+  animation: hp-on 1ms linear var(--at) both;
+}
+html:not([data-motion="reduce"]) .developing .grain {
+  animation: grain-out 900ms var(--ease-darkroom) var(--fix-at) both;
+}
+html:not([data-motion="reduce"]) .developing .hp-flash {
+  animation: hp-flash 360ms ease-out var(--flash-at) both;
+}
+html:not([data-motion="reduce"]) .developing .hp-count {
+    display: inline;
+    animation: hp-fix 300ms ease-out var(--fix-at) both;
+  }
+  html:not([data-motion="reduce"]) .developing .hp-count[data-final] {
+    animation: hp-on 300ms ease-out var(--fix-at) both;
+  }
+}
+@keyframes hp-on {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hp-fix {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes hp-flash {
+  0% { opacity: 0; }
+  30% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+@keyframes hp-blink {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes grain-out {
+  from { opacity: 0.6; }
+  to { opacity: 0; }
+}
+
+/* Masking tape holding a print to the wall. */
+.tape {
+  position: absolute;
+  width: 96px;
+  height: 26px;
+  background: rgb(252 248 245 / 0.86);
+  box-shadow: 0 1px 2px rgb(25 27 29 / 0.12);
+  z-index: 2;
+}
+
+/* ---------- The job ticket (hardware check) ---------- */
+
+.ticket {
+  position: relative;
+  background-color: #fffdfa;
+  color: var(--color-ink);
+  border-radius: 4px;
+  padding: 16px 18px 12px 28px;
+  box-shadow:
+    0 0 0 1px rgb(25 27 29 / 0.12),
+    0 22px 34px -24px rgb(25 27 29 / 0.5);
+  /* the perforated tear edge on the left */
+  background-image: radial-gradient(circle at 0 8px, var(--color-paper) 3.5px, transparent 4px);
+  background-size: 10px 16px;
+  background-repeat: repeat-y;
+}
+.ticket-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed var(--color-line-strong);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+.ticket-title {
+  font-family: var(--font-display);
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 400;
+}
+.ticket-no {
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.ticket-label {
+  display: block;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ticket-device {
+  font-size: 17px;
+  line-height: 1.35;
+}
+.ticket-mem {
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+.ticket-link {
+  font-size: 13px;
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-left: 6px;
+  min-height: 24px;
+  cursor: pointer;
+}
+.ticket-link:hover {
+  color: var(--color-ink);
+}
+.ticket-rows {
+  margin-top: 8px;
+}
+.ticket-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 12px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-line);
+}
+.ticket-row .ticket-help {
+  grid-column: 1 / -1;
+}
+.ticket-model {
+  font-weight: 500;
+  font-size: 15px;
+}
+.ticket-help {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+.ticket-q {
+  margin-top: 10px;
+  font-size: 15px;
+}
+.ticket-foot {
+  margin-top: 10px;
+  color: var(--color-muted);
+}
+.verdict {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.verdict i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  flex: none;
+}
+.verdict[data-verdict="works"] i {
+  background: linear-gradient(135deg, #c47855, #ffd12b);
+  border-color: #c47855;
+}
+.verdict[data-verdict="offload"] i {
+  background: #ffd12b;
+  border-color: #c47855;
+}
+.verdict[data-verdict="experimental"] i {
+  background: linear-gradient(90deg, #ffd12b 50%, transparent 50%);
+  border-color: #c47855;
+}
+.verdict[data-verdict="needs"] {
+  color: var(--color-warn);
+}
+.verdict[data-verdict="later"],
+.verdict[data-verdict="unsupported"],
+.verdict[data-verdict="unknown"] {
+  color: var(--color-muted);
+}
+.chips,
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pick-step {
+  margin-top: 12px;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.pick-sub {
+  margin-top: 8px;
+  color: var(--color-muted);
+}
+.pick-sub + .chips {
+  margin-top: 4px;
+}
+.pick-step .ticket-link {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+.ticket .chips .chip[data-act="pick"],
+.ticket .chips .chip[data-act="family"] {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+}
+.guide {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: rgb(25 27 29 / 0.04);
+  border-radius: 4px;
+}
+
+/* ---------- Film boxes (models) ---------- */
+
+.box {
+  --stock: #c47855;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fcf8f5;
+  color: var(--color-ink);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 1px rgb(25 27 29 / 0.16),
+    7px 7px 0 -1px #e4ddcd,
+    7px 7px 0 0 rgb(25 27 29 / 0.16),
+    0 28px 40px -30px rgb(25 27 29 / 0.5);
+  transition: transform 200ms var(--ease-darkroom);
+  text-decoration: none;
+}
+a.box:hover {
+  transform: translate(-2px, -2px);
+}
+.box-band {
+  background: var(--stock);
+  color: var(--stock-text, #fcf8f5);
+  padding: 9px 14px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  border-radius: 3px 3px 0 0;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.box-speed {
+  font-family: var(--font-mono);
+  font-size: 46px;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.box-speed small {
+  font-size: 15px;
+  letter-spacing: 0;
+  margin-left: 2px;
+}
+.box-window {
+  border: 1px solid rgb(25 27 29 / 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  background: #222;
+  box-shadow: inset 0 0 0 3px #fcf8f5;
+}
+.box-window img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.box-fit:empty {
+  display: none;
+}
+.spec {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 14px;
+  font-size: 13px;
+  margin: 0;
+}
+.spec dt {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  padding-top: 2px;
+}
+.spec dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Datasheet ---------- */
+
+.sheet-rule {
+  border-top: 3px solid var(--color-ink);
+}
+.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+.sheet-table th,
+.sheet-table td {
+  text-align: left;
+  padding: 7px 12px 7px 0;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: top;
+}
+.sheet-table thead th {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  border-bottom-color: var(--color-ink);
+}
+.sheet-table .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+details.fam > summary {
+  cursor: pointer;
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-line);
+}
+details.fam > summary::-webkit-details-marker {
+  display: none;
+}
+details.fam > summary .i {
+  color: var(--color-muted);
+  transition: transform 200ms var(--ease-darkroom);
+}
+details.fam[open] > summary .i {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+.rise {
+  animation: rise 240ms var(--ease-darkroom) both;
+}
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Reduced motion ---------- */
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Geist has no italic; emphasis is contrast by weight (brand kit), not a fake oblique. */
+em {
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ---------- The hero reel: the developing print, then one print per model ---------- */
+.hp-alt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 500ms var(--ease-darkroom);
+}
+.hp-alt[data-on] {
+  opacity: 1;
+}
+/* Every caption sits in the same cell: the tallest sets the height, so nothing moves. */
+.hp-caps {
+  display: grid;
+}
+.hp-cap {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 400ms var(--ease-darkroom), visibility 0s 400ms;
+}
+.hp-cap[data-on] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 400ms var(--ease-darkroom);
+}
+/* ---------- Hero contact strip: the hero's prints as negatives, with a grease-pencil loop ---------- */
+.hs {
+  max-width: 30rem;
+  margin-top: 10px;
+}
+.hs-strip {
+  --hole: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12'%3E%3Crect x='5' y='3' width='8' height='6' rx='1.4' fill='%23E9E4D8'/%3E%3C/svg%3E");
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  gap: 4px;
+  padding: 34px 12px;
+  background-color: #141618;
+  background-image: var(--hole), var(--hole);
+  background-repeat: repeat-x;
+  background-position: 0 2px, 0 calc(100% - 2px);
+  border-radius: 2px;
+  box-shadow: 0 22px 36px -26px rgb(0 0 0 / 0.75);
+  transform: rotate(-0.8deg);
+}
+.hs-frame {
+  position: relative;
+  padding: 0 8px;
+}
+.hs-btn {
+  position: relative;
+  display: block;
+  /* by width on phones, by height on laptops, so the hero still fits one screen */
+  width: clamp(64px, min(20vw, 13.5vh), 118px);
+  aspect-ratio: 1;
+  cursor: zoom-in;
+}
+.hs-btn img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1px;
+  opacity: 0.72;
+  transition: opacity 200ms var(--ease-darkroom);
+}
+.hs-btn[aria-pressed="true"] img,
+.hs-btn:hover img {
+  opacity: 1;
+}
+.hs-no,
+.hs-edge {
+  position: absolute;
+  left: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.hs-no {
+  top: -19px;
+  color: #ffd12b;
+}
+.hs-edge {
+  bottom: -20px;
+  color: #d9cfc0;
+}
+/* The grease pencil: a white loop drawn around the print that is showing. */
+.hs-loop {
+  position: absolute;
+  left: -13px;
+  top: -14px;
+  width: calc(100% + 26px);
+  height: calc(100% + 28px);
+  overflow: visible;
+  pointer-events: none;
+}
+.hs-loop path {
+  fill: none;
+  stroke: #fcf8f5;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+.hs-btn[aria-pressed="true"] .hs-loop path {
+  opacity: 0.95;
+  animation: hs-draw 820ms var(--ease-darkroom) 120ms both;
+}
+@keyframes hs-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.hs-loupe {
+  position: fixed;
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 60;
+  background-repeat: no-repeat;
+  background-color: #191B1D;
+  box-shadow:
+    0 0 0 3px #1b1b1f,
+    0 0 0 5px rgb(255 255 255 / 0.55),
+    0 18px 40px rgb(0 0 0 / 0.45);
+  transform: translate(-50%, -50%);
+}
+.hs-loupe[hidden] {
+  display: none;
+}

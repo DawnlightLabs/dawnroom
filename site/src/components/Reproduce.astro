@@ -1,0 +1,16 @@
+---
+/** "Reproduce this print": the exact command for a sample, plus the same recipe in Studio's words. */
+import Command from './Command.astro';
+import { recipe, loadModels } from '../lib/registry';
+
+interface Props { sample: { model: string; prompt: string; seed: number; width: number; height: number }; dark?: boolean; class?: string }
+const { sample, dark = false, class: cls = '' } = Astro.props;
+const r = recipe(sample, loadModels().find((m) => m.id === sample.model)?.name);
+---
+<div class={cls}>
+  <p class:list={['eyebrow', dark ? 'text-[#a9acb1]' : 'text-muted']}>Reproduce this print{r.via === 'api' && ' · PowerShell'}</p>
+  <Command cmd={r.cmd} label="Copy the command that reproduces this print" class="mt-1.5" />
+  <p class:list={['mt-1.5 text-[13px] leading-snug', dark ? 'text-[#a9acb1]' : 'text-muted']}>
+    {r.why && <>{r.why} </>}In Studio: <span class="font-mono text-[12px]">{r.studio}</span>, with the seed locked.
+  </p>
+</div>

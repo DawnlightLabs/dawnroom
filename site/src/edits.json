@@ -1,0 +1,31 @@
+{
+  "generate": {
+    "file": "/edits/original-0029.webp",
+    "frame": 29,
+    "prompt": "A ceramic coffee cup on a wooden cafe table by a rainy window, morning light, a chalkboard behind it that reads FRESH BREW",
+    "model": "flux2-klein-4b:q8",
+    "modelName": "FLUX.2 klein 4B",
+    "seed": 4054760330,
+    "steps": 4,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 9.4,
+    "task": "generate",
+    "auto": "FLUX.2 klein 4B: already loaded, fastest, about 10 s here"
+  },
+  "edit": {
+    "file": "/edits/edit-0030.webp",
+    "frame": 30,
+    "prompt": "make it night with warm candle light, keep the chalkboard text",
+    "model": "flux2-klein-4b:q8",
+    "modelName": "FLUX.2 klein 4B",
+    "seed": 1404322530,
+    "steps": 4,
+    "width": 1024,
+    "height": 1024,
+    "seconds": 20.3,
+    "task": "edit",
+    "auto": "FLUX.2 klein 4B: already loaded, fast edits that keep the rest of the image, about 18 s here"
+  },
+  "gpu": "RTX 5060 Laptop"
+}

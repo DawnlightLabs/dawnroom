@@ -1,0 +1,19 @@
+name: Feature request
+description: An idea for Dawnroom.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem first; the solution can come after.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Dawnroom to do?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do today instead?

@@ -1,0 +1,136 @@
+---
+/**
+ * The landing print, rotating through the models. The first slide develops from its real step
+ * previews (recorded by scripts/hero.py); the others are real samples. Each slide names its model,
+ * preset. About 5 s a slide, paused on hover and focus. The contact strip beside
+ * the headline (HeroStrip, [data-reel-strip]) picks a print and circles the one showing.
+ * Reduced motion: the first print, finished, and no rotation. Without JS: the first print only.
+ * All captions share one grid cell, so switching slides never moves the layout.
+ */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import hero from '../hero.json';
+import { recipeLine } from '../lib/registry';
+import { heroSlides } from '../lib/heroSlides';
+
+const slides = heroSlides();
+
+// About a dozen of the real frames, front-loaded where the image changes most.
+const wanted = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 18, 22, 28];
+// Inlined (about 18 KB) so a slow connection can't leave a dark box where a late frame should be.
+const frames = hero.frames
+  .filter((f) => wanted.includes(f.step))
+  .map((f) => ({ ...f, src: `data:image/webp;base64,${readFileSync(resolve(process.cwd(), 'public', f.file.slice(1))).toString('base64')}` }));
+const START = 300;
+const EACH = 240;
+const at = (i: number) => START + i * EACH;
+const fixAt = at(frames.length) + 200;
+const flashAt = fixAt + 420;
+const total = hero.frames.at(-1)?.total ?? hero.steps;
+---
+<figure class="hero-print developing" data-reel data-first-ms={flashAt + 400} aria-roledescription="carousel" aria-label="Prints from each model"
+  style={`--fix-at:${fixAt}ms;--flash-at:${flashAt}ms;--dur:${EACH}ms`}>
+  <div class="print !p-[10px] !pb-[12px]">
+    <div class="hp-frame" style={`aspect-ratio:${hero.width}/${hero.height}`}>
+      <img src={hero.file} srcset={`${hero.file.replace('.webp', '-640.webp')} 640w, ${hero.file} 1024w`} sizes="(min-width: 1024px) 640px, calc(100vw - 52px)" width={hero.width} height={hero.height} alt={hero.prompt} loading="eager" fetchpriority="high" decoding="async" data-slide-img="0" />
+      <div class="hp-steps" aria-hidden="true" style="background:#1d1f22">
+        {frames.map((f, i) => <img src={f.src} width="128" height="128" alt="" style={`--at:${at(i)}ms`} />)}
+      </div>
+      <svg class="grain" viewBox="0 0 200 200" preserveAspectRatio="none" aria-hidden="true"><filter id="hp-g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /></filter><rect width="100%" height="100%" filter="url(#hp-g)" /></svg>
+      <div class="hp-flash" aria-hidden="true"></div>
+      {slides.slice(1).map(({ s }, i) => (
+        // src is set after the page loads, so these never compete with the first print.
+        <img class="hp-alt" data-src={s.file} width={s.width} height={s.height} alt={s.prompt} decoding="async" data-slide-img={i + 1} />
+      ))}
+    </div>
+    <div class="hp-caps">
+      {slides.map(({ s, name, preset }, i) => (
+        <figcaption class="hp-cap mt-2.5 px-0.5" data-slide-cap={i} aria-hidden={i ? 'true' : undefined}>
+          <div class="edge text-muted flex flex-wrap items-baseline justify-between gap-x-3">
+            <span>{recipeLine(s)}</span>
+            {i === 0 ? (
+              <span class="hp-counter">
+                <span class="hp-count" aria-hidden="true">developing ▸ {frames.length} of {total} real steps</span>
+                <span class="hp-count" data-final></span>
+              </span>
+            ) : null}
+          </div>
+          <p class="mt-1 text-[14px] leading-snug">{s.prompt}</p>
+          <p class="hp-model mt-1.5 text-[13px] leading-snug"><strong class="font-medium">{name}</strong> · {preset}</p>
+        </figcaption>
+      ))}
+    </div>
+  </div>
+</figure>
+
+<script>
+  const reel = document.querySelector<HTMLElement>('[data-reel]');
+  if (reel) {
+    const imgs = [...reel.querySelectorAll<HTMLImageElement>('[data-slide-img]')];
+    const caps = [...reel.querySelectorAll<HTMLElement>('[data-slide-cap]')];
+    // The contact strip beside the headline: its frames pick a print, and it pauses the reel too.
+    const strip = document.querySelector<HTMLElement>('[data-reel-strip]');
+    const dots = [...(strip?.querySelectorAll<HTMLButtonElement>('[data-go]') ?? [])];
+    const holders = [reel, strip].filter(Boolean) as HTMLElement[];
+    const still = document.documentElement.dataset.motion === 'reduce' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const EACH = 5000;
+    let cur = 0;
+    let timer = 0;
+    let paused = false;
+
+    const load = () => imgs.forEach((im) => im.dataset.src && !im.src && (im.src = im.dataset.src));
+    if (document.readyState === 'complete') load();
+    else addEventListener('load', load, { once: true });
+
+    function show(i: number) {
+      load();
+      cur = i;
+      // Once another print has been shown, the first one stays developed.
+      if (i !== 0) reel!.classList.remove('developing');
+      imgs.forEach((im, k) => k > 0 && (k === i ? (im.dataset.on = '') : delete im.dataset.on));
+      caps.forEach((c, k) => {
+        if (k === i) {
+          c.dataset.on = '';
+          c.removeAttribute('aria-hidden');
+        } else {
+          delete c.dataset.on;
+          c.setAttribute('aria-hidden', 'true');
+        }
+      });
+      dots.forEach((d, k) => d.setAttribute('aria-pressed', String(k === i)));
+    }
+    function schedule(ms: number) {
+      clearTimeout(timer);
+      if (still || paused) return;
+      timer = window.setTimeout(() => {
+        show((cur + 1) % imgs.length);
+        schedule(EACH);
+      }, ms);
+    }
+    const pause = () => {
+      paused = true;
+      clearTimeout(timer);
+    };
+    const resume = () => {
+      if (holders.some((h) => h.matches(':hover') || h.contains(document.activeElement))) return;
+      paused = false;
+      schedule(EACH);
+    };
+
+    caps[0].dataset.on = '';
+    dots.forEach((d) => d.addEventListener('click', () => {
+      show(Number(d.dataset.go));
+    }));
+    for (const h of holders) {
+      h.addEventListener('pointerenter', pause);
+      h.addEventListener('pointerleave', () => setTimeout(resume));
+      h.addEventListener('focusin', pause);
+      h.addEventListener('focusout', () => setTimeout(resume));
+    }
+    document.addEventListener('visibilitychange', () => (document.hidden ? pause() : resume()));
+    // Once the first print has developed, drop the class so its (faded) counter stops taking a line.
+    if (!still) setTimeout(() => reel.classList.remove('developing'), Number(reel.dataset.firstMs) + 200);
+    // The first print gets time to develop before the reel moves on.
+    schedule(Number(reel.dataset.firstMs) + EACH);
+  }
+</script>

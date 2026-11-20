@@ -1,0 +1,703 @@
+/* The control family on paper: commands, search field, catalogue sidebar, picker chips,
+   Every one is a real input or button underneath. */
+
+/* ---------- Command strip + copy ---------- */
+.cmd {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: 4px;
+  padding: 6px 6px 6px 16px;
+}
+.cmd code {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.copy {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 11px 0 9px;
+  border-radius: 3px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  font-size: 13px;
+  color: #fcf8f5;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-darkroom), border-color 160ms var(--ease-darkroom);
+}
+.copy:hover {
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.28);
+}
+.copy .i {
+  width: 15px;
+  height: 15px;
+}
+.copy .copy-done,
+.copy[data-copied] .copy-idle {
+  display: none;
+}
+.copy[data-copied] .copy-done {
+  display: block;
+  color: #ffd12b;
+}
+
+/* Search field: one box, icon inside, our own clear button. */
+.field {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: var(--color-sheet);
+  color: var(--color-muted);
+  transition: border-color 160ms var(--ease-darkroom);
+}
+.field:hover {
+  border-color: var(--color-ink);
+}
+.field > .i {
+  margin-left: 13px;
+  width: 17px;
+  height: 17px;
+}
+.field input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0 10px;
+  font-size: 15px;
+  color: var(--color-ink);
+}
+.field input::placeholder {
+  color: var(--color-muted);
+}
+.field input:focus-visible {
+  outline: none;
+}
+.field:focus-within {
+  border-color: var(--color-ink);
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.field-clear {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.field-clear:hover {
+  background: rgb(25 27 29 / 0.06);
+  color: var(--color-ink);
+}
+.field-clear[hidden] {
+  display: none;
+}
+
+.empty {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 20px;
+  border: 1px dashed var(--color-line-strong);
+  border-radius: 4px;
+  color: var(--color-muted);
+}
+.empty[hidden] {
+  display: none;
+}
+.empty-i {
+  width: 28px;
+  height: 28px;
+}
+
+/* ---------- Picker chips in the ticket: same family ---------- */
+.chip,
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: var(--color-sheet);
+  padding: 0 11px;
+  min-height: 32px;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-darkroom), border-color 160ms var(--ease-darkroom);
+}
+.chip:hover,
+.tab:hover {
+  border-color: var(--color-ink);
+}
+.tab[aria-pressed="true"] {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+.ticket-search {
+  display: flex !important;
+  align-items: center;
+  height: 40px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: #fffdfa;
+  color: var(--color-muted);
+}
+.ticket-search:focus-within {
+  border-color: var(--color-ink);
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.ticket-search .i {
+  margin-left: 11px;
+  width: 16px;
+  height: 16px;
+}
+.ticket-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100% !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 10px !important;
+  font-size: 15px;
+  color: var(--color-ink);
+}
+.ticket-search input:focus-visible {
+  outline: none;
+}
+.ticket-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.path-i {
+  width: 0.9em;
+  height: 0.9em;
+  vertical-align: -0.1em;
+  margin: 0 1px;
+}
+
+/* A task tag as a link (model pages): the same edge code, without the number. */
+.code-link {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: var(--color-sheet);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.code-link:hover {
+  border-color: var(--color-ink);
+}
+
+/* ---------- The catalogue (/search): app-style, full-bleed ----------
+   Wide: the filter sidebar sits flush on the window's left edge at full height; title and grid fill
+   the rest. Below 1100px the sidebar folds into a Filters button above the grid (once JS has run). */
+.cat-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 20px var(--gutter) 0;
+  row-gap: 18px;
+}
+.cat-head {
+  display: grid;
+  gap: 6px 40px;
+}
+.cat-lede {
+  max-width: 36rem;
+  color: var(--color-muted);
+  font-size: 15px;
+}
+@media (min-width: 900px) {
+  .cat-head {
+    grid-template-columns: auto minmax(0, 36rem);
+    align-items: end;
+    justify-content: space-between;
+  }
+}
+.cat-panel {
+  display: grid;
+  gap: 22px;
+}
+.cat-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+  margin-bottom: 14px;
+}
+.cat-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 4px;
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.cat-clear:hover {
+  color: var(--color-ink);
+}
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 40px 28px;
+}
+
+/* The Filters button: hidden until JS, and on wide screens. */
+.cat-toggle {
+  display: none;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: var(--color-sheet);
+  text-align: left;
+  cursor: pointer;
+}
+.cat-toggle:hover {
+  border-color: var(--color-ink);
+}
+.cat-toggle-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.3;
+  font-weight: 500;
+}
+.cat-toggle-sub {
+  font-weight: 400;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cat-toggle-count {
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--color-ink);
+  color: #ffd12b;
+}
+.cat-toggle-i {
+  transition: transform 200ms var(--ease-darkroom);
+}
+.cat-toggle[aria-expanded="true"] .cat-toggle-i {
+  transform: rotate(180deg);
+}
+@media (max-width: 1099px) {
+  .cat-side[data-js] .cat-toggle {
+    display: flex;
+  }
+  .cat-side[data-js]:not([data-open]) .cat-panel {
+    display: none;
+  }
+  .cat-side[data-open] .cat-panel {
+    margin-top: 14px;
+  }
+  /* Side by side when there's room: ticket left, filters right. */
+}
+@media (min-width: 1100px) {
+  .cat-shell {
+    grid-template-columns: 20rem minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    padding: 0;
+    row-gap: 0;
+  }
+  .cat-head {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 28px var(--gutter) 18px 36px;
+  }
+  .cat-main {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 0 var(--gutter) 0 36px;
+  }
+  /* Flush to the window edge, full height under the header, scrolls on its own. */
+  .cat-side {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: var(--header);
+    align-self: start;
+    height: calc(100vh - var(--header));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(25 27 29 / 0.2) transparent;
+    padding: 20px 20px 32px var(--gutter);
+    border-right: 1px solid var(--color-line);
+    background: rgb(255 255 255 / 0.35);
+  }
+}
+@media (min-width: 1600px) {
+  .cat-shell {
+    grid-template-columns: 22rem minmax(0, 1fr);
+  }
+}
+
+/* The ticket in the catalogue: every box already shows its verdict, so the ticket only names the machine. */
+.ticket[data-compact] .ticket-rows,
+.ticket[data-compact] .ticket-rows + .ticket-help {
+  display: none;
+}
+.ticket[data-compact] {
+  padding: 12px 14px 10px 26px;
+}
+.ticket[data-compact] .ticket-title {
+  font-size: 21px;
+}
+.ticket[data-compact] .ticket-head {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+}
+
+/* The sidebar never scrolls sideways: its children may shrink to its width. */
+.cat-side,
+.cat-panel > *,
+.cat-filters > * {
+  min-width: 0;
+}
+.cat-side {
+  overflow-x: hidden;
+}
+/* The grid fills the width it has (few models today, so no empty strip on the right). */
+.cat-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+@media (min-width: 1600px) {
+  .cat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  }
+}
+
+/* ---------- The catalogue sidebar: plain sections, standard controls ---------- */
+.cat-filters {
+  display: grid;
+  gap: 4px;
+}
+.side-sec {
+  margin: 0;
+  padding: 18px 0 10px;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  min-width: 0;
+}
+.cat-filters > .field {
+  margin-bottom: 14px;
+}
+.side-title {
+  float: left;
+  width: 100%;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.side-sec > :not(.side-title) {
+  clear: both;
+}
+/* The card, as one row: icon, name, Change. */
+.hw-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+}
+.hw-row:hover {
+  background: rgb(25 27 29 / 0.05);
+}
+.hw-row > .i {
+  color: var(--color-muted);
+}
+.hw-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.hw-change {
+  font-size: 13px;
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* A standard switch: label left, pill right. */
+.toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.toggle:hover {
+  background: rgb(25 27 29 / 0.05);
+}
+.toggle input,
+.opt input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.toggle-track {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgb(25 27 29 / 0.2);
+  transition: background-color 180ms var(--ease-darkroom);
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fffdfa;
+  box-shadow: 0 1px 2px rgb(25 27 29 / 0.3);
+  transition: transform 180ms var(--ease-darkroom);
+}
+.toggle input:checked + .toggle-track {
+  background: var(--color-ink);
+}
+.toggle input:checked + .toggle-track::after {
+  transform: translateX(14px);
+}
+.toggle input:focus-visible + .toggle-track {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+/* Options: a mark, the label, a count. */
+.opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.opt:hover {
+  background: rgb(25 27 29 / 0.05);
+}
+.opt-label {
+  flex: 1;
+  min-width: 0;
+}
+.opt-n {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.opt-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgb(25 27 29 / 0.35);
+  border-radius: 4px;
+  background: var(--color-sheet);
+  color: var(--color-paper);
+}
+.opt-mark .i {
+  width: 12px;
+  height: 12px;
+  visibility: hidden;
+}
+.opt-mark.is-radio {
+  border-radius: 50%;
+}
+.opt input:checked + .opt-mark {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+}
+.opt input:checked + .opt-mark .i {
+  visibility: visible;
+}
+.opt input:checked + .opt-mark.is-radio {
+  background: var(--color-sheet);
+  box-shadow: inset 0 0 0 3px var(--color-sheet), inset 0 0 0 8px var(--color-ink);
+}
+.opt input:checked ~ .opt-label {
+  font-weight: 500;
+}
+.opt input:focus-visible + .opt-mark {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* The explanations, under the grid. */
+.cat-about {
+  display: grid;
+  gap: 24px 40px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-line);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+@media (min-width: 900px) {
+  .cat-about {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.cat-about-h {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.cat-about strong {
+  color: var(--color-ink);
+}
+
+/* The picker, in a dialog. */
+.hw-dialog {
+  /* Tailwind's reset removes the browser's centring margin */
+  margin: auto;
+  width: min(32rem, calc(100vw - 32px));
+  max-height: min(42rem, calc(100vh - 48px));
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: #fffdfa;
+  color: var(--color-ink);
+  box-shadow: 0 0 0 1px rgb(25 27 29 / 0.12), 0 30px 60px -20px rgb(25 27 29 / 0.45);
+}
+.hw-dialog::backdrop {
+  background: rgb(25 27 29 / 0.4);
+}
+.hw-dialog-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 12px 20px;
+  border-bottom: 1px solid var(--color-line);
+  background: #fffdfa;
+}
+.hw-dialog-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.hw-dialog-close:hover {
+  background: rgb(25 27 29 / 0.06);
+}
+/* Inside the dialog the ticket loses its paper chrome: the dialog is the paper. */
+.hw-dialog .ticket {
+  box-shadow: none;
+  background-image: none;
+  padding: 8px 20px 16px;
+}
+.hw-dialog .ticket-head {
+  display: none;
+}
+
+/* ---------- System RAM in the ticket ---------- */
+.chip[aria-pressed="true"] {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+.ticket-ram {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-line);
+}
+.ticket-ram .ticket-device {
+  font-size: 15px;
+}
+.ram-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 10px 0 4px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: #fffdfa;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--color-muted);
+}
+.ram-field:focus-within {
+  border-color: var(--color-ink);
+}
+.ram-field input {
+  width: 5.5ch;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  min-height: 30px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-ink);
+  text-align: right;
+  outline: none;
+}
+
+.ram-field input::-webkit-inner-spin-button,
+.ram-field input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

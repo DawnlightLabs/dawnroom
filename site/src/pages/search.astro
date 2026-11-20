@@ -1,0 +1,296 @@
+---
+/**
+ * The library: a plain sidebar of filters (search, your graphics card, task, licence; size and "good at"
+ * fold under More filters) and one quiet row per model, each
+ * with what it does, its size, the memory it needs, whether it runs on your card and, where we timed it on that card, its time. Filters live in the URL.
+ */
+import Base from '../layouts/Base.astro';
+import HardwareCheck from '../components/HardwareCheck.astro';
+import FitBadges from '../components/FitBadges.astro';
+import Icon from '../components/Icon.astro';
+import { loadModels, gb, gib, mainTask, TAG_LABELS, type Model } from '../lib/registry';
+import { estimateMib } from '../lib/fit';
+import { stockOf } from '../lib/stocks';
+import { BIN } from '../config';
+import cards from '../modelCards.json';
+
+const models = loadModels();
+const clean = (m: Model) => m.licence.commercial && !m.licence.use_restrictions;
+const taskOf = (m: Model) => m.tasks ?? ['generate'];
+const tags = [...new Set(models.flatMap((m) => m.tags ?? []))].sort((a, b) => Object.keys(TAG_LABELS).indexOf(a) - Object.keys(TAG_LABELS).indexOf(b));
+const smallest = (m: Model) => Math.min(...m.variants.map((v) => v.bytes));
+const sizeBucket = (b: number) => (b < 5e9 ? 'small' : b < 10e9 ? 'medium' : b < 20e9 ? 'large' : 'huge');
+const SIZES = [
+  { v: 'small', label: 'Under 5 GB' },
+  { v: 'medium', label: '5–10 GB' },
+  { v: 'large', label: '10–20 GB' },
+  { v: 'huge', label: 'Over 20 GB' },
+];
+
+/** What a row shows: memory need (measured or estimate), sizes, a picture if there is one. The time comes from the visitor's card (FitBadges). */
+const row = (m: Model) => {
+  const t = mainTask(m.tasks);
+  const meas = (m.measured ?? []).filter((x) => !x.integrated && (x.task ?? 'generate') === t);
+  const need = meas.length ? { mib: Math.max(...meas.map((x) => x.need_mib ?? x.peak_vram_mib)), est: false } : { mib: estimateMib(m.bytes), est: true };
+  const sizes = m.variants.length > 1 ? `${gb(smallest(m))}–${gb(Math.max(...m.variants.map((v) => v.bytes)))}` : gb(m.bytes);
+  const facts = [taskOf(m).length > 1 ? 'Generate + Edit' : taskOf(m)[0] === 'edit' ? 'Edit' : 'Generate', m.variants.map((v) => v.tag).filter(Boolean).join(' · '), clean(m) ? null : m.licence.commercial ? 'restrictions' : 'non-commercial'].filter(Boolean).join(' · ');
+  return { m, need, sizes, facts, stock: stockOf(m.id), thumb: m.samples[0]?.file.replace('/samples/', '/samples/thumb/') ?? (cards as Record<string, { thumb: string | null }>)[m.id]?.thumb ?? undefined, mono: m.name.replace(/[^A-Za-z0-9 .]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') };
+};
+// The three picks first, then by name.
+const PICKS = ['z-image-turbo', 'flux2-klein-4b', 'realvisxl-v5'];
+const order = (a: Model, b: Model) => (PICKS.indexOf(a.id) + 1 || 99) - (PICKS.indexOf(b.id) + 1 || 99) || a.name.localeCompare(b.name);
+const rows = [...models].sort(order).map(row);
+const count = (f: (m: Model) => boolean) => models.filter(f).length;
+const groups = [
+  { title: 'Task', name: 'task', options: [{ v: '', label: 'Any', n: models.length }, { v: 'generate', label: 'Generate', n: count((m) => taskOf(m).includes('generate')) }, { v: 'edit', label: 'Edit', n: count((m) => taskOf(m).includes('edit')) }] },
+  { title: 'Licence', name: 'licence', options: [{ v: '', label: 'Any', n: models.length }, { v: 'commercial', label: 'Commercial OK', n: count(clean) }, { v: 'restricted', label: 'With restrictions', n: count((m) => !clean(m)) }] },
+];
+const sizes = [{ v: '', label: 'Any', n: models.length }, ...SIZES.map((x) => ({ ...x, n: count((m) => sizeBucket(smallest(m)) === x.v) }))];
+---
+<Base title="Models" nav="models" description="Image models for your own GPU: does it run on your hardware? Memory, sizes and licences.">
+  <div class="cat-shell">
+    <aside class="cat-side" aria-label="Filters" data-side>
+      <button type="button" class="cat-toggle" aria-expanded="false" aria-controls="cat-panel" data-toggle>
+        <Icon name="filter" />
+        <span class="cat-toggle-text"><span>Filters</span><span class="edge cat-toggle-sub" data-toggle-sub>No graphics card picked</span></span>
+        <span class="cat-toggle-count edge" data-toggle-count hidden></span>
+        <Icon name="down" class="cat-toggle-i" />
+      </button>
+      <div id="cat-panel" class="cat-panel">
+        <form id="filters" class="cat-filters" role="search" aria-label="Filter models" onsubmit="return false">
+          <label class="field">
+            <span class="sr-only">Search models</span>
+            <Icon name="search" />
+            <input id="q" type="search" placeholder="Search models" autocomplete="off" spellcheck="false" />
+          </label>
+
+          <section class="side-sec" aria-labelledby="hw-title">
+            <h2 id="hw-title" class="side-title">Graphics card</h2>
+            <button type="button" class="hw-row" data-open-picker aria-haspopup="dialog">
+              <Icon name="chip" />
+              <span class="hw-name" data-hw-name>None picked</span>
+              <span class="hw-change" data-hw-action>Pick</span>
+            </button>
+            <label class="toggle">
+              <span>Only models that run on it</span>
+              <input id="fits" type="checkbox" role="switch" />
+              <span class="toggle-track" aria-hidden="true"></span>
+            </label>
+          </section>
+
+          {groups.map((g) => (
+            <fieldset class="side-sec">
+              <legend class="side-title">{g.title}</legend>
+              {g.options.map((o) => (
+                <label class="opt">
+                  <input type="radio" name={g.name} value={o.v} checked={o.v === ''} />
+                  <span class="opt-mark is-radio" aria-hidden="true"></span>
+                  <span class="opt-label">{o.label}</span>
+                  <span class="opt-n" aria-hidden="true">{o.n}</span>
+                </label>
+              ))}
+            </fieldset>
+          ))}
+
+          <details class="side-more" data-more>
+            <summary class="side-title">More filters<Icon name="down" class="i-sm" /></summary>
+            <fieldset class="side-sec">
+              <legend class="side-title">Download size</legend>
+              {sizes.map((o) => (
+                <label class="opt">
+                  <input type="radio" name="size" value={o.v} checked={o.v === ''} />
+                  <span class="opt-mark is-radio" aria-hidden="true"></span>
+                  <span class="opt-label">{o.label}</span>
+                  <span class="opt-n" aria-hidden="true">{o.n}</span>
+                </label>
+              ))}
+            </fieldset>
+            <fieldset class="side-sec">
+              <legend class="side-title">Good at</legend>
+              {tags.map((t) => (
+                <label class="opt">
+                  <input type="checkbox" name="tag" value={t} />
+                  <span class="opt-mark" aria-hidden="true"><Icon name="check" /></span>
+                  <span class="opt-label">{TAG_LABELS[t] ?? t}</span>
+                  <span class="opt-n" aria-hidden="true">{models.filter((m) => m.tags?.includes(t)).length}</span>
+                </label>
+              ))}
+            </fieldset>
+          </details>
+        </form>
+      </div>
+    </aside>
+    <script is:inline>document.querySelector('[data-side]').dataset.js = '';</script>
+
+    <div class="cat-main">
+      <header class="lib-top">
+        <h1 class="display text-[2.4rem] leading-none">Models</h1>
+        <p id="count" class="edge text-muted" aria-live="polite">{models.length} models</p>
+        <button type="button" id="reset" class="cat-clear edge" hidden><Icon name="close" class="i-sm" />Clear filters</button>
+      </header>
+
+      <section class="lib-shelf" aria-label="Models">
+          <ul role="list" class="lib-rows">
+            {rows.map((r) => (
+              <li data-model data-name={`${r.m.id} ${r.m.name} ${r.m.tagline} ${r.m.variants.map((v) => v.tag).join(' ')}`.toLowerCase()} data-tags={(r.m.tags ?? []).join(' ')} data-tasks={taskOf(r.m).join(' ')} data-clean={String(clean(r.m))} data-size={sizeBucket(smallest(r.m))}>
+                <a href={`/library/${r.m.id}`} class="lib-row">
+                  <span class:list={['lib-thumb', !r.thumb && 'is-mono']} style={`--stock:${r.stock.colour}`}>{r.thumb ? <img src={r.thumb} alt="" width="44" height="44" loading="lazy" decoding="async" /> : <span aria-hidden="true">{r.mono}</span>}</span>
+                  <span class="lib-name">
+                    <strong>{r.m.name}</strong>
+                    <span class="lib-facts">{r.facts}</span>
+                  </span>
+                  <span class="lib-num" title="Memory it needs">{gib(r.need.mib)}{r.need.est && <span class="text-muted"> est.</span>}</span>
+                  <span class="lib-num" title="Time for one image on your card" data-fit-secs={r.m.id}></span>
+                  <span class="lib-fit edge" data-fit-model={r.m.id}></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+      </section>
+      <div id="empty" hidden class="empty"><Icon name="tray" class="empty-i" /><p>No model matches those filters.</p><button type="button" id="reset2" class="btn btn-line"><Icon name="close" />Clear filters</button></div>
+
+      <section class="lib-own" aria-labelledby="own-h">
+        <h2 id="own-h" class="text-[18px] font-medium">Not in the library?</h2>
+        <p class="mt-2 max-w-2xl text-[14.5px] text-muted">Bring a public image model from Hugging Face, or a file you have: <code class="code-inline">{BIN} pull hf.co/&lt;user&gt;/&lt;repo&gt;</code>. It is checked before anything downloads. <a href="/docs/cli#custom-models" class="go">How</a></p>
+      </section>
+
+      <section class="cat-about" aria-labelledby="about-h">
+        <h2 id="about-h" class="sr-only">About these numbers</h2>
+        <div>
+          <h3 class="cat-about-h">How “runs on it” works</h3>
+          <p>It compares the memory a model needs (measured while it develops a 1024² image, or an estimate from its file sizes plus 2 GB) with your card’s memory, leaving 0.5 GB spare. Models that need more can still run by moving part of the work to system memory (slower), if you tell us your RAM. Your card is remembered in this browser only.</p>
+        </div>
+        <div>
+          <h3 class="cat-about-h">Licences</h3>
+          <p><strong class="font-medium">Commercial OK</strong>: commercial use with no use-based restrictions. Others are non-commercial, or commercial within limits. Some official repos are gated: {BIN} downloads those from a mirror and asks you to accept the original licence first.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <dialog class="hw-dialog" data-picker aria-labelledby="hw-dialog-h">
+    <div class="hw-dialog-head">
+      <h2 id="hw-dialog-h" class="text-[17px] font-semibold">Pick your graphics card</h2>
+      <button type="button" class="hw-dialog-close" data-close-picker aria-label="Close"><Icon name="close" /></button>
+    </div>
+    <HardwareCheck class="hw-dialog-ticket" compact />
+  </dialog>
+
+  <FitBadges />
+
+  <script>
+    import { loadChoice, type Choice } from '../lib/fit';
+    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+    const form = $<HTMLFormElement>('filters');
+    const q = $<HTMLInputElement>('q');
+    const fits = $<HTMLInputElement>('fits');
+    const more = document.querySelector<HTMLDetailsElement>('[data-more]')!;
+    const rows = [...document.querySelectorAll<HTMLElement>('[data-model]')];
+    const devices = (JSON.parse(document.querySelector('[data-fit-data]')?.textContent ?? '{}').devices ?? []) as { id: string; name: string; unified?: boolean }[];
+    const picker = document.querySelector<HTMLDialogElement>('[data-picker]')!;
+
+    function showDevice(c: Choice | null) {
+      const d = c && devices.find((x) => x.id === c.id);
+      const name = d ? `${d.name}${c!.gb ? ` · ${c!.gb} GB` : ''}${c!.ram && !d.unified ? ` · ${c!.ram} GB RAM` : ''}` : '';
+      document.querySelector<HTMLElement>('[data-hw-name]')!.textContent = name || 'None picked';
+      document.querySelector<HTMLElement>('[data-hw-action]')!.textContent = d ? 'Change' : 'Pick';
+      document.querySelector<HTMLElement>('[data-toggle-sub]')!.textContent = name || 'No graphics card picked';
+    }
+    function openPicker() {
+      picker.showModal();
+      picker.querySelector<HTMLElement>('[data-act="change"]')?.click();
+      picker.querySelector<HTMLElement>('input, button.chip, button.tab')?.focus();
+    }
+    const val = (name: string) => form.querySelector<HTMLInputElement>(`input[name=${name}]:checked`)?.value ?? '';
+
+    function apply() {
+      const text = q.value.trim().toLowerCase();
+      const on = fits.checked && !!loadChoice();
+      const task = val('task');
+      const lic = val('licence');
+      const size = val('size');
+      const tags = [...form.querySelectorAll<HTMLInputElement>('input[name=tag]:checked')].map((i) => i.value);
+      let shown = 0;
+      for (const r of rows) {
+        const d = r.dataset;
+        const verdict = r.querySelector<HTMLElement>('[data-fit-model]')?.dataset.verdict;
+        const ok =
+          (!text || d.name!.includes(text)) &&
+          (!on || ['works', 'offload', 'experimental', 'later'].includes(verdict ?? '')) &&
+          (!task || d.tasks!.split(' ').includes(task)) &&
+          (!lic || (lic === 'commercial') === (d.clean === 'true')) &&
+          (!size || d.size === size) &&
+          tags.every((t) => d.tags!.split(' ').includes(t));
+        r.hidden = !ok;
+        if (ok) shown++;
+      }
+      const active = (text ? 1 : 0) + (fits.checked ? 1 : 0) + (task ? 1 : 0) + (lic ? 1 : 0) + (size ? 1 : 0) + tags.length;
+      $('count').textContent = active ? `${shown} of ${rows.length} models` : `${rows.length} models`;
+      $('reset').hidden = !active;
+      $('empty').hidden = shown > 0;
+      const badge = document.querySelector<HTMLElement>('[data-toggle-count]')!;
+      badge.hidden = !active;
+      badge.textContent = `${active} on`;
+      const p = new URLSearchParams();
+      if (text) p.set('q', text);
+      if (fits.checked) p.set('fits', '1');
+      if (task) p.set('task', task);
+      if (lic) p.set('licence', lic);
+      if (size) p.set('size', size);
+      if (tags.length) p.set('tag', tags.join(','));
+      history.replaceState(null, '', p.size ? `?${p}` : location.pathname);
+    }
+
+    // Restore from the URL (older links said licence=commercial-clean).
+    const init = new URLSearchParams(location.search);
+    q.value = init.get('q') ?? '';
+    fits.checked = init.get('fits') === '1';
+    const set = (name: string, v: string) => {
+      const el = form.querySelector<HTMLInputElement>(`input[name=${name}][value="${CSS.escape(v)}"]`);
+      if (el) el.checked = true;
+    };
+    set('task', init.get('task') ?? '');
+    set('licence', init.get('licence') === 'commercial-clean' ? 'commercial' : (init.get('licence') ?? ''));
+    set('size', init.get('size') ?? '');
+    const wanted = (init.get('tag') ?? '').split(',');
+    form.querySelectorAll<HTMLInputElement>('input[name=tag]').forEach((i) => (i.checked = wanted.includes(i.value)));
+    if (init.get('size') || wanted.some(Boolean)) more.open = true;
+
+    form.addEventListener('input', apply);
+    fits.addEventListener('change', () => {
+      if (fits.checked && !loadChoice()) openPicker();
+    });
+    document.addEventListener('fit-painted', apply);
+    addEventListener('hardware-change', (e) => {
+      showDevice((e as CustomEvent<Choice | null>).detail);
+      if (picker.open) picker.close();
+    });
+    document.querySelector('[data-open-picker]')!.addEventListener('click', openPicker);
+    document.querySelector('[data-close-picker]')!.addEventListener('click', () => picker.close());
+    picker.addEventListener('close', () => {
+      if (fits.checked && !loadChoice()) {
+        fits.checked = false;
+        apply();
+      }
+    });
+    picker.addEventListener('click', (e) => e.target === picker && picker.close());
+    for (const id of ['reset', 'reset2'])
+      $(id).addEventListener('click', () => {
+        form.reset();
+        apply();
+        q.focus();
+      });
+
+    // Narrow screens: the sidebar folds into a Filters button.
+    const side = document.querySelector<HTMLElement>('[data-side]')!;
+    const toggle = side.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      side.toggleAttribute('data-open', open);
+    });
+
+    showDevice(loadChoice());
+    apply();
+  </script>
+</Base>

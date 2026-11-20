@@ -1,0 +1,58 @@
+---
+/**
+ * Make it, then change it: two steps on the light table. 1, a prompt and the print it made; a grease-pencil
+ * arrow; 2, the instruction and one print you can wipe across, original under the edit. Auto's reason is
+ * shown as the engine recorded it. All from src/edits.json (scripts/edits.py), read from the library.
+ * The wipe is a range input over two images: a few lines of script, and it rests at the middle without it.
+ */
+import edits from '../edits.json';
+
+const g = edits.generate;
+const e = edits.edit;
+const line = (s: { frame: number; seed: number; steps: number; seconds: number }) => `${String(s.frame).padStart(4, '0')} ▸ seed ${s.seed} ▸ ${s.steps} steps ▸ ${s.seconds.toFixed(1)} s`;
+const reason = (r: string | null, name: string) => (r && r.startsWith(`${name}: `) ? r.slice(name.length + 2) : (r ?? ''));
+---
+<div class="mk">
+  <div class="mk-step mk-one">
+    <p class="mk-head"><span class="mk-n">1</span>Describe it</p>
+    <p class="mk-say">“{g.prompt}”</p>
+    <figure class="mk-print m-0">
+      <span class="tape mk-tape" aria-hidden="true"></span>
+      <img src={g.file} width={g.width} height={g.height} alt={g.prompt} loading="lazy" decoding="async" />
+      <figcaption class="edge mt-2 text-muted">{line(g)}</figcaption>
+    </figure>
+    <p class="mk-auto"><span class="mk-chip">Auto · {g.modelName}</span>{reason(g.auto, g.modelName)}</p>
+  </div>
+
+  <!-- A grease-pencil arrow from the first print to the second. -->
+  <svg class="mk-arrow" viewBox="0 0 120 80" aria-hidden="true">
+    <path d="M6 58 C30 18 70 10 104 34" pathLength="1" />
+    <path d="M90 22 L106 35 L88 42" pathLength="1" />
+  </svg>
+
+  <div class="mk-step mk-two">
+    <p class="mk-head"><span class="mk-n">2</span>Say what to change</p>
+    <p class="mk-say">“{e.prompt}”</p>
+    <figure class="m-0">
+      <div class="mk-wipe" style="--x: 50%" data-wipe>
+        <img src={g.file} width={g.width} height={g.height} alt={`Before: ${g.prompt}`} loading="lazy" decoding="async" />
+        <img class="mk-after" src={e.file} width={e.width} height={e.height} alt={`After: ${e.prompt}`} loading="lazy" decoding="async" />
+        <span class="mk-label mk-label-l" aria-hidden="true">Before</span>
+        <span class="mk-label mk-label-r" aria-hidden="true">After</span>
+        <span class="mk-handle" aria-hidden="true"><span></span></span>
+        <input type="range" min="0" max="100" value="50" aria-label="Compare the original and the edit" />
+      </div>
+      <figcaption class="edge mt-2 text-muted">{line(e)} ▸ edited from {String(g.frame).padStart(4, '0')}</figcaption>
+    </figure>
+    <p class="mk-auto"><span class="mk-chip">Auto · {e.modelName}</span>{reason(e.auto, e.modelName)}</p>
+  </div>
+</div>
+<p class="mk-note">Both untouched, made in Studio on an {edits.gpu}: {g.seconds.toFixed(1)} s for the print, {e.seconds.toFixed(1)} s for the edit.</p>
+
+<script>
+  // Drag across the print: the edit covers everything right of the line.
+  document.querySelectorAll<HTMLElement>('[data-wipe]').forEach((w) => {
+    const r = w.querySelector('input')!;
+    r.addEventListener('input', () => w.style.setProperty('--x', `${r.value}%`));
+  });
+</script>

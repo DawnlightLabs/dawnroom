@@ -1,0 +1,187 @@
+---
+/**
+ * Download: one card per platform (status, action, which graphics work), requirements, versions
+ * (src/releases.ts, an honest empty state until v0.1 ships) and the licence. Kept plain on purpose.
+ */
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Brand from '../components/Brand.astro';
+import Mark from '../components/Mark.astro';
+import Command from '../components/Command.astro';
+import type { BrandName } from '../lib/brands';
+import { loadModels, loadRuntimes, gb } from '../lib/registry';
+import { RELEASES } from '../releases';
+import { DOWNLOAD_URL, DOWNLOAD_URL_LINUX, PRODUCT_NAME, REPO_URL, LICENCE, BIN, INSTALL_PS1, INSTALL_SH } from '../config';
+
+type Status = 'works' | 'experimental' | 'later';
+interface Gpu { brand: BrandName; name: string; status: Status; label: string }
+interface Platform { id: 'windows' | 'linux' | 'macos'; brand: BrandName; name: string; sub: string; ready: boolean; when: string; url: string | null; note?: string; gpus: Gpu[] }
+
+const platforms: Platform[] = [
+  {
+    id: 'windows', brand: 'windows', name: 'Windows', sub: 'Windows 11, 64-bit', ready: true, when: 'v0.1', url: DOWNLOAD_URL,
+    note: 'Windows may say it protects your PC when you run the installer: choose More info, then Run anyway. The installer isn’t code-signed yet. The terminal install below usually avoids that screen.',
+    gpus: [
+      { brand: 'nvidia', name: 'NVIDIA GeForce, GTX 10 and newer', status: 'works', label: 'Tested' },
+      { brand: 'amd', name: 'AMD Radeon', status: 'experimental', label: 'Experimental' },
+      { brand: 'intel', name: 'Intel Arc', status: 'experimental', label: 'Experimental' },
+      { brand: 'intel', name: 'Intel built-in graphics', status: 'experimental', label: 'Experimental, slow' },
+      { brand: 'amd', name: 'AMD Radeon built-in graphics', status: 'experimental', label: 'Experimental, slow' },
+    ],
+  },
+  {
+    id: 'linux', brand: 'linux', name: 'Linux', sub: 'x86_64, through Vulkan', ready: true, when: 'v0.1', url: DOWNLOAD_URL_LINUX,
+    note: 'Needs glibc 2.43 or newer (Ubuntu 26.04, current Fedora or Arch); Dawnroom checks and says so if yours is older. It needs a GPU with a Vulkan driver: software Vulkan (lavapipe) is refused.',
+    gpus: [
+      { brand: 'nvidia', name: 'NVIDIA GeForce', status: 'experimental', label: 'Experimental' },
+      { brand: 'amd', name: 'AMD Radeon', status: 'experimental', label: 'Experimental' },
+      { brand: 'intel', name: 'Intel Arc', status: 'experimental', label: 'Experimental' },
+      { brand: 'intel', name: 'Intel built-in graphics', status: 'experimental', label: 'Experimental, slow' },
+      { brand: 'amd', name: 'AMD Radeon built-in graphics', status: 'experimental', label: 'Experimental, slow' },
+    ],
+  },
+  {
+    id: 'macos', brand: 'apple', name: 'macOS', sub: 'Apple silicon', ready: false, when: 'a later version', url: null,
+    gpus: [{ brand: 'apple', name: 'Apple M1 and newer', status: 'later', label: 'After v0.1' }],
+  },
+];
+
+const models = loadModels();
+const fileSize = (b: number) => (b >= 1e9 ? `${(b / 1e9).toFixed(1)} GB` : `${Math.round(b / 1e6)} MB`);
+// Disk, up front: the runtime each machine downloads on first run, and each model.
+const runtimes = loadRuntimes();
+const rt = (build: string) => runtimes.find((r) => r.build === build)!;
+const runtimeRows = [
+  { label: 'Windows, NVIDIA (CUDA)', r: rt('windows-cuda12') },
+  { label: 'Windows, AMD, Intel and built-in graphics (Vulkan)', r: rt('windows-vulkan') },
+  { label: 'Linux (Vulkan)', r: rt('linux-vulkan') },
+];
+const starters = models.filter((m) => m.preset);
+const quality = models.find((m) => m.preset === 'Quality')!;
+const dateStr = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const platformBrand = { windows: 'windows', linux: 'linux', macos: 'apple' } as const;
+---
+<Base title="Download" nav="download" description={`Download ${PRODUCT_NAME} for Windows, with Linux and macOS to follow. Which graphics cards work, requirements and every version's notes.`}>
+  <div class="wrap pt-10 md:pt-14">
+    <header class="dl-head">
+      <Mark cap={32} markOnly class="mb-5" />
+      <h1 class="display text-[2.8rem] leading-none sm:text-[3.6rem]">Download {PRODUCT_NAME}</h1>
+      <p class="mt-3 max-w-[38rem] text-[17px] text-muted">
+        {DOWNLOAD_URL ? 'Free and open source. Runs on your own graphics card.' : 'Free and open source. The first release, v0.1 for Windows, isn’t out yet; you can build it from source today.'}
+      </p>
+    </header>
+
+    <div class="plats">
+      {platforms.map((p) => (
+        <section class="plat" data-ready={p.ready ? '' : undefined} aria-labelledby={`plat-${p.id}`}>
+          <Brand name={p.brand} class="plat-logo" />
+          <h2 id={`plat-${p.id}`} class="plat-name">{p.name}</h2>
+          <p class="plat-sub">{p.sub}</p>
+
+          <div class="plat-action">
+            {p.ready && p.url ? (
+              <a href={p.url} class="btn btn-safelight w-full"><Icon name="download" />Download</a>
+            ) : p.ready ? (
+              <>
+                <a href="/docs#from-source" class="btn btn-ink w-full"><Icon name="terminal" />Build from source</a>
+                <p class="plat-note">Installer coming with {p.when}</p>
+              </>
+            ) : (
+              <>
+                <p class="plat-soon">Coming in {p.when}</p>
+                <p class="plat-note"><a href="/vision">See the roadmap</a></p>
+              </>
+            )}
+          </div>
+
+          {p.note && <p class="plat-note">{p.note}</p>}
+
+          <ul class="plat-gpus" role="list" aria-label={`Graphics cards on ${p.name}`}>
+            {p.gpus.map((g) => (
+              <li>
+                <Brand name={g.brand} class="gpu-logo" />
+                <span>{g.name}</span>
+                <span class="verdict" data-verdict={g.status}><i aria-hidden="true"></i>{g.label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+
+    <section aria-labelledby="term-h" class="dl-section">
+      <h2 id="term-h" class="dl-h2">From a terminal</h2>
+      <p class="dl-term-note">One command, per user, no admin. It downloads the latest release from GitHub, checks it against the release's checksums, and installs it with <code>{BIN}</code> on your PATH. Run it again to update. Works from the v0.1 release.</p>
+      <div class="dl-term">
+        <div><h3 class="eyebrow">Windows · PowerShell</h3><Command cmd={INSTALL_PS1} label="Copy the Windows install command" /></div>
+        <div><h3 class="eyebrow">Linux · x86_64</h3><Command cmd={INSTALL_SH} label="Copy the Linux install command" /></div>
+      </div>
+      <p class="dl-term-note">Only the engine and CLI, for servers and agents: add <code>--cli</code> (<code>curl … | sh -s -- --cli</code>; on Windows, <a href="/docs#from-a-terminal">see the docs</a>). Read the scripts first: <a href="/install.ps1">install.ps1</a>, <a href="/install.sh">install.sh</a>.</p>
+    </section>
+
+    <section aria-labelledby="req-h" class="dl-section">
+      <h2 id="req-h" class="dl-h2">Requirements</h2>
+      <dl class="dl-reqs">
+        <div><dt>Graphics memory</dt><dd>Each model lists what it needs. <a href="/search">Check your card</a></dd></div>
+        <div>
+          <dt>Disk space</dt>
+          <dd>
+            <ul class="dash-list" role="list">
+              <li>The app: its size comes with the v0.1 installer.</li>
+              <li>The image runtime, downloaded once on first run for your graphics card (the download is deleted after unpacking):{' '}
+                {runtimeRows.map((x, i) => <>{i > 0 && '; '}{x.label} {fileSize(x.r.download)} to download, {fileSize(x.r.installed)} installed</>)}.</li>
+              <li>Models, downloaded when you pick them: {starters.map((m, i) => <>{i > 0 && ', '}{m.preset} {fileSize(m.bytes)}</>)}; <a href="/search">every model lists its size</a>.</li>
+              <li>So a first image on Windows with an NVIDIA card and Quality takes about {gb(rt('windows-cuda12').installed + quality.bytes)} once installed, and needs {gb(rt('windows-cuda12').download + rt('windows-cuda12').installed + quality.bytes)} free while it installs. {PRODUCT_NAME} checks free space before it downloads anything.</li>
+            </ul>
+          </dd>
+        </div>
+        <div><dt>No graphics card</dt><dd>Not yet. Later you’ll be able to use your own cloud key instead</dd></div>
+      </dl>
+    </section>
+
+    <section id="versions" aria-labelledby="ver-h" class="dl-section scroll-mt-16">
+      <h2 id="ver-h" class="dl-h2">Versions</h2>
+      {RELEASES.length === 0 ? (
+        <p class="dl-empty">No releases yet. Each version will be listed here with its notes, files and sha256 checksums.</p>
+      ) : (
+        <ol class="rels" role="list">
+          {RELEASES.map((r, i) => (
+            <li class="rel" id={`v${r.version}`}>
+              <div class="rel-side">
+                <p class="rel-v">v{r.version}</p>
+                <p class="edge text-muted">{dateStr(r.date)}{i === 0 && <span class="rel-latest">latest</span>}</p>
+              </div>
+              <div class="min-w-0">
+                <p class="rel-summary">{r.summary}</p>
+                {r.notes.length > 0 && <ul class="dash-list rel-notes" role="list">{r.notes.map((n) => <li>{n}</li>)}</ul>}
+                {r.files.length > 0 && (
+                  <ul class="rel-files" role="list" aria-label={`Files for v${r.version}`}>
+                    {r.files.map((f) => (
+                      <li>
+                        <Brand name={platformBrand[f.platform]} class="gpu-logo" />
+                        <a href={f.url} class="go"><Icon name="download" />{f.label}</a>
+                        <span class="edge text-muted">{fileSize(f.bytes)}</span>
+                        <button type="button" class="rel-sha edge" data-copy={f.sha256} aria-label={`Copy the sha256 of ${f.label}`}>
+                          sha256 {f.sha256.slice(0, 12)}… <span data-copy-label>Copy</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+
+    <section aria-labelledby="os-h" class="dl-section">
+      <h2 id="os-h" class="dl-h2">Open source</h2>
+      <p class="max-w-[42rem] text-[15.5px]">
+        {PRODUCT_NAME} is {LICENCE}: the engine, the CLI, Studio and this site. Models keep their own licences, shown on each model page.
+        Nothing leaves your machine unless you send it. <a href={REPO_URL} class="go">Source on GitHub<Icon name="external" data-diag /></a>
+      </p>
+      <p class="edge mt-6 text-muted">Windows, Apple, Linux, NVIDIA, AMD and Intel names and logos are trademarks of their owners.</p>
+    </section>
+  </div>
+</Base>

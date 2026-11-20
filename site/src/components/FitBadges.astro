@@ -1,0 +1,48 @@
+---
+/**
+ * Fills every [data-fit-model] with the verdict for the hardware the visitor chose in a check
+ * (localStorage), and keeps it in step when they change it. Renders nothing itself but the data.
+ */
+import { loadDevices, fitFamilies } from '../lib/registry';
+const devices = loadDevices();
+// Every size tag of every model: the badge shows the tag that runs best on the visitor's card.
+const data = JSON.stringify({ devices, families: fitFamilies(devices) });
+---
+<script type="application/json" data-fit-data set:html={data} />
+<script>
+  import { bestFit, loadChoice, type Choice, type Device, type FitModel } from '../lib/fit';
+
+  const raw = document.querySelector('[data-fit-data]')?.textContent;
+  if (raw) {
+    const { devices, families } = JSON.parse(raw) as { devices: Device[]; families: { id: string; variants: FitModel[] }[] };
+    const dev = new Map(devices.map((d) => [d.id, d]));
+    // A model id paints its best tag; a full id (`z-image-turbo:q8`) paints that tag.
+    const mod = new Map<string, FitModel[]>([...families.map((f) => [f.id, f.variants] as const), ...families.flatMap((f) => f.variants.map((v) => [v.id, [v]] as const))]);
+    const paint = (c: Choice | null) => {
+      const d = c && dev.get(c.id);
+      document.querySelectorAll<HTMLElement>('[data-fit-model]').forEach((el) => {
+        const vs = mod.get(el.dataset.fitModel!);
+        const best = d && vs ? bestFit(vs, d, c!.gb, c!.ram) : null;
+        if (!d || !best) {
+          el.textContent = '';
+          delete el.dataset.verdict;
+          return;
+        }
+        const { m, f } = best;
+        el.dataset.verdict = f.verdict;
+        el.dataset.estimate = String(!!m.estimate);
+        const tag = vs!.length > 1 && m.tag ? `${m.tag} ` : '';
+        el.innerHTML = `<span class="verdict" data-verdict="${f.verdict}"><i aria-hidden="true"></i>${f.label}</span> <span class="text-muted">${tag}on your ${d.name}${c!.gb ? ` · ${c!.gb} GB` : ''}</span>`;
+      });
+      // The time column: only where we timed that tag on this exact card; otherwise empty.
+      document.querySelectorAll<HTMLElement>('[data-fit-secs]').forEach((el) => {
+        const vs = mod.get(el.dataset.fitSecs!);
+        const secs = d && vs ? bestFit(vs, d, c!.gb, c!.ram)?.f.secs : undefined;
+        el.textContent = secs == null ? '' : secs < 90 ? `${Math.round(secs)} s` : `${Math.round(secs / 60)} min`;
+      });
+      document.dispatchEvent(new CustomEvent('fit-painted'));
+    };
+    paint(loadChoice());
+    addEventListener('hardware-change', (e) => paint((e as CustomEvent<Choice | null>).detail));
+  }
+</script>

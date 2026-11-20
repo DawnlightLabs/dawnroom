@@ -1,0 +1,5 @@
+# Shell scripts must keep LF line endings, even on Windows checkouts:
+# install.sh is served by the site and piped into `sh`, where a CR breaks every line.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf

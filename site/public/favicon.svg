@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+<path d="M60 0H196A60 60 0 0 1 256 60V196A60 60 0 0 1 196 256H60A60 60 0 0 1 0 196V60A60 60 0 0 1 60 0Z" fill="url(#drf-g)"/>
+<defs><radialGradient id="drf-g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(34 230) scale(294.81)"><stop offset="0.0000" stop-color="#A85B3B"/><stop offset="0.7394" stop-color="#A85B3B"/><stop offset="0.7395" stop-color="#FFD12B"/><stop offset="1.0000" stop-color="#FFD12B"/></radialGradient></defs></svg>

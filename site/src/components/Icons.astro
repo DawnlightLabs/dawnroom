@@ -1,0 +1,13 @@
+---
+/** The icon sprite, once per page. See src/lib/icons.ts. */
+import { ICONS } from '../lib/icons';
+---
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  {Object.entries(ICONS).map(([name, d]) => (
+    <symbol id={`i-${name}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+      {d.split('|').map((p, i) => (
+        <path d={p} vector-effect="non-scaling-stroke" stroke-width={i ? 2.6 : undefined} stroke-linecap={i ? 'round' : undefined} />
+      ))}
+    </symbol>
+  ))}
+</svg>

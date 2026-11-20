@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<!-- The Dawnroom mark (public/brand/dawnroom-mark.svg), unchanged, with a 40 px margin. Run `npx tauri icon app-icon.svg`,
+     then rebuild icon.ico's 16 and 24 px frames from the flat mark. -->
+<svg x="40" y="40" width="944" height="944" viewBox="0 0 256 256" fill="none">
+<g filter="url(#dr-s)"><path d="M60 0H196A60 60 0 0 1 256 60V196A60 60 0 0 1 196 256H60A60 60 0 0 1 0 196V60A60 60 0 0 1 60 0Z" fill="url(#dr-g)"/></g>
+<defs>
+<filter id="dr-s" x="-16" y="-16" width="288" height="288" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="bg"/><feBlend in="SourceGraphic" in2="bg" result="shape"/>
+<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="a"/>
+<feOffset dx="-6.8" dy="7.4"/><feGaussianBlur stdDeviation="9"/>
+<feComposite in2="a" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix values="0 0 0 0 0.09 0 0 0 0 0.05 0 0 0 0 0.03 0 0 0 0.35 0"/>
+<feBlend in2="shape"/>
+</filter>
+<radialGradient id="dr-g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(34 230) scale(294.81)"><stop offset="0.0400" stop-color="#3A1D10"/><stop offset="0.4200" stop-color="#68331E"/><stop offset="0.6395" stop-color="#A85B3B"/><stop offset="0.7394" stop-color="#C47855"/><stop offset="0.7395" stop-color="#FFBF0F"/><stop offset="0.8567" stop-color="#FFE347"/><stop offset="1.0000" stop-color="#FFFAB0"/></radialGradient>
+</defs></svg>
+</svg>

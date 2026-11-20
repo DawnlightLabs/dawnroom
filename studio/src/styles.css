@@ -1,0 +1,636 @@
+@import "tailwindcss";
+
+/* Two themes from the Dawnlight palette, each designed (not one inverted).
+   Dark = the ink darkroom. Contrast on bg / surface / raised: text 16.4 / 15.0 / 13.5, muted 7.3 / 6.7 / 6.0,
+   sky 11.6 / 10.6 / 9.5, terracotta 5.1 / 4.6 / 4.2 (so never small text on raised), sage 3.2 (marks only).
+   Light = the paper daylight room (overrides below). The defaults here are Dark. */
+@theme {
+  --color-bg: #191B1D;
+  --color-surface: #202326;
+  --color-raised: #282b2f;
+  --color-line: rgb(252 248 245 / 0.08);
+  --color-line-strong: rgb(252 248 245 / 0.16);
+  --color-text: #fcf8f5;
+  --color-muted: #a6a9ae;
+  --color-ok: #59715c;
+  --color-danger: #f08a80;
+  --color-ring: #c47855;
+  --color-link: #a8daf9;
+  --color-sky: #a8daf9;
+  --color-safelight-from: #c47855;
+  --color-safelight-to: #ffd12b;
+  /* Grease pencil: the white wax marker used on contact sheets. */
+  --color-wax: #fcf8f5;
+  --shadow-print: 0 14px 36px rgb(0 0 0 / 0.55);
+
+  /* Dawnroom's type: Geist for UI and display, DM Mono (the Kit's technical role) for data. */
+  --font-sans: "Geist Variable", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-display: "Geist Variable", system-ui, sans-serif;
+
+  --radius-frame: 3px;
+  --radius-control: 4px;
+  --radius-card: 6px;
+  --radius-composer: 8px;
+
+  --ease-darkroom: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Light = paper. Contrast on paper / surface / raised: ink 16.7 / 15.5 / 14.1, muted 6.5 / 6.0 / 5.5,
+   blue 8.8 / 8.2 / 7.5, danger 6.3 / 5.8 / 5.3, sage 5.1 / 4.7 / 4.3 (text on paper only, marks elsewhere).
+   Terracotta is 3.2 on paper and under 3 on the surfaces, so the focus ring uses the mark's own deeper
+   terracotta (#A85B3B, 4.1+ everywhere). The wax is a china-marker red (5.3 on paper). */
+:root[data-theme="light"] {
+  --color-bg: #fcf8f5;
+  --color-surface: #f5efe8;
+  --color-raised: #ece5dc;
+  --color-line: rgb(25 27 29 / 0.1);
+  --color-line-strong: rgb(25 27 29 / 0.2);
+  --color-text: #191B1D;
+  --color-muted: #5e5a54;
+  --color-ok: #59715c;
+  --color-danger: #a8322a;
+  --color-ring: #a85b3b;
+  --color-link: #0e4490;
+  --color-sky: #0e4490;
+  --color-wax: #b5402f;
+  --shadow-print: 0 10px 28px rgb(25 27 29 / 0.16);
+}
+
+@utility bg-safelight {
+  background-image: linear-gradient(135deg, #c47855, #ffd12b);
+}
+
+/* Small uppercase labels and eyebrows: Geist, not mono (Kit: mono only where fixed width helps). */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* DM Mono at 11px: recipes, seeds, frame numbers. */
+@utility edge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    /* A desktop app, not a page: chrome isn't selectable, content (prompts, recipes, paths) is. */
+    user-select: none;
+    cursor: default;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgb(196 120 85 / 0.35);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+  input[type="number"] {
+    appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+  }
+}
+
+.selectable {
+  user-select: text;
+  cursor: auto;
+}
+
+/* ------------------------------------------------------------------------------------------
+   Motion. Everything animated hangs off <html data-motion="on">; the system's reduced-motion
+   setting (or the override in Settings) flips it to "off" and each moment falls back to a
+   still version.
+   ------------------------------------------------------------------------------------------ */
+
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 1. Safelight on (Dark): a still amber glow at the window edges while anything develops. It no longer
+   breathes: a job is running on the same GPU, so the room stays still. In Light the lamp is a line along the top of Create. */
+.safelight {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1400ms var(--ease-darkroom);
+}
+.safelight[data-on="true"] {
+  opacity: 1;
+}
+.safelight > div {
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 160px rgb(196 120 85 / 0.16),
+    inset 0 0 44px rgb(255 209 43 / 0.08),
+    inset 0 0 0 1px rgb(196 120 85 / 0.2);
+}
+:root[data-theme="light"] .safelight {
+  display: none;
+}
+/* Light's safelight: a thin terracotta → sun lamp along the top of Create while a job runs. Still, so it stays with motion off. */
+.lamp-line {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c47855 25%, #ffd12b 75%, transparent);
+  opacity: 0;
+  transition: opacity 600ms var(--ease-darkroom);
+  pointer-events: none;
+}
+:root[data-theme="light"] .lamp-line[data-on="true"] {
+  opacity: 1;
+}
+
+/* 2. Developing ritual. --p runs 0 → 1 through the sampling steps. Dark: a negative under the safelight,
+   tinted monochrome and grainy, gaining colour and focus. Light: the print comes up out of white paper,
+   as it does in the developer tray. */
+.developing {
+  --p: 0;
+  background: radial-gradient(120% 90% at 50% 60%, #3b2419, #191B1D 70%);
+}
+.developing .preview {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  max-width: none;
+  height: 110%;
+  object-fit: cover;
+  /* Monochrome and soft at first; colour and sharpness come in step by step. */
+  filter: grayscale(calc(1 - var(--p))) blur(calc(16px - 12px * var(--p))) contrast(calc(0.8 + 0.2 * var(--p))) brightness(calc(0.7 + 0.3 * var(--p)));
+  transition: filter 900ms linear;
+}
+.developing .tint {
+  position: absolute;
+  inset: 0;
+  /* Terracotta-weighted: sun multiplied over grey turns olive, so it only warms the far corner. */
+  background: linear-gradient(135deg, #c47855 35%, #ffd12b 170%);
+  mix-blend-mode: multiply;
+  opacity: calc(0.95 * (1 - var(--p)));
+  transition: opacity 900ms linear;
+}
+.grain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+.developing .grain {
+  opacity: calc(0.85 - 0.6 * var(--p));
+  transition: opacity 900ms linear;
+}
+.grain svg {
+  position: absolute;
+  left: -10%;
+  top: -10%;
+  width: 120%;
+  height: 120%;
+  /* Two changes a second: the GPU is busy with the job itself. */
+  animation: grain 1000ms steps(2) infinite;
+}
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3%, 2%);
+  }
+  50% {
+    transform: translate(2%, -3%);
+  }
+  75% {
+    transform: translate(-2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+/* Light: out of white paper. The tint and the dark ground go; the image fades up warm, then clears. */
+:root[data-theme="light"] .developing {
+  background: #fffdfa;
+}
+:root[data-theme="light"] .developing .preview {
+  opacity: calc(0.12 + 0.88 * var(--p));
+  filter: sepia(calc(0.9 - 0.9 * var(--p))) blur(calc(12px - 12px * var(--p))) contrast(calc(0.6 + 0.4 * var(--p)));
+  transition:
+    filter 900ms linear,
+    opacity 900ms linear;
+}
+:root[data-theme="light"] .developing .tint {
+  display: none;
+}
+:root[data-theme="light"] .developing .grain {
+  mix-blend-mode: multiply;
+  opacity: calc(0.25 - 0.2 * var(--p));
+}
+/* Reduced motion: the real preview, as it is, with no tint, grain or blur ramp. */
+:root[data-motion="off"] .developing {
+  background: var(--color-surface);
+}
+:root[data-motion="off"] .developing .preview {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: none;
+  opacity: 1;
+}
+:root[data-motion="off"] .developing .tint,
+:root[data-motion="off"] .grain {
+  display: none;
+}
+
+/* "Lights on": a 120 ms flash, then the print settles. */
+.lights-on {
+  position: absolute;
+  inset: 0;
+  background: #fcf8f5;
+  opacity: 0;
+  pointer-events: none;
+  animation: lights-on 120ms linear;
+}
+@keyframes lights-on {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.settle {
+  animation: settle 250ms var(--ease-darkroom);
+}
+@keyframes settle {
+  0% {
+    transform: scale(1.012);
+    filter: brightness(1.18);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+:root[data-motion="off"] .lights-on,
+:root[data-theme="light"] .lights-on {
+  display: none;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.breathe {
+  animation: breathe 1400ms ease-in-out infinite;
+}
+
+/* 3. Dawn progress: the orb and its glow ease to each new position. */
+.dawn-sun,
+.dawn-glow,
+.dawn-water {
+  transition:
+    transform 900ms var(--ease-darkroom),
+    opacity 900ms var(--ease-darkroom);
+}
+
+/* With motion on, the sunrise is the progress and the active bar steps aside; with it off, the reverse. */
+:root[data-motion="on"] .dawn-bar {
+  display: none;
+}
+:root[data-motion="off"] .dawn-wrap {
+  display: none;
+}
+
+/* 4. Grease pencil: the circle is drawn, not faded in. */
+.grease path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.grease[data-draw="true"] path {
+  animation: grease-draw 520ms cubic-bezier(0.3, 0.6, 0.3, 1);
+}
+@keyframes grease-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Screens ease in; nothing bounces. */
+.enter {
+  animation: enter 220ms var(--ease-darkroom);
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------
+   Opening (brand intro, rebuilt from the Dawnlight Landing description in CSS only). Every
+   element's resting style is its final state; the keyframes only describe where it comes from,
+   so with motion off (animation: none) the still lockup shows at once.
+   ------------------------------------------------------------------------------------------ */
+.opening {
+  animation: opening-in 260ms 140ms var(--ease-darkroom) backwards;
+}
+.opening-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(460px, 90vw);
+  height: 150px;
+}
+.opening-lockup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 22px; /* 0.42 × the 52 px tile */
+  animation: opening-rise 1300ms 140ms var(--ease-darkroom) backwards;
+}
+/* The sun sweep rising into the tile: a body-only tile on top, clipped to a circle centred on the
+   tile's deep core, shrinks from the far corner to the cut, so the mark's sweep underneath grows in
+   from the top right. clip-path only (an animated custom property cost a long main-thread task). */
+.opening-mark {
+  position: relative;
+  display: block;
+  width: 52px;
+  height: 52px;
+}
+.opening-mark img {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.opening-under {
+  visibility: hidden;
+  animation: opening-cover 1100ms 220ms cubic-bezier(0.45, 0, 0.2, 1) backwards;
+}
+.opening-word {
+  display: block;
+  animation: opening-word 720ms 1000ms var(--ease-darkroom) backwards;
+}
+.opening-horizon {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 30px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-line-strong) 20%, var(--color-line-strong) 80%, transparent);
+  animation: opening-horizon 1200ms 140ms var(--ease-darkroom) backwards;
+}
+.opening-glow {
+  position: absolute;
+  inset: 20% 14% 30px;
+  background: radial-gradient(60% 90% at 50% 100%, rgb(196 120 85 / 0.22), rgb(255 209 43 / 0.06) 55%, transparent 75%);
+  animation: opening-glow 1600ms 140ms var(--ease-darkroom) backwards;
+}
+.opening-status {
+  animation: opening-in 400ms 1500ms var(--ease-darkroom) backwards;
+}
+@keyframes opening-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes opening-rise {
+  from {
+    transform: translateY(18px);
+  }
+}
+@keyframes opening-cover {
+  from {
+    visibility: visible;
+    clip-path: circle(var(--far) at var(--cx) var(--cy));
+  }
+  to {
+    visibility: visible;
+    clip-path: circle(var(--cut) at var(--cx) var(--cy));
+  }
+}
+@keyframes opening-word {
+  from {
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-10px);
+  }
+}
+@keyframes opening-horizon {
+  from {
+    transform: translateY(6px) scaleX(0.55);
+    opacity: 0;
+  }
+}
+@keyframes opening-glow {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+/* ---------- Library ---------- */
+
+/* A strip of negatives: always dark film (on paper too), sprocket holes along both edges. */
+.filmstrip {
+  --film: #0e1012;
+  background:
+    radial-gradient(circle at 50% 50%, var(--color-bg) 0 2.4px, transparent 2.9px) 0 5px / 14px 9px repeat-x,
+    radial-gradient(circle at 50% 50%, var(--color-bg) 0 2.4px, transparent 2.9px) 0 calc(100% - 5px) / 14px 9px repeat-x,
+    var(--film);
+  border-radius: 3px;
+  scrollbar-color: rgb(252 248 245 / 0.25) transparent;
+}
+
+/* Favourites: a wall with one warm lamp above it, prints matted in paper and hung. */
+.wall {
+  background:
+    radial-gradient(70% 55% at 50% -8%, rgb(255 209 43 / 0.07), transparent 70%),
+    radial-gradient(90% 60% at 50% 0%, rgb(252 248 245 / 0.035), transparent 75%),
+    var(--color-bg);
+}
+:root[data-theme="light"] .wall {
+  background:
+    radial-gradient(70% 55% at 50% -8%, rgb(255 209 43 / 0.12), transparent 70%),
+    #f1ebe3;
+}
+
+/* The viewer: the room goes dark (or the paper dims) so the print is the only light. */
+.viewer {
+  background: #0b0c0e;
+}
+:root[data-theme="light"] .viewer {
+  background: #ebe4da;
+}
+.viewer-nav {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  width: 44px;
+  height: 72px;
+  translate: 0 -50%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--color-muted);
+  transition: color 150ms, background-color 150ms;
+}
+.viewer-nav:hover:not(:disabled) {
+  color: var(--color-text);
+  background: rgb(127 127 127 / 0.12);
+}
+.viewer-nav:disabled {
+  opacity: 0.2;
+}
+/* Moving between prints: the next one slides in from its side, like lifting prints out of a box. */
+.print-in-next {
+  animation: print-in-next 220ms var(--ease-darkroom);
+}
+.print-in-prev {
+  animation: print-in-prev 220ms var(--ease-darkroom);
+}
+@keyframes print-in-next {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.985);
+  }
+}
+@keyframes print-in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-28px) scale(0.985);
+  }
+}
+:root[data-motion="off"] .print-in-next,
+:root[data-motion="off"] .print-in-prev {
+  animation: none;
+  transition: none;
+}
+
+/* Cover flow: one print faces you, the rest turn away into the dark (or the paper). */
+.coverflow {
+  perspective: 1600px;
+  perspective-origin: 50% 45%;
+  overflow: hidden;
+}
+.cf-card {
+  transform-style: preserve-3d;
+  box-shadow: var(--shadow-print);
+  transition:
+    transform 250ms var(--ease-darkroom),
+    opacity 250ms var(--ease-darkroom);
+  will-change: transform;
+}
+.cf-card[aria-current="true"] {
+  cursor: zoom-in;
+}
+/* The turned prints fall into shadow, so the one facing you is the brightest thing. */
+.cf-shade {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+  opacity: 0.45;
+  transition: opacity 250ms var(--ease-darkroom);
+  pointer-events: none;
+}
+.cf-card[aria-current="true"] .cf-shade {
+  opacity: 0;
+}
+.cf-card:not([aria-current="true"]):hover .cf-shade {
+  opacity: 0.25;
+}
+/* Grid tiles: still, then lifted and lit when your eye is on them. */
+.tile {
+  opacity: 0.82;
+  transition:
+    opacity 180ms var(--ease-darkroom),
+    transform 180ms var(--ease-darkroom),
+    box-shadow 180ms var(--ease-darkroom);
+}
+.tile:hover,
+.tile:focus-visible,
+.tile.is-focus {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-print);
+}
+:root[data-motion="off"] .cf-card,
+:root[data-motion="off"] .cf-shade,
+:root[data-motion="off"] .tile {
+  transition: none;
+}
+
+/* Add a model: unexposed paper while the download runs (the safelight barely on, no image yet),
+   and the small dot that breathes while the header is read. Still with motion off. */
+.developing.unexposed .tint {
+  opacity: 0.35;
+}
+.developing.unexposed .grain {
+  opacity: 0.35;
+}
+.reading-dot {
+  animation: reading 1100ms ease-in-out infinite;
+}
+@keyframes reading {
+  50% {
+    opacity: 0.25;
+  }
+}
+/* "Recommended for this machine": terracotta on ink, a deeper terracotta on paper (AA on #FCF8F5). */
+.rec {
+  color: #c47855;
+}
+:root[data-theme="light"] .rec {
+  color: #8f4a2c;
+}

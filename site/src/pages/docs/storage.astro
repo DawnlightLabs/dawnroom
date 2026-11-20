@@ -1,0 +1,42 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BIN, PRODUCT_NAME } from '../../config';
+const where = [
+  ['Windows', '%LOCALAPPDATA%\\Dawnroom', '%APPDATA%\\Dawnroom\\config.toml'],
+  ['Linux', '~/.local/share/dawnroom', '~/.config/dawnroom/config.toml'],
+];
+const cache = [
+  ['Cleared', 'Thumbnails, old logs, image runtimes older than the last two, leftover unpacked files, Studio’s web cache'],
+  ['Never cleared', 'Models, your prints, the runtime in use, paused downloads'],
+];
+---
+<DocsLayout title="Storage" description={`Where ${PRODUCT_NAME} keeps models and prints, how to move them, and how to get space back.`}
+  toc={[{ id: 'where', label: 'Where everything lives' }, { id: 'first-run', label: 'Choosing a drive' }, { id: 'move', label: 'Move to another drive' }, { id: 'cache', label: 'Clear cache' }, { id: 'paused', label: 'Paused downloads' }, { id: 'uninstall', label: 'Uninstalling' }]}>
+  <p>Models, prints, image runtimes and history all live in one data folder. Settings → <strong>Storage</strong> shows what takes the space, model by model.</p>
+
+  <h2 id="where">Where everything lives</h2>
+  <table>
+    <thead><tr><th></th><th>Data folder (by default)</th><th>Settings file</th></tr></thead>
+    <tbody>{where.map(([os, d, c]) => <tr><td>{os}</td><td><code>{d}</code></td><td><code>{c}</code></td></tr>)}</tbody>
+  </table>
+  <p>Inside: <code>models</code>, <code>outputs</code> (your prints), <code>runtimes</code>, <code>logs</code> and <code>history.sqlite</code>. A file that two models share is stored once.</p>
+
+  <h2 id="first-run">Choosing a drive</h2>
+  <p>The first time {PRODUCT_NAME} opens, <strong>Where models live</strong> lists your drives with their free space. Models are a few GB each, so pick the one with room to spare. Choosing another drive puts the data folder in <code>Dawnroom</code> at its top level; nothing has to move yet.</p>
+
+  <h2 id="move">Move to another drive</h2>
+  <p>In Settings → Storage, choose a folder under <strong>Move the data folder</strong>. {PRODUCT_NAME} copies everything there, checks the copy, switches over and restarts the engine; the old folder is deleted only after the new one is in use. While it moves, new images and downloads wait. The folder you move to must be empty.</p>
+  <p>From the CLI: <code>{BIN} storage move D:\Dawnroom</code>.</p>
+
+  <h2 id="cache">Clear cache</h2>
+  <p><strong>Clear cache</strong> only removes things {PRODUCT_NAME} can make again:</p>
+  <table>
+    <tbody>{cache.map(([a, b]) => <tr><td>{a}</td><td>{b}</td></tr>)}</tbody>
+  </table>
+
+  <h2 id="paused">Paused downloads</h2>
+  <p>A download that stopped (cancelled, a dropped connection, a restart) keeps what it has and is listed here and in Models. <strong>Resume</strong> continues from where it stopped; <strong>Discard</strong> deletes it after asking. From the CLI: <code>{BIN} storage delete-partial --all</code> (or one file name) and <code>{BIN} storage clear-cache</code>; both ask first, and <code>{BIN} storage</code> shows what is there.</p>
+
+  <h2 id="uninstall">Uninstalling</h2>
+  <p>The Windows uninstaller asks <em>Keep your models and images?</em> and keeps them unless you say No, in which case it deletes the data folder too (only if it holds {PRODUCT_NAME}'s history file, so it can't remove a folder that isn't ours). Without a prompt, <code>uninstall.exe /S</code> keeps them and <code>/S /DELETEDATA</code> deletes them. Linux packages don't touch the data folder; delete it yourself to remove everything.</p>
+</DocsLayout>

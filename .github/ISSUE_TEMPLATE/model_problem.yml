@@ -1,0 +1,31 @@
+name: A model doesn't work
+description: A model fails, produces noise, or runs out of memory.
+labels: [model]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Model id and tag
+      description: As shown by `dawnroom list --all`, e.g. `z-image-turbo:q4`. For a custom model, the `hf.co/...` source or file name.
+    validations:
+      required: true
+  - type: textarea
+    id: produced
+    attributes:
+      label: What did it produce?
+      description: An error message, a black or noisy image, a crash, a very slow run. Attach the image if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: What you ran
+      description: The prompt, size and seed, or the CLI command.
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `dawnroom doctor`
+      description: Run `dawnroom doctor` and paste the whole result.
+      render: markdown
+    validations:
+      required: true

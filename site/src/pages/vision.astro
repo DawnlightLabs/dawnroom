@@ -1,0 +1,126 @@
+---
+/**
+ * Why Dawnroom exists and where it's going. A plain page. The roadmap lives here.
+ */
+import Base from '../layouts/Base.astro';
+import { PRODUCT_NAME, BIN } from '../config';
+
+interface Version { v: string; name: string; status: string; summary: string; items: string[] }
+const versions: Version[] = [
+  {
+    v: 'v0.1', name: 'Launch', status: 'In development', summary: 'Text to image on your own computer.',
+    items: [
+      'Windows with NVIDIA through CUDA (tested), AMD Radeon and Intel Arc through Vulkan (experimental)',
+      'Linux x86_64 through Vulkan (experimental)',
+      `Studio, the ${BIN} CLI, an MCP server for agents, this site and installers`,
+      'Finds your graphics card, whatever the maker, and picks the right runtime',
+      'Not on Mac yet',
+    ],
+  },
+  {
+    v: 'v0.2', name: 'Director', status: 'Planned', summary: 'An agent that directs the work, so you are asked less.',
+    items: [
+      'Plans prompts, makes variations, checks them with vision and refines them',
+      'Uses your own API key (Claude, OpenAI or Gemini) or a local model through Ollama',
+      'Edit an image by instruction, and keep a subject consistent across several reference images',
+      'Recipes: open workflow files that describe each step, which anyone can read, share and version',
+      'Task presets: product shot, poster, thumbnail, hero banner',
+      'A skill for Claude Code and Codex',
+      'On smaller GPUs, the language model and the image model take turns in memory',
+    ],
+  },
+  {
+    v: 'v0.3', name: 'Video', status: 'Planned', summary: 'Short video, directed by the Director.',
+    items: [
+      'Video from code first: scenes an agent writes in HTML, rendered to MP4',
+      'Small video models that run locally, then bigger ones',
+      'Cloud video models through your own key',
+      'Local voice and subtitles',
+      'A simple clip timeline',
+    ],
+  },
+  {
+    v: 'v0.4', name: 'Open Higgsfield', status: 'Planned', summary: 'An open, local take on what Higgsfield does: closed workflows become open Recipes.',
+    items: [
+      'Video to video: recast a clip, with a small local model, bigger ones, or the cloud through your own key',
+      'A consent rule in the product and the docs: your own footage, or footage you have permission to use; no impersonation',
+      'Recipes for ads, product clips and UGC-style videos',
+      'A community Recipe library on this site',
+      'Background removal, reframe and outpaint, upscale',
+    ],
+  },
+  {
+    v: 'v1.0', name: '', status: 'Planned', summary: 'The basics a tool you rely on needs.',
+    items: ['Signed installers', 'Auto-update', 'Stability', 'Complete docs'],
+  },
+];
+
+const tracks: { name: string; text: string }[] = [
+  { name: 'Mac', text: 'Apple silicon through MLX, after v0.1. It needs testing on a Mac with enough memory first.' },
+  { name: 'Testing on more hardware', text: `Issue forms for reporting what works, ${BIN} doctor to check a setup, and ${BIN} bench to measure one. Measurements anyone can contribute, so “tested on” grows beyond our own machine.` },
+  { name: 'More models', text: 'Including models for big GPUs and unified-memory machines, each with an honest fit badge.' },
+  { name: 'More of Linux', text: 'Linux with CUDA, AMD and Intel Arc through ROCm, Linux on ARM64 (NVIDIA DGX Spark), and a first run with no GPU through your own cloud key.' },
+];
+
+const notPlanned = ['A node editor', 'Credits of our own', 'Training models on small GPUs', 'A plugin store for engines'];
+---
+<Base title="Vision" nav="vision" description={`Why ${PRODUCT_NAME} exists, and its roadmap: images first, then an agent Director, video and open Recipes.`}>
+  <div class="wrap pt-10 md:pt-14">
+    <header class="dl-head">
+      <h1 class="display text-[2.8rem] leading-none sm:text-[3.6rem]">Vision</h1>
+      <p class="mt-3 max-w-[38rem] text-[17px] text-muted">Why {PRODUCT_NAME} exists, and what comes next. Nothing below has shipped yet: v0.1 is in development.</p>
+    </header>
+
+    <section aria-labelledby="why-h" class="vision-why">
+      <h2 id="why-h" class="dl-h2">Why {PRODUCT_NAME}</h2>
+      <div class="vision-text">
+        <p>ChatGPT and Gemini made image generation easy. The images are made on someone else’s computers, though, and paid for in credits. Open models can run on your own graphics card today, but the tools for them, like ComfyUI, are built around nodes, samplers and checkpoints.</p>
+        <p>{PRODUCT_NAME} sits in between. Install it, describe what you want, and get an image. It runs on your own hardware, so there are no credits, and your prompts and images stay on your machine. It is open source, so you can read how it works and change it.</p>
+        <p>Running locally makes some things free that a cloud service has to charge for. An agent can make an image, look at it and refine it dozens of times. Private material, like an unreleased product or client work, never leaves your computer. Every image carries its recipe, so you can make it again, pixel for pixel, on the same machine.</p>
+        <p>Cloud models will be optional, and only with your own keys, never our credits. Every job will say whether it ran on your machine or in the cloud, and nothing is spent without asking you first.</p>
+        <p>We test on an RTX 5060 Laptop GPU. That is where testing starts, not a limit: bigger graphics cards and unified-memory machines matter just as much, and each model says whether it fits yours.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="road-h" class="dl-section">
+      <h2 id="road-h" class="dl-h2">Roadmap</h2>
+      <p class="mt-4 max-w-[42rem] text-[15.5px] text-muted">Images ship first. Each version starts with a small experiment and ends with a release. No dates: a version ships when it works.</p>
+      <ol class="rels" role="list">
+        {versions.map((r) => (
+          <li class="rel" id={r.v.replace('.', '-')}>
+            <div class="rel-side">
+              <p class="rel-v">{r.v}</p>
+              {r.name && <p class="mt-2 font-medium">{r.name}</p>}
+              <p class="vision-status" data-now={r.status === 'In development' ? '' : undefined}>{r.status}</p>
+            </div>
+            <div class="min-w-0">
+              <p class="rel-summary">{r.summary}</p>
+              <ul class="dash-list" role="list">{r.items.map((i) => <li>{i}</li>)}</ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section aria-labelledby="tracks-h" class="dl-section">
+      <h2 id="tracks-h" class="dl-h2">Alongside the versions</h2>
+      <p class="mt-4 max-w-[42rem] text-[15.5px] text-muted">Work that ships whenever it’s ready.</p>
+      <dl class="dl-reqs">
+        {tracks.map((t) => <div><dt>{t.name}</dt><dd>{t.text}</dd></div>)}
+      </dl>
+    </section>
+
+    <section aria-labelledby="not-h" class="dl-section">
+      <h2 id="not-h" class="dl-h2">Not planned</h2>
+      <ul class="dash-list mt-4" role="list">{notPlanned.map((n) => <li>{n}</li>)}</ul>
+    </section>
+
+    <!-- Community slot: the next slice wires these to GitHub (Request a feature, Report hardware, Request a model). -->
+    <section aria-labelledby="say-h" class="dl-section">
+      <h2 id="say-h" class="dl-h2">Have your say</h2>
+      <div class="vision-slot" data-slot="community">
+        <p>Soon: buttons here to request a feature, report how {PRODUCT_NAME} runs on your hardware, or ask for a model.</p>
+      </div>
+    </section>
+  </div>
+</Base>

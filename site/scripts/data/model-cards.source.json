@@ -1,0 +1,751 @@
+{
+  "chroma1-hd": {
+    "card": "https://huggingface.co/lodestones/Chroma1-HD",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/lodestones/Chroma1-HD/resolve/main/ComfyUI_Chroma1-HD_T2I-sample.png",
+        "source_page": "https://huggingface.co/lodestones/Chroma1-HD",
+        "caption": "ComfyUI sample generation with embedded workflow (portrait, anaglyph look)",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/lodestones/Chroma1-HD/resolve/main/images/FictionalChromaBanner_1.png",
+        "source_page": "https://huggingface.co/lodestones/Chroma1-HD",
+        "caption": "Banner artwork made with Chroma1-HD; may include logo text",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Base for fine-tuning and custom styles",
+      "General text-to-image with an open Apache licence",
+      "Detailed images from a FLUX.1 schnell-based model"
+    ],
+    "avoid": [
+      "Fast generation: the card suggests a separate Flash version for that"
+    ],
+    "sources": [
+      "https://huggingface.co/lodestones/Chroma1-HD"
+    ],
+    "notes": "Card has no dedicated gallery; the first image is a ComfyUI workflow sample. Second image is a banner, possibly with lettering."
+  },
+  "chroma1-radiance": {
+    "card": "https://huggingface.co/lodestones/Chroma1-Radiance",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/lodestones/Chroma1-Radiance/resolve/main/Chroma1-Radiance-x0-x32-proto-sample.png",
+        "source_page": "https://huggingface.co/lodestones/Chroma1-Radiance",
+        "caption": "Sample output with embedded ComfyUI workflow (prototype checkpoint)",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Experimenting with pixel-space generation without a VAE",
+      "Open Apache-licensed Chroma research"
+    ],
+    "avoid": [
+      "Final-quality work: the card says training is unfinished with squiggly details"
+    ],
+    "sources": [
+      "https://huggingface.co/lodestones/Chroma1-Radiance"
+    ],
+    "notes": "Card marks the model as work in progress; only one sample image."
+  },
+  "ernie-image-turbo": {
+    "card": "https://huggingface.co/baidu/ERNIE-Image-Turbo",
+    "site": "https://yiyan.baidu.com/blog/posts/ernie-image",
+    "images": [
+      {
+        "url": "https://cdn-uploads.huggingface.co/production/uploads/5f8d780e5d083370c711f575/QRt1mPSU9SCkcxxFWQje2.jpeg",
+        "source_page": "https://huggingface.co/baidu/ERNIE-Image-Turbo",
+        "caption": "Mosaic of ERNIE-Image sample generations from the card",
+        "terms": "card-embedded",
+        "note": "Hosted on HF user-uploads CDN, embedded in the card; not a repo file."
+      }
+    ],
+    "uses": [
+      "Fast drafts in 8 steps",
+      "Posters and text-heavy layouts",
+      "Multi-panel comics and storyboards"
+    ],
+    "avoid": [
+      "Weak GPUs: the card targets 24 GB consumer cards"
+    ],
+    "sources": [
+      "https://huggingface.co/baidu/ERNIE-Image-Turbo",
+      "https://yiyan.baidu.com/blog/posts/ernie-image"
+    ],
+    "notes": "Same mosaic image appears on both ERNIE cards."
+  },
+  "ernie-image": {
+    "card": "https://huggingface.co/baidu/ERNIE-Image",
+    "site": "https://yiyan.baidu.com/blog/posts/ernie-image",
+    "images": [
+      {
+        "url": "https://cdn-uploads.huggingface.co/production/uploads/5f8d780e5d083370c711f575/QRt1mPSU9SCkcxxFWQje2.jpeg",
+        "source_page": "https://huggingface.co/baidu/ERNIE-Image",
+        "caption": "Mosaic of ERNIE-Image sample generations from the card",
+        "terms": "card-embedded",
+        "note": "Hosted on HF user-uploads CDN, embedded in the card; not a repo file."
+      }
+    ],
+    "uses": [
+      "Posters, infographics and UI-like images with dense text",
+      "Complex prompts with several objects",
+      "Comics and storyboards"
+    ],
+    "avoid": [
+      "Quick drafts: about 50 steps by default (Turbo exists for that)"
+    ],
+    "sources": [
+      "https://huggingface.co/baidu/ERNIE-Image",
+      "https://yiyan.baidu.com/blog/posts/ernie-image"
+    ],
+    "notes": ""
+  },
+  "fibo2-dev": {
+    "card": "https://huggingface.co/briaai/Fibo-2.0-dev",
+    "site": null,
+    "uses": [
+      "Structured JSON prompts for precise control",
+      "Models trained only on licensed data",
+      "Base for LoRAs and fine-tunes",
+      "Edits that keep the rest of the image"
+    ],
+    "avoid": [
+      "Commercial use: weights are non-commercial",
+      "Low-latency edits (card points to Edit Turbo)"
+    ],
+    "sources": [
+      "https://huggingface.co/briaai/Fibo-2.0-dev"
+    ],
+    "notes": "Repo files return 401 (gated); images are the CloudFront copies the card embeds."
+  },
+  "fibo2-edit-turbo": {
+    "card": "https://huggingface.co/briaai/Fibo-2.0-edit-turbo",
+    "site": null,
+    "uses": [
+      "Fast instruction edits in 4 steps",
+      "Edits limited to a masked region",
+      "Multi-reference edits with up to 4 images"
+    ],
+    "avoid": [
+      "Text-to-image: the card says use Fibo 2.0 dev",
+      "Fine-tuning: card advises against this checkpoint",
+      "Commercial use: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/briaai/Fibo-2.0-edit-turbo"
+    ],
+    "notes": "Gated repo; CloudFront images from the card. Skipped red_jacket/multiref_dress (show people)."
+  },
+  "flux1-dev": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+    "site": null,
+    "uses": [
+      "High-quality general text-to-image",
+      "Research and personal creative work",
+      "Strong prompt following for its size"
+    ],
+    "avoid": [
+      "Commercial use: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.1-dev"
+    ],
+    "notes": "Card text via WebFetch."
+  },
+  "flux1-kontext-dev": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev",
+    "site": null,
+    "uses": [
+      "Instruction edits to existing images",
+      "Keeping a character or object consistent across edits",
+      "Step-by-step edits with little drift"
+    ],
+    "avoid": [
+      "Commercial use of the weights: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev"
+    ],
+    "notes": "Card text via WebFetch."
+  },
+  "flux1-schnell": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell/media/main/schnell_grid.jpeg",
+        "source_page": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+        "caption": "Grid of FLUX.1 schnell sample images",
+        "terms": "repo-licence",
+        "note": "Gated repo: image served via the public /media/ path the card itself uses; /resolve/ needs a login. Licence-gated files, so check terms before hosting a copy."
+      }
+    ],
+    "uses": [
+      "Fast drafts in 1 to 4 steps",
+      "Commercial-friendly Apache-2.0 generation",
+      "General text-to-image"
+    ],
+    "avoid": [
+      "Fine detail: distilled for speed"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.1-schnell"
+    ],
+    "notes": "Card text via WebFetch."
+  },
+  "flux2-dev": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.2-dev",
+    "site": null,
+    "uses": [
+      "Top-end generation and editing",
+      "Multi-reference edits without fine-tuning",
+      "Characters, objects and styles from references"
+    ],
+    "avoid": [
+      "Small GPUs: 32B model",
+      "Commercial use: non-commercial licence"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.2-dev"
+    ],
+    "notes": "Captions are generic: file contents not inspected. Card text via WebFetch."
+  },
+  "flux2-klein-4b": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+    "site": "https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence",
+    "images": [
+      {
+        "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B/resolve/main/realism.jpg",
+        "source_page": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+        "caption": "Realism samples from the FLUX.2 klein card",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B/resolve/main/editing.jpg",
+        "source_page": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+        "caption": "Editing examples from the FLUX.2 klein card",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B/resolve/main/others.jpg",
+        "source_page": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+        "caption": "Other styles from the FLUX.2 klein card",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Real-time, near-instant drafts",
+      "Text-to-image and editing in one model",
+      "Multi-reference edits on a consumer GPU"
+    ],
+    "avoid": [
+      "Small lettering: the 9B card warns rendered text can distort (same family)"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+      "https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence"
+    ],
+    "notes": "Ungated, Apache-2.0 repo files; best-covered entry."
+  },
+  "flux2-klein-9b": {
+    "card": "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B",
+    "site": "https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence",
+    "uses": [
+      "Fast generation in about 4 steps",
+      "Text-to-image and multi-reference editing",
+      "Interactive creative exploration"
+    ],
+    "avoid": [
+      "Commercial use: non-commercial licence",
+      "Accurate small text",
+      "Small GPUs: card cites about 29 GB VRAM"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B"
+    ],
+    "notes": "Same teaser files (identical byte sizes) as the 4B card."
+  },
+  "flux3-klein": {
+    "card": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
+    "site": null,
+    "uses": [
+      "Editing and generation in 16 steps",
+      "Placing elements with bounding boxes",
+      "Composing from up to 10 references"
+    ],
+    "avoid": [
+      "Short prompts: card says they look generic",
+      "Exact pixel control: boxes only guide placement",
+      "Commercial use above 5M USD revenue"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/flux-3-image-klein"
+    ],
+    "notes": "Card text via WebFetch; gallery contents not inspected."
+  },
+  "flux3-klein-base": {
+    "card": "https://huggingface.co/black-forest-labs/flux-3-image-klein-base",
+    "site": null,
+    "uses": [
+      "Fine-tuning and LoRA training",
+      "Research on an undistilled base",
+      "Guidance-based generation at 50 steps"
+    ],
+    "avoid": [
+      "Fast use: card points to the distilled checkpoint",
+      "Short prompts give generic results"
+    ],
+    "sources": [
+      "https://huggingface.co/black-forest-labs/flux-3-image-klein-base"
+    ],
+    "notes": "Card does not claim better quality than the distilled one."
+  },
+  "hidream-o1-dev": {
+    "card": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev/resolve/main/assets/general.webp",
+        "source_page": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev",
+        "caption": "General text-to-image samples up to 2048 px",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev/resolve/main/assets/text-layout.webp",
+        "source_page": "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev",
+        "caption": "Long text and layout rendering samples",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "High-resolution generation up to 2048 px",
+      "Long text and multi-region layouts",
+      "Subject-consistent scenes from references"
+    ],
+    "avoid": [
+      "Low-memory machines: 8B pixel-space model"
+    ],
+    "sources": [
+      "https://huggingface.co/HiDream-ai/HiDream-O1-Image-Dev"
+    ],
+    "notes": "Skipped IP_2.jpg (people) and leaderboard."
+  },
+  "ideogram4": {
+    "card": "https://huggingface.co/ideogram-ai/ideogram-4-fp8",
+    "site": null,
+    "uses": [
+      "Typography, signage and logos",
+      "Layout control with boxes and hex colours",
+      "Posters and design work"
+    ],
+    "avoid": [
+      "Commercial use: non-commercial licence",
+      "Plain prompts: JSON prompts work better"
+    ],
+    "sources": [
+      "https://huggingface.co/ideogram-ai/ideogram-4-fp8"
+    ],
+    "notes": "Gated repo; image is the GitHub copy the card embeds."
+  },
+  "krea2-turbo": {
+    "card": "https://huggingface.co/krea/Krea-2-Turbo",
+    "site": null,
+    "uses": [
+      "Quick concepting in 8 steps",
+      "Design exploration",
+      "Creative and commercial work within the licence"
+    ],
+    "avoid": [
+      "Facts or exact accuracy: card says outputs are unpredictable"
+    ],
+    "sources": [
+      "https://huggingface.co/krea/Krea-2-Turbo"
+    ],
+    "notes": "Gated repo; GitHub copies the card embeds. Repo also lists ~37 image files (not reachable without login)."
+  },
+  "longcat-image": {
+    "card": "https://huggingface.co/meituan-longcat/LongCat-Image",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/meituan-longcat/LongCat-Image/resolve/main/assets/gallery.jpeg",
+        "source_page": "https://huggingface.co/meituan-longcat/LongCat-Image",
+        "caption": "Gallery of LongCat-Image generation examples",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Chinese and English text in images",
+      "Photorealistic scenes",
+      "Efficient 6B generation"
+    ],
+    "avoid": [
+      "Text without quotation marks: card says quotes are needed"
+    ],
+    "sources": [
+      "https://huggingface.co/meituan-longcat/LongCat-Image"
+    ],
+    "notes": ""
+  },
+  "moss-image": {
+    "card": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT/resolve/main/assets/showcase/overview.webp",
+        "source_page": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT",
+        "caption": "Overview of MOSS-Image sample generations",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT/resolve/main/assets/showcase/text-rendering.webp",
+        "source_page": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT",
+        "caption": "Text rendering samples",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT/resolve/main/assets/showcase/layout-bboxes.webp",
+        "source_page": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT",
+        "caption": "Layout control with bounding boxes",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Whiteboard and text-grouped layouts",
+      "JSON layout prompts for object placement",
+      "English and Chinese prompts"
+    ],
+    "avoid": [
+      "Non-NVIDIA setups: the card quick start assumes CUDA"
+    ],
+    "sources": [
+      "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT"
+    ],
+    "notes": ""
+  },
+  "ovis-image": {
+    "card": "https://huggingface.co/ATH-MaaS/Ovis-Image-7B",
+    "site": "https://github.com/AIDC-AI/Ovis-Image",
+    "images": [
+      {
+        "url": "https://cdn-uploads.huggingface.co/production/uploads/636f4c6b5d2050767e4a1491/UFmGxXISVOtOISoDON5wj.png",
+        "source_page": "https://huggingface.co/ATH-MaaS/Ovis-Image-7B",
+        "caption": "Ovis-Image example generations with text",
+        "terms": "card-embedded",
+        "note": "HF user-uploads CDN; the repo has no image files. Taken from the AIDC-AI card."
+      }
+    ],
+    "uses": [
+      "Posters, banners and logos with correct spelling",
+      "UI mockups and infographics",
+      "Text-heavy layouts at 7B size"
+    ],
+    "avoid": [
+      "Quick drafts: card examples use 50 steps"
+    ],
+    "sources": [
+      "https://huggingface.co/ATH-MaaS/Ovis-Image-7B",
+      "https://github.com/AIDC-AI/Ovis-Image"
+    ],
+    "notes": "Card text read from the AIDC-AI README copy; ATH-MaaS repo is the redirect target."
+  },
+  "pixart-sigma": {
+    "card": "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+    "site": "https://github.com/PixArt-alpha/PixArt-sigma",
+    "images": [
+      {
+        "url": "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS/resolve/main/asset/4K_image.jpg",
+        "source_page": "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+        "caption": "Row of PixArt-Sigma samples up to 4K",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Light-memory 1024 px generation",
+      "Up to 2K and 4K single-pass output",
+      "Research on small diffusion transformers"
+    ],
+    "avoid": [
+      "Fine detail: modest model size"
+    ],
+    "sources": [
+      "https://huggingface.co/PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+      "https://github.com/PixArt-alpha/PixArt-sigma"
+    ],
+    "notes": ""
+  },
+  "qwen-image-2-1-turbo": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo",
+    "site": "https://qwen.ai/blog?id=qwen-image-2.1",
+    "uses": [
+      "Fast generation in 8 steps",
+      "Transparent RGBA images",
+      "Editing with up to 10 references"
+    ],
+    "avoid": [
+      "Commercial use: research licence"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo",
+      "https://qwen.ai/blog?id=qwen-image-2.1"
+    ],
+    "notes": "Skipped turbo-portrait (face). Captions inferred from filenames."
+  },
+  "qwen-image-2-1": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image-2.1",
+    "site": "https://qwen.ai/blog?id=qwen-image-2.1",
+    "uses": [
+      "Better typography and layout",
+      "Transparent images and subject extraction",
+      "Local edits from marks or masks"
+    ],
+    "avoid": [
+      "Commercial use: research licence"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image-2.1",
+      "https://qwen.ai/blog?id=qwen-image-2.1"
+    ],
+    "notes": "Captions generic; images not inspected. The repo contains only a QR image."
+  },
+  "qwen-image-edit-2511": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
+    "site": "https://qwenlm.github.io/blog/qwen-image-edit-2511/",
+    "images": [
+      {
+        "url": "https://qianwen-res.oss-accelerate-overseas.aliyuncs.com/Qwen-Image/edit2511/edit2511big.JPG",
+        "source_page": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
+        "caption": "Overview of Qwen-Image-Edit-2511 editing examples",
+        "terms": "card-embedded",
+        "note": "Alibaba OSS, embedded in card; the card also has 9 more slide images."
+      }
+    ],
+    "uses": [
+      "Edits that keep people and subjects consistent",
+      "Industrial and product design edits",
+      "Multi-image edits with less drift"
+    ],
+    "avoid": [
+      "Weak hardware: large model"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
+      "https://qwenlm.github.io/blog/qwen-image-edit-2511/"
+    ],
+    "notes": "Repo has no image files."
+  },
+  "qwen-image": {
+    "card": "https://huggingface.co/Qwen/Qwen-Image",
+    "site": "https://qwenlm.github.io/blog/qwen-image/",
+    "images": [
+      {
+        "url": "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-Image/merge3.jpg",
+        "source_page": "https://huggingface.co/Qwen/Qwen-Image",
+        "caption": "Montage of Qwen-Image samples",
+        "terms": "card-embedded",
+        "note": "Alibaba OSS, embedded in card."
+      },
+      {
+        "url": "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-Image/s1.jpg",
+        "source_page": "https://huggingface.co/Qwen/Qwen-Image",
+        "caption": "Qwen-Image text rendering sample",
+        "terms": "card-embedded",
+        "note": "Alibaba OSS."
+      }
+    ],
+    "uses": [
+      "Complex text rendering in images",
+      "Chinese and English signs and posters",
+      "General generation under Apache-2.0"
+    ],
+    "avoid": [
+      "Small GPUs: 20B model"
+    ],
+    "sources": [
+      "https://huggingface.co/Qwen/Qwen-Image",
+      "https://qwenlm.github.io/blog/qwen-image/"
+    ],
+    "notes": "Repo has no image files."
+  },
+  "realvisxl-v5": {
+    "card": "https://huggingface.co/SG161222/RealVisXL_V5.0",
+    "site": null,
+    "images": [],
+    "uses": [
+      "Photorealistic scenes",
+      "SDXL-based photos with upscaling workflows"
+    ],
+    "avoid": [
+      "Text in images",
+      "Strictly safe-for-work use: card says it can make NSFW"
+    ],
+    "sources": [
+      "https://huggingface.co/SG161222/RealVisXL_V5.0"
+    ],
+    "notes": "No example images in repo or card; sample gallery is on CivitAI (third-party, not fetched)."
+  },
+  "sd-turbo": {
+    "card": "https://huggingface.co/stabilityai/sd-turbo",
+    "site": null,
+    "uses": [
+      "Near real-time 512 px drafts",
+      "Studying small distilled models"
+    ],
+    "avoid": [
+      "Detail and prompt accuracy: card suggests SDXL-Turbo",
+      "Commercial use: needs Stability licence"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/sd-turbo"
+    ],
+    "notes": ""
+  },
+  "sd15": {
+    "card": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
+    "site": null,
+    "images": [],
+    "uses": [
+      "Small, quick 512 px generation",
+      "Large ecosystem of tools and add-ons"
+    ],
+    "avoid": [
+      "High resolution or accurate text"
+    ],
+    "sources": [
+      "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5"
+    ],
+    "notes": "Card is a mirror of the deprecated RunwayML repo; no example images (only a Pareto chart)."
+  },
+  "sd35-large": {
+    "card": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large",
+    "site": null,
+    "uses": [
+      "Better composition and typography",
+      "Complex prompts",
+      "Local use via Diffusers or ComfyUI"
+    ],
+    "avoid": [
+      "Factual depictions of real people or events",
+      "Commercial use above 1M USD revenue without enterprise licence"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/stable-diffusion-3.5-large"
+    ],
+    "notes": "Caption generic: image not inspected."
+  },
+  "sd35-medium": {
+    "card": "https://huggingface.co/stabilityai/stable-diffusion-3.5-medium",
+    "site": null,
+    "uses": [
+      "Text rendering on modest hardware",
+      "Varied sizes and aspect ratios",
+      "Efficient local generation"
+    ],
+    "avoid": [
+      "Long prompts: past 256 tokens edges may break",
+      "Factual depictions of people"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/stable-diffusion-3.5-medium"
+    ],
+    "notes": "Caption generic: image not inspected."
+  },
+  "sdxl-turbo": {
+    "card": "https://huggingface.co/stabilityai/sdxl-turbo",
+    "site": null,
+    "uses": [
+      "Real-time 512 px generation in 1 to 4 steps",
+      "Fast previews for prompt exploration"
+    ],
+    "avoid": [
+      "Commercial use: needs Stability licence"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/sdxl-turbo"
+    ],
+    "notes": ""
+  },
+  "sdxl": {
+    "card": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
+    "site": null,
+    "images": [
+      {
+        "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/01.png",
+        "source_page": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
+        "caption": "SDXL base sample images from the card",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "General 1024 px generation",
+      "Base for fine-tunes and refiner pipelines"
+    ],
+    "avoid": [
+      "Text in images"
+    ],
+    "sources": [
+      "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+    ],
+    "notes": ""
+  },
+  "z-image-turbo": {
+    "card": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+    "site": "https://github.com/Tongyi-MAI/Z-Image",
+    "images": [
+      {
+        "url": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo/resolve/main/assets/showcase_rendering.png",
+        "source_page": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+        "caption": "English and Chinese text rendering samples",
+        "terms": "repo-licence"
+      },
+      {
+        "url": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo/resolve/main/assets/showcase_realistic.png",
+        "source_page": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+        "caption": "Photorealistic samples; may include generated portraits",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Fast photorealism in 8 steps",
+      "Bilingual English and Chinese text",
+      "Runs on consumer GPUs"
+    ],
+    "avoid": [
+      "Negative prompts: Turbo follows them less than the base"
+    ],
+    "sources": [
+      "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+      "https://github.com/Tongyi-MAI/Z-Image"
+    ],
+    "notes": "The negative-prompt point is inferred from the Z-Image base card contrast."
+  },
+  "z-image": {
+    "card": "https://huggingface.co/Tongyi-MAI/Z-Image",
+    "site": "https://tongyi-mai.github.io/Z-Image-blog/",
+    "images": [
+      {
+        "url": "https://huggingface.co/Tongyi-MAI/Z-Image/resolve/main/teaser.jpg",
+        "source_page": "https://huggingface.co/Tongyi-MAI/Z-Image",
+        "caption": "Teaser of Z-Image samples",
+        "terms": "repo-licence"
+      }
+    ],
+    "uses": [
+      "Varied outputs across seeds",
+      "Negative prompting and full guidance",
+      "Base for LoRAs and ControlNet"
+    ],
+    "avoid": [
+      "Speed: undistilled, slower than Turbo"
+    ],
+    "sources": [
+      "https://huggingface.co/Tongyi-MAI/Z-Image",
+      "https://tongyi-mai.github.io/Z-Image-blog/"
+    ],
+    "notes": ""
+  }
+}

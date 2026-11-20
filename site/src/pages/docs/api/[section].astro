@@ -1,0 +1,12 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { apiDocs, type ApiSection } from '../../../lib/docs';
+
+export function getStaticPaths() {
+  return apiDocs().sections.map((s) => ({ params: { section: s.slug }, props: { s } }));
+}
+const { s } = Astro.props as { s: ApiSection };
+---
+<DocsLayout title={s.title} description={`HTTP API: ${s.title}.`} toc={s.heads} api>
+  <Fragment set:html={s.html} />
+</DocsLayout>

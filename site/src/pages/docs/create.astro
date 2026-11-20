@@ -1,0 +1,29 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BIN, PRODUCT_NAME } from '../../config';
+---
+<DocsLayout title="Make and edit" description={`Make an image from words, or change one you have, on your own graphics card.`}
+  toc={[{ id: 'generate', label: 'Make an image' }, { id: 'auto', label: 'Auto' }, { id: 'edit', label: 'Edit an image' }, { id: 'recipe', label: 'Every print has a recipe' }]}>
+  <p>Studio's <strong>Create</strong> page works like a chat: type at the bottom, and the prints appear above, newest last. Everything is made on this computer.</p>
+
+  <h2 id="generate">Make an image</h2>
+  <p>Describe what you want in plain words and press <strong>Develop</strong> (or <kbd>Ctrl</kbd>+<kbd>Enter</kbd>). Pick a shape (square, landscape, portrait) and how many images. You can type the next idea while one develops.</p>
+  <p>Under each print: <strong>Vary</strong> makes another with a new seed, <strong>Same seed</strong> keeps the seed so you can change the words, <strong>Copy recipe</strong> copies everything needed to make it again, and <strong>Edit this</strong> starts an edit from it. Advanced settings (seed, steps, guidance, negative prompt, an exact size) are behind the sliders button.</p>
+
+  <h2 id="auto">Auto</h2>
+  <p>You don't have to pick a model. <strong>Auto</strong>, the default in the model switcher, picks one for each image and says why in one line under the prompt box, for example <em>"Auto picked Z-Image Turbo: already loaded, best text, about 19 s here"</em>.</p>
+  <p>Auto only picks models that are installed, that {PRODUCT_NAME} has measured on real hardware, and that run on this machine. It prefers the model that's already loaded, so it doesn't switch for nothing, and the same situation always gives the same pick. It never downloads anything by itself: when nothing installed can do the job, the line says which model to get and how big it is.</p>
+  <p>To use a particular model instead, open the switcher and choose it. The CLI does the same: <code>{BIN} run "…"</code> uses Auto and prints its reason; <code>--model</code> picks one.</p>
+
+  <h2 id="edit">Edit an image</h2>
+  <p>Switch the prompt box to <strong>Edit</strong>, add an image, and say what should change: <em>"make it night"</em>, <em>"the sign says OPEN LATE"</em>, <em>"put this hat on the cat"</em>. The rest of the picture is kept.</p>
+  <ul>
+    <li><strong>Adding the image.</strong> Drop it anywhere on Create, paste it into the prompt box, choose a file, pick one from your Library, or use <strong>Edit this</strong> under a print.</li>
+    <li><strong>Reference images.</strong> Add more images to borrow from (a hat, a style, a face you have permission to use). Up to nine references.</li>
+    <li><strong>Shape.</strong> <strong>Original</strong> keeps the image's own shape; the other shapes crop to theirs.</li>
+  </ul>
+  <p>Edits show <strong>Original | Edit</strong> side by side. In the Library an edit remembers what it was edited from. Auto picks an editing model the same way it picks one for making images; FLUX.2 klein 4B is the fast one, Qwen-Image-Edit the most careful (and much slower on 8 GB cards). From the CLI: <code>{BIN} run "make it night" --image photo.png</code>.</p>
+
+  <h2 id="recipe">Every print has a recipe</h2>
+  <p>Each print is saved as a PNG with its recipe inside: prompt, model, seed, steps, size and time. The film-edge caption under a print shows it, and <strong>Copy recipe</strong> gives you the exact command to make it again.</p>
+</DocsLayout>

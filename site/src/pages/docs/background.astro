@@ -1,0 +1,25 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BIN, PRODUCT_NAME } from '../../config';
+---
+<DocsLayout title="Tray and updates" description={`${PRODUCT_NAME} in the background: the tray icon, starting when you sign in, and updates.`}
+  toc={[{ id: 'tray', label: 'The tray icon' }, { id: 'sign-in', label: 'Start when you sign in' }, { id: 'updates', label: 'Updates' }, { id: 'cli-updates', label: 'Updating the CLI' }]}>
+  <p>{PRODUCT_NAME} can keep running when its window is closed, so downloads continue and agents can still make images. All of this is in Settings → <strong>Tray and updates</strong>.</p>
+
+  <h2 id="tray">The tray icon</h2>
+  <p>While {PRODUCT_NAME} runs, its tile sits in the tray by the clock. Its menu shows each download in progress, what the graphics card is doing (idle, developing, or which model is loaded), <strong>Open Dawnroom</strong> and <strong>Quit Dawnroom</strong>.</p>
+  <p>Closing the window hides {PRODUCT_NAME} to the tray; the first time, it says so. <strong>Quit Dawnroom</strong> stops the engine, frees the graphics card and system memory, and closes the app. A download in progress keeps what it has and resumes later.</p>
+
+  <h2 id="sign-in">Start when you sign in</h2>
+  <p>Off unless you turn it on, in the first-run setup or in Settings. {PRODUCT_NAME} then opens quietly in the tray when you sign in to Windows, without a window. Uninstalling removes it.</p>
+
+  <h2 id="updates">Updates</h2>
+  <p>With <strong>Update automatically</strong> on (the default), once a day {PRODUCT_NAME} asks the latest release on GitHub whether there's a newer version, and if there is, downloads it in the background. Each update is signed, and the signature is checked before it can install. This check is the only network call {PRODUCT_NAME} makes on its own; nothing about you or your images is sent.</p>
+  <p>When an update is ready, the title bar says <em>"Dawnroom 0.1.1 is ready · Restart to update"</em>. Restarting installs it and opens the new version. It never installs while an image develops or a model downloads; if you leave it, it installs the next time you quit from the tray. Studio, the engine and the <code>{BIN}</code> command update together. Your models, prints and settings stay as they are.</p>
+  <p>Turn <strong>Update automatically</strong> off and {PRODUCT_NAME} makes no network calls of its own. You can still get a new version from the <a href="/download">download page</a>.</p>
+
+  <h2 id="cli-updates">Updating the CLI</h2>
+  <p>If you installed only the command line (<code>install.ps1 --cli</code> or <code>install.sh --cli</code>), or the Linux tarball, update it with:</p>
+  <pre><code>{BIN} update</code></pre>
+  <p>It downloads the latest release, checks it against the release's checksums before anything changes, stops the engine and swaps the files. Installs that came with Studio update from Studio instead, and the command says so.</p>
+</DocsLayout>

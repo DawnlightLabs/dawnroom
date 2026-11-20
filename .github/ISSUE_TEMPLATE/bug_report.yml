@@ -1,0 +1,40 @@
+name: Bug report
+description: Something in Dawnroom (Studio, CLI, MCP, installer) doesn't work.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, what you got. Screenshots help.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11 24H2, Ubuntu 22.04, ...
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU and driver
+      placeholder: RTX 4070 (driver 572.83), Radeon RX 7600, Intel Arc, none ...
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `dawnroom doctor`
+      description: Run `dawnroom doctor` in a terminal and paste the whole result. It's Markdown, ready for an issue.
+      render: markdown
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      options: [Studio, CLI, MCP server, Installer, Install script, Other]
+    validations:
+      required: true

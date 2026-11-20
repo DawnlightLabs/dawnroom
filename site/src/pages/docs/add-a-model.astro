@@ -1,0 +1,83 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { BIN, PRODUCT_NAME } from '../../config';
+
+const forms = [
+  ['user/model', 'unsloth/Z-Image-Turbo-GGUF', 'The copy button next to the name on Hugging Face.'],
+  ['The model page', 'https://huggingface.co/unsloth/Z-Image-Turbo-GGUF', 'From the address bar, with or without /tree/main.'],
+  ['A file link', 'https://huggingface.co/unsloth/Z-Image-Turbo-GGUF/blob/main/z-image-turbo-Q4_K_M.gguf', 'Picks that size. …/resolve/… download links work too.'],
+  ['hf.co', 'hf.co/unsloth/Z-Image-Turbo-GGUF:z-image-turbo-Q4_K_M.gguf', 'The short form the CLI prints.'],
+];
+const places = [
+  ['Hugging Face cache', 'Windows: %USERPROFILE%\\.cache\\huggingface\\hub. Linux: ~/.cache/huggingface/hub. (Or HF_HOME / HF_HUB_CACHE.)'],
+  ['ComfyUI', 'Windows: %USERPROFILE%\\ComfyUI\\models, Documents\\ComfyUI\\models, C:\\ComfyUI\\models, D:\\ComfyUI\\models. Linux: ~/ComfyUI/models, ~/Documents/ComfyUI/models.'],
+  ['A1111 / Forge', 'The stable-diffusion-webui, stable-diffusion-webui-forge and sd-webui-forge folders in your home folder (models/Stable-diffusion).'],
+  ['Stability Matrix', 'Windows: %APPDATA%\\StabilityMatrix\\Models. Linux: ~/.local/share/StabilityMatrix/Models.'],
+  ['Downloads', 'Your Downloads folder (two levels deep).'],
+];
+const refusals = [
+  ['A LoRA', 'It changes a model’s style; it isn’t a model on its own. Not supported yet.'],
+  ['A language model (LLM)', 'Some image models use one as their text encoder; Dawnroom adds the right one itself.'],
+  ['A text encoder or VAE alone', 'Add the model they belong to instead.'],
+  ['.ckpt, .bin, .pt, .pth', 'Python pickle files can run code when loaded, so they’re never opened. Look for a .safetensors or .gguf version.'],
+  ['bitsandbytes (NF4, INT8 bnb), NVFP4, torchao, ComfyUI FP8', 'Formats the engine can’t load yet. The size list folds them away; pick a GGUF or a plain .safetensors.'],
+  ['Gated repos', 'Repos that need a Hugging Face login aren’t supported yet.'],
+  ['Video, inpainting and control models', 'Not in this version.'],
+];
+---
+<DocsLayout title="Add a model" description={`Bring an image model that isn't in ${PRODUCT_NAME}'s list: from Hugging Face, or a file you already downloaded.`}
+  toc={[{ id: 'from-hugging-face', label: 'From Hugging Face' }, { id: 'sizes', label: 'Choosing a size' }, { id: 'from-this-computer', label: 'From this computer' }, { id: 'the-check', label: 'What gets checked' }, { id: 'test-image', label: 'The test image' }, { id: 'cant-run', label: 'When it can’t run' }, { id: 'cli', label: 'From the CLI' }]}>
+  <p>{PRODUCT_NAME}'s library lists well-known models it has checked. Anything else you can add yourself: in Studio, open <strong>Models</strong> and choose <strong>Add a model</strong>. There are two ways in.</p>
+
+  <h2 id="from-hugging-face">From Hugging Face</h2>
+  <p>Paste whatever you copied. All of these work:</p>
+  <table>
+    <thead><tr><th>What you copied</th><th>Example</th><th></th></tr></thead>
+    <tbody>{forms.map(([w, e, n]) => <tr><td>{w}</td><td><code>{e}</code></td><td>{n}</td></tr>)}</tbody>
+  </table>
+  <p>The repo must be public and not gated. {PRODUCT_NAME} then shows who made the model, what it's based on, its licence and how often it's been downloaded.</p>
+
+  <h2 id="sizes">Choosing a size</h2>
+  <p>Many repos offer one model in several sizes, called quantisations: <code>Q4_K_M</code>, <code>Q8_0</code>, <code>BF16</code> and so on. The number is roughly the bits per weight. Fewer bits mean a smaller download and less memory, with a little less detail.</p>
+  <p>The sizes are grouped by bits, like Hugging Face's own panel. Each row shows its download size and how it fits this machine: <strong>Fits</strong> (on the GPU), <strong>RAM offload</strong> (runs, slower, using system memory too) or <strong>Too big</strong>. One is marked <strong>Recommended for this machine</strong> and picked for you: the largest that fits on the GPU, else the smallest that runs with RAM offload. Fit is an estimate from the file sizes, since nobody has measured a custom model on your card.</p>
+  <p>Files in formats the engine can't load yet fold into one line at the bottom, each with its reason.</p>
+
+  <h2 id="from-this-computer">From this computer</h2>
+  <p>Already downloaded a model for another tool? Choose the file, or paste its path. Paste a folder's path to list the image models in it. When the card opens, {PRODUCT_NAME} also looks in the usual places on its own:</p>
+  <table>
+    <thead><tr><th>Where</th><th>Folders</th></tr></thead>
+    <tbody>{places.map(([w, f]) => <tr><td>{w}</td><td><code>{f}</code></td></tr>)}</tbody>
+  </table>
+  <p>It lists only image models (language models, text encoders, VAEs and LoRAs are left out) and says which ones are already added or are the same file as a model in the library. Adding one makes a <em>hard link</em> into {PRODUCT_NAME}'s models folder when it's on the same drive, so it takes no extra space and the original stays where it is. On another drive it's copied.</p>
+  <p>In the desktop app you can also drop a <code>.gguf</code> or <code>.safetensors</code> file anywhere on the Models page: Add a model opens and checks it.</p>
+
+  <h2 id="the-check">What gets checked</h2>
+  <p>Before anything downloads, {PRODUCT_NAME} reads only the start of the file (a few hundred KB) and checks, in order:</p>
+  <ol>
+    <li><strong>Source.</strong> A public repo, or a file that exists.</li>
+    <li><strong>Format.</strong> <code>.gguf</code> or <code>.safetensors</code>.</li>
+    <li><strong>Architecture.</strong> What the model is, from its tensor names: SDXL, FLUX, Z-Image, Qwen-Image…</li>
+    <li><strong>Text encoder and VAE.</strong> Most models need these extras. They come from the matching model in the library and are shared with models you already have.</li>
+    <li><strong>Size and memory.</strong> What it adds to your disk, and how it fits your GPU.</li>
+    <li><strong>Licence.</strong> From the model card, shown as written. Check it before using images commercially.</li>
+  </ol>
+  <p>The card shows one answer, for example <em>Runs on your machine with RAM offload · 9.9 GB to download</em>. The six checks are under <strong>Details</strong>.</p>
+
+  <h2 id="test-image">The test image</h2>
+  <p>After the download, {PRODUCT_NAME} makes one small test image (512 px, a red apple, seed 42). It develops right in the card. When it comes out, the model is ready: <strong>Try it</strong> opens Create with it selected. If the test fails, the files stay so you can try again, or remove it.</p>
+  <p>Custom models stay on your machine, are labelled <em>Custom, not reviewed by {PRODUCT_NAME}</em>, and sit on their own <strong>Your models</strong> shelf. Auto never picks them: choose them in the model switcher.</p>
+
+  <h2 id="cant-run">When it can't run</h2>
+  <p>Nothing downloads, and the card says in one sentence what the file is and what to do instead:</p>
+  <table>
+    <thead><tr><th>It's…</th><th>Why, and what to do</th></tr></thead>
+    <tbody>{refusals.map(([w, d]) => <tr><td>{w}</td><td>{d}</td></tr>)}</tbody>
+  </table>
+
+  <h2 id="cli">From the CLI</h2>
+  <pre><code>{BIN} pull unsloth/Z-Image-Turbo-GGUF        # any form above; asks which size
+{BIN} import D:\ComfyUI\models\checkpoints\my-model.safetensors
+{BIN} import D:\ComfyUI\models                 # lists the image models in a folder
+{BIN} import                                   # lists the ones in the usual places</code></pre>
+  <p>Each asks before it downloads anything. See <a href="/docs/cli#custom-models">CLI</a> for every flag.</p>
+</DocsLayout>
