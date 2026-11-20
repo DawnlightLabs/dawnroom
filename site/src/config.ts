@@ -16,8 +16,8 @@ export const LICENCE = 'Apache-2.0';
 export const REPO_URL = 'https://github.com/DawnlightLabs/dawnroom';
 
 /** The Windows installer ships with the v0.1 release. Until it exists this stays null and the site says so. */
-export const DOWNLOAD_URL: string | null = null;
-export const DOWNLOAD_URL_LINUX: string | null = null;
+export const DOWNLOAD_URL: string | null = 'https://github.com/DawnlightLabs/dawnroom/releases/download/v0.1.0/Dawnroom_0.1.0_x64-setup.exe';
+export const DOWNLOAD_URL_LINUX: string | null = 'https://github.com/DawnlightLabs/dawnroom/releases/download/v0.1.0/Dawnroom_0.1.0_amd64.AppImage';
 
 export const ENGINE_PORT = 8420;
 
