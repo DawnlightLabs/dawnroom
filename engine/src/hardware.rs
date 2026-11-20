@@ -99,20 +99,17 @@ pub struct Hardware {
     pub simulated: Option<String>,
 }
 
-/// The glibc this process runs on (`2.35`), on Linux; `None` elsewhere (and on musl).
-#[cfg(target_os = "linux")]
+/// The glibc this process runs on (`2.35`), on Linux with glibc; `None` elsewhere (and on musl).
+#[cfg(all(target_os = "linux", target_env = "gnu"))]
 fn glibc_version() -> Option<String> {
-    #[cfg(target_env = "gnu")]
-    {
-        // SAFETY: gnu_get_libc_version returns a pointer to a static NUL-terminated string.
-        let p = unsafe { libc::gnu_get_libc_version() };
-        return Some(unsafe { std::ffi::CStr::from_ptr(p) }.to_string_lossy().into_owned());
-    }
-    #[cfg(not(target_env = "gnu"))]
+    // SAFETY: gnu_get_libc_version returns a pointer to a static NUL-terminated string.
+    let p = unsafe { libc::gnu_get_libc_version() };
+    Some(unsafe { std::ffi::CStr::from_ptr(p) }.to_string_lossy().into_owned())
+}
+#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
+fn glibc_version() -> Option<String> {
     None
 }
-#[cfg(not(target_os = "linux"))]
-fn glibc_version() -> Option<String> { None }
 
 /// Everything at once. Runs a few small commands; call it once at start.
 pub async fn detect() -> Hardware {
