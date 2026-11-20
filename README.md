@@ -28,7 +28,7 @@ ChatGPT and Gemini made image generation effortless. Running open models on your
 - **MCP server**: agents like Claude Code and Codex can generate and edit images for you.
 - **OpenAI-compatible API** on `localhost`, so existing scripts and tools work as they are.
 
-> **Status:** pre-release. v0.1 is close. Installers will be attached to the [releases](https://github.com/DawnlightLabs/dawnroom/releases); until then you can build from source (see [Build from source](#build-from-source)).
+> **Status:** v0.1.0 is out (2026-11-20). Windows is supported; Linux is experimental and needs glibc 2.43 or newer. Download it from the [latest release](https://github.com/DawnlightLabs/dawnroom/releases/latest) or use the install commands below. You can also build from source (see [Build from source](#build-from-source)).
 
 ## Install
 
@@ -291,7 +291,7 @@ OpenAI-compatible API ──┘        Auto · fit · model registry · storage
 
 ## Roadmap
 
-- **v0.1**: local generate and edit, Studio, CLI, MCP, installers for Windows and Linux.
+- **v0.1** (released): local generate and edit, Studio, CLI, MCP, installers for Windows and Linux.
 - **v0.2 Director**: an agent that plans prompts, makes variations, reviews them and refines, with your own API keys or a local model. Plus open, shareable Recipes for multi-step workflows.
 - **v0.3 Video**: local video generation on small GPUs, and cloud video with your own keys.
 - **Running tracks**: macOS, more GPUs, more models, community measurements with `dawnroom bench`.
